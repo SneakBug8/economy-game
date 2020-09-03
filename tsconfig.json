@@ -1,16 +1,21 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "declaration": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "target": "es6",
-    "sourceMap": true,
-    "outDir": "./dist",
-    "baseUrl": "./",
-    "incremental": true,
-    "resolveJsonModule" : true
+      "outDir": "./bin/", // path to output directory
+      "baseUrl": "./src",
+      // "strictNullChecks": true, // enable strict null checks as a best practice
+      "module": "commonjs", // specify module code generation
+      "target": "es2015", // specify ECMAScript target version
+      "rootDir": "src",
+      "types": ["node"],
+      // "strict": true,
+      "incremental": true,
+      "pretty": true,
+      "sourceMap": false,
+      "declaration": false,
+      "resolveJsonModule": true
+
   },
-  "exclude": ["node_modules"]
+  "include": [
+      "src/**/*"
+  ]
 }
