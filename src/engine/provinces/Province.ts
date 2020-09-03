@@ -7,7 +7,7 @@ export class Province extends UpdatedEntity {
     Id: number;
     RGO: RGO;
     Country: Country;
-    ProvincialEntities: ProvincialEntity[];
+    ProvincialEntities: ProvincialEntity[] = new Array<ProvincialEntity>();
 
     public Start(): void
     {
@@ -26,5 +26,13 @@ export class Province extends UpdatedEntity {
     }
 
     public Update(): void {
+    }
+
+    public Get(classname: string): ProvincialEntity {
+        for (const object of this.ProvincialEntities) {
+            if (object.Class.includes(classname)) {
+                return object;
+            }
+        }
     }
 }

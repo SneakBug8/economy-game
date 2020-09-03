@@ -2,6 +2,7 @@ import { UpdatedEntity } from "./updatedentity";
 
 export class UpdateAlgorithm {
     public StartOrder: string[] = [
+        "GoodsClass",
         "ProvincesClass",
         "CountriesClass",
         "UpdatedEntity",
@@ -15,7 +16,6 @@ export class UpdateAlgorithm {
         const initialized = new Array<UpdatedEntity>();
         for (const classname of this.StartOrder) {
             for (const object of UpdatedEntity.All) {
-                console.log(object.Class + " " + object.Name);
                 if (object.Class.includes(classname) && !initialized.includes(object)) {
                     object.Start();
                     initialized.push(object);

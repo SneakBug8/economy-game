@@ -1,11 +1,34 @@
 import { Good } from "./Good";
 import goods = require("./goods.json");
+import { UpdatedEntity } from "engine/updatedentity";
 
-class GoodsClass {
+class GoodsClass extends UpdatedEntity {
+
     Goods: Good[];
 
     public constructor() {
-        this.Goods = goods as Good[];
+        super();
+
+        this.addClass("GoodsClass");
+    }
+
+    public Start(): void
+    {
+        for (const good of goods) {
+            this.Goods.push(this.ReadGood(good));
+        }
+    }
+    public Update(): void
+    {
+    }
+
+    public ReadGood(good: any): Good {
+        const res = new Good();
+        res.Id = good.Id;
+        res.Name = good.Name;
+        res.Price = good.BasePrice;
+
+        return res;
     }
 
     public GetById(id: number): Good {
