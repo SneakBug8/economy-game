@@ -1,4 +1,4 @@
-import countries = require("./countries.json");
+import countries = require("../../../data/countries.json");
 import { Country } from "./Country.js";
 import { Provinces } from "../provinces/Provinces.js";
 import { UpdatedEntity } from "../updatedentity.js";

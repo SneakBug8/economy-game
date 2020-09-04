@@ -1,6 +1,6 @@
 import { Province } from "./province";
 
-import provinces = require("./provinces.json");
+import provinces = require("../../../data/provinces.json");
 import { UpdatedEntity } from "../updatedentity";
 import { Populations } from "engine/pops/Populations";
 

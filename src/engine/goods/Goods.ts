@@ -1,5 +1,5 @@
 import { Good } from "./Good";
-import goods = require("./goods.json");
+import goods = require("../../../data/goods.json");
 import { UpdatedEntity } from "engine/updatedentity";
 
 class GoodsClass extends UpdatedEntity {
