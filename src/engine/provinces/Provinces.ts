@@ -1,12 +1,8 @@
 import { Province } from "./province";
 
 import provinces = require("./provinces.json");
-import { Aristocrats } from "../pops/types/Aristocrats";
-import { Bureucrats } from "../pops/types/Bureucrats";
-import { Farmers } from "../pops/types/Farmers";
-import { Miners } from "../pops/types/Miners";
-import { Workers } from "../pops/types/Workers";
 import { UpdatedEntity } from "../updatedentity";
+import { Populations } from "engine/pops/Populations";
 
 class ProvincesClass extends UpdatedEntity {
     Provinces: Province[] = new Array<Province>();
@@ -31,18 +27,13 @@ class ProvincesClass extends UpdatedEntity {
 
         res.Id = province.Id;
         res.Name = province.Name;
+
+        if (province.Cash) {
+            res.Cash.Amount += province.Cash;
+        }
+
         for (const pop of province.Pops) {
-            if (pop.type === "aristocrats") {
-                res.Add(new Aristocrats());
-            } else if (pop.type === "bureucrats") {
-                res.Add(new Bureucrats());
-            } else if (pop.type === "farmers") {
-                res.Add(new Farmers());
-            } else if (pop.type === "miners") {
-                res.Add(new Miners());
-            } else if (pop.type === "workers") {
-                res.Add(new Workers());
-            }
+            res.Add(Populations.ReadPopulation(pop));
         }
         return res;
     }

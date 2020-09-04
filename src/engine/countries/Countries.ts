@@ -27,6 +27,11 @@ class CountriesClass extends UpdatedEntity {
         const res = new Country();
         res.Id = country.Id;
         res.Name = country.Name;
+
+        if (country.Cash) {
+            res.Cash.Amount += country.Cash;
+        }
+
         for (const provinceid of country.ProvincesIds) {
             res.Add(Provinces.GetById(provinceid));
         }

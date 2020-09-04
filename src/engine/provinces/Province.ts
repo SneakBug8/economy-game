@@ -2,12 +2,14 @@ import { ProvincialEntity } from "./ProvincialEntity";
 import { UpdatedEntity } from "../updatedentity";
 import { RGO } from "./RGO";
 import { Country } from "engine/countries/Country";
+import { CashPile } from "engine/CashPile";
 
 export class Province extends UpdatedEntity {
     Id: number;
     RGO: RGO;
     Country: Country;
     ProvincialEntities: ProvincialEntity[] = new Array<ProvincialEntity>();
+    Cash: CashPile = new CashPile();
 
     public Start(): void
     {
