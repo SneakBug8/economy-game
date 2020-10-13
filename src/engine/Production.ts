@@ -8,15 +8,15 @@ export class Production
     public static async Run(): Promise<void>
     {
         for (const factory of await Factory.All()) {
-            const recipe = Recipes[factory.RecipeId] as Recipe;
+            const recipe = Recipes.GetById(factory.RecipeId);
 
             if (!recipe) {
                 return;
             }
 
+            console.log("Found recipe");
+
             let reciperepeats = factory.employeesCount / recipe.employeesneeded;
-
-
 
             for (const input of recipe.Requisites) {
                 const storageentry = await Storage.GetWithGoodAndFactory(factory, input.Good);
@@ -32,7 +32,10 @@ export class Production
                 }
             }
 
+            console.log(reciperepeats);
+
             for (const input of recipe.Requisites) {
+                await Storage.TakeGoodFrom(factory, input.Good, reciperepeats * input.amount);
             }
 
             for (const output of recipe.Results) {
