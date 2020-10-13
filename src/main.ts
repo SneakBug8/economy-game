@@ -5,6 +5,7 @@
 
 import {Load} from "./moduleloader";
 import { Recipes } from "engine/Recipes";
+import { Runner } from "Runner";
 
 async function bootstrap() {
   // const app = await NestFactory.create(AppModule);
@@ -14,6 +15,8 @@ async function bootstrap() {
   console.log("Starting game server");
 
   await Load();
+
+  await Runner.Init();
 
   require("console/main");
 

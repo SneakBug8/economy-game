@@ -8,10 +8,12 @@ import { Production } from "engine/Production";
 import { Market } from "engine/Market";
 
 export class Runner {
-    public static async Turn() {
+    public static async Init() {
         Turns.Init();
         Recipes.Init();
+    }
 
+    public static async Turn() {
         Production.Run();
         Market.Run();
         // for each player
