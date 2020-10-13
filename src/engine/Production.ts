@@ -2,6 +2,8 @@ import { Factory } from "entity/Factory";
 import { Recipes, Recipe } from "./Recipes";
 import { Storage } from "entity/Storage";
 import { Player } from "entity/Player";
+import { LogRecord } from "entity/LogRecord";
+import { Turns } from "./Turns";
 
 export class Production
 {
@@ -11,10 +13,8 @@ export class Production
             const recipe = Recipes.GetById(factory.RecipeId);
 
             if (!recipe) {
-                return;
+                continue;
             }
-
-            console.log("Found recipe");
 
             let reciperepeats = factory.employeesCount / recipe.employeesneeded;
 
@@ -32,7 +32,7 @@ export class Production
                 }
             }
 
-            console.log(reciperepeats);
+            const player = await Player.GetWithFactory(factory.id);
 
             for (const input of recipe.Requisites) {
                 await Storage.TakeGoodFrom(factory, input.Good, reciperepeats * input.amount);
@@ -40,6 +40,7 @@ export class Production
 
             for (const output of recipe.Results) {
                 await Storage.AddGoodTo(factory, output.Good, reciperepeats * output.amount);
+                LogRecord.Log(player, Turns.CurrentTurn, "Produced " + reciperepeats * output.amount + " items");
                 // Market.AddToStorage(player.Actor, output.Good, reciperepeats * output.amount);
             }
         }

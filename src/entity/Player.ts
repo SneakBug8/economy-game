@@ -80,8 +80,6 @@ export class Player
     public static async Count(): Promise<number> {
         const data = await PlayerRepository().count("id as c").first() as any;
 
-        console.log(data);
-
         if (data) {
             return data.c;
         }
@@ -154,6 +152,16 @@ export class Player
         }
 
         return [];
+    }
+
+    public static async HasCash(id: number, amount: number): Promise<boolean> {
+        const player = await Player.GetById(id);
+
+        if (player.cash >= amount) {
+            return true;
+        }
+
+        return false;
     }
 }
 

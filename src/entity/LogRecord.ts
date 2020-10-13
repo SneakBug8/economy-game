@@ -60,7 +60,11 @@ export class LogRecord {
 
     public static async Update(record: LogRecord): Promise<number>
     {
-        const d = await LogRecordRepository().where("id", record.id).update(record);
+        const d = await LogRecordRepository().where("id", record.id).update({
+            playerId: record.playerId,
+            turnId: record.turnId,
+            text: record.text,
+        });
 
         return d[0];
     }
@@ -68,7 +72,11 @@ export class LogRecord {
 
     public static async Insert(record: LogRecord): Promise<number>
     {
-        const d = await LogRecordRepository().insert(record);
+        const d = await LogRecordRepository().insert({
+            playerId: record.playerId,
+            turnId: record.turnId,
+            text: record.text,
+        });
 
         record.id = d[0];
 
