@@ -44,8 +44,8 @@ export class Storage
     {
         const data = await StorageRepository()
         .select()
-        .where("factory_id", factory.id)
-        .andWhere("good_id", good.id)
+        .where("factoryId", factory.id)
+        .andWhere("goodId", good.id)
         .first();
 
         if (data) {
@@ -80,7 +80,11 @@ export class Storage
         record.factoryId = record.Factory.id || record.factoryId;
         record.goodId = record.Good.id || record.goodId;
 
-        const d = await StorageRepository().where("id", record.id).update(record);
+        const d = await StorageRepository().where("id", record.id).update({
+            goodId: record.goodId,
+            factoryId: record.factoryId,
+            amount: record.amount
+        });
 
         return d[0];
     }
@@ -91,7 +95,12 @@ export class Storage
         record.factoryId = record.Factory.id || record.factoryId;
         record.goodId = record.Good.id || record.goodId;
 
-        const d = await StorageRepository().insert(record);
+        const d = await StorageRepository().insert({
+            id: record.id,
+            goodId: record.goodId,
+            factoryId: record.factoryId,
+            amount: record.amount
+        });
 
         record.id = d[0];
 
@@ -136,6 +145,16 @@ export class Storage
         newStorage.amount = amount;
 
         await this.Insert(newStorage);
+    }
+
+    public static async Has(factory: Factory, good: Good, amount: number): Promise<boolean> {
+        const existingstorage = await this.GetWithGoodAndFactory(factory, good);
+
+        if (existingstorage && existingstorage.amount >= amount) {
+            return true;
+        }
+
+        return false;
     }
 
     public static async TakeGoodFrom(factory: Factory, good: Good, amount: number): Promise<boolean> {
