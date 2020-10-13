@@ -102,6 +102,21 @@ export class SellOffer extends MarketOffer
 
         return [];
     }
+
+    public static async GetWithGoodOrdered(good: Good, sort: string = "asc") : Promise<SellOffer[]> {
+        const data = await SellOfferRepository().where("good_id", good.id).select().orderBy("price", sort);
+        const res = new Array<SellOffer>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
 }
 
 export const SellOfferRepository = () => Connection("SellOffers");

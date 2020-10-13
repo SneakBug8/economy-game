@@ -40,6 +40,21 @@ export class Storage
         return null;
     }
 
+    public static async GetWithGoodAndFactory(factory: Factory, good: Good): Promise<Storage>
+    {
+        const data = await StorageRepository()
+        .select()
+        .where("factory_id", factory.id)
+        .andWhere("good_id", good.id)
+        .first();
+
+        if (data) {
+            return this.From(data);
+        }
+
+        return null;
+    }
+
     public static async Count(): Promise<number>
     {
         const data = await StorageRepository().count("id as c").first() as any;
@@ -62,6 +77,9 @@ export class Storage
 
     public static async Update(record: Storage): Promise<number>
     {
+        record.factoryId = record.Factory.id || record.factoryId;
+        record.goodId = record.Good.id || record.goodId;
+
         const d = await StorageRepository().where("id", record.id).update(record);
 
         return d[0];
@@ -70,6 +88,9 @@ export class Storage
 
     public static async Insert(record: Storage): Promise<number>
     {
+        record.factoryId = record.Factory.id || record.factoryId;
+        record.goodId = record.Good.id || record.goodId;
+
         const d = await StorageRepository().insert(record);
 
         record.id = d[0];
@@ -98,6 +119,36 @@ export class Storage
         }
 
         return [];
+    }
+
+    public static async AddGoodTo(factory: Factory, good: Good, amount: number) {
+        const existingstorage = await this.GetWithGoodAndFactory(factory, good);
+
+        if (existingstorage) {
+            existingstorage.amount += amount;
+            await this.Update(existingstorage);
+            return;
+        }
+
+        const newStorage = new Storage();
+        newStorage.Factory = factory;
+        newStorage.Good = good;
+        newStorage.amount = amount;
+
+        await this.Insert(newStorage);
+    }
+
+    public static async TakeGoodFrom(factory: Factory, good: Good, amount: number): Promise<boolean> {
+        const existingstorage = await this.GetWithGoodAndFactory(factory, good);
+
+        if (existingstorage && existingstorage.amount >= amount) {
+            existingstorage.amount -= amount;
+            await this.Update(existingstorage);
+            return true;
+        }
+
+        return false;
+
     }
 }
 

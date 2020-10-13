@@ -1,15 +1,10 @@
-import { MarketRepository } from "entity/Market";
-import { GoodRepository } from "entity/Good";
-import { BuyOfferRepository, BuyOffer } from "entity/BuyOffer";
-import { SellOfferRepository, SellOffer } from "entity/SellOffer";
-import { ConsumptionRepository } from "entity/Consumption";
-import { ProductionRepository } from "entity/Production";
+import { BuyOffer } from "entity/BuyOffer";
+import { SellOffer } from "entity/SellOffer";
 import { Good } from "entity/Good";
 import { MarketActor } from "entity/MarketActor";
-import { StorageRepository } from "entity/Storage";
-import { PlayerRepository, Player } from "entity/Player";
-import { FactoryRepository } from "entity/Factory";
+import { Player } from "entity/Player";
 import * as Entity from "entity/Market";
+import { Storage } from "entity/Storage";
 
 export class Market
 {
@@ -20,17 +15,10 @@ export class Market
 
         for (const market of await Entity.Market.All()) {
             for (const good of await Good.All()) {
-                /*const buyoffers = await BuyOfferRepository.find({
-                    where: { good }, order: {
-                        price: "DESC"
-                    }
-                });
-                const selloffers = await SellOfferRepository.find({
-                    where: { good }, order: {
-                        price: "ASC"
-                    }
-                });
-                const consumptions = await ConsumptionRepository.find(
+
+                const buyoffers = await BuyOffer.GetWithGoodOrdered(good);
+                const selloffers = await SellOffer.GetWithGoodOrdered(good);
+                /*const consumptions = await ConsumptionRepository.find(
                     {
                         where: { good },
                         order: {
@@ -41,7 +29,7 @@ export class Market
                     where: { good }, order: {
                         minprice: "ASC"
                     }
-                });
+                });*/
 
                 while (buyoffers.length && selloffers.length) {
                     const buy = buyoffers[0];
@@ -54,11 +42,11 @@ export class Market
                         sell.amount -= transactionsize;
                         buy.amount -= transactionsize;
                         this.TransferCash(sell.MarketActor, transactioncost);
-                        this.AddToStorage(buy.MarketActor, good, transactionsize);
+                        const buyerplayer = await Player.GetWithActor(buy.id);
+                        Storage.AddGoodTo(buyerplayer.Factory, good, transactionsize);
 
                         const extracash = (buy.price - sell.price) * transactionsize;
                         this.TransferCash(buy.MarketActor, extracash);
-                        // add buyer goods
                     }
                     else {
                         break;
@@ -75,17 +63,14 @@ export class Market
                     }
 
                 }
-        */
-
             }
 
         }
     }
 
-    public static async AddToStorage(actor: MarketActor, good: Good, amount: number): Promise<void>
+    /*public static async AddToStorage(actor: MarketActor): Promise<void>
     {
         const player = await Player.GetWithActor(actor.id);
-        const factory = player.Factory;
 
         /*const record = await StorageRepository.findOne({
             where: {
@@ -104,9 +89,9 @@ export class Market
             });
         }*/
 
-    }
-
-    public static async RemoveFromStorage(actor: MarketActor, good: Good, amount: number): Promise<boolean>
+    //}
+/*
+    public static async RemoveFromStorage(): Promise<boolean>
     {
         return false;
         /*const player = await PlayerRepository.findOne({
@@ -130,7 +115,7 @@ export class Market
             record.amount -= amount;
         }*/
 
-    }
+    //}*/
 
     public static async TransferCash(actor: MarketActor, amount: number): Promise<void>
     {
@@ -138,9 +123,6 @@ export class Market
 
         player.cash += amount;
     }
-
-
-
 
     public static async AddBuyOffer(actor: MarketActor, good: Good, amount: number, price: number)
     {
@@ -161,11 +143,10 @@ export class Market
         SellOffer.Insert(offer);
     }
 
-    public static async AddSellOffer(actor: MarketActor, good: Good, amount: number, price: number)
+    public static async AddSellOffer(actor: MarketActor, good: Good, amount: number)
     {
         const player = await Player.GetWithActor(actor.id);
-
-        const res = await this.RemoveFromStorage(actor, good, amount);
+        const res = await Storage.TakeGoodFrom(player.Factory, good, amount);
 
         if (!res) {
             return;

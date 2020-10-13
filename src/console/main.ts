@@ -1,3 +1,5 @@
+import { Runner } from "Runner";
+
 // Get process.stdin as the standard input object.
 let standard_input = process.stdin;
 
@@ -11,12 +13,11 @@ console.log("Console input module active");
 standard_input.on("data", function(data) {
 
     // User input exit.
-    if (data === "exit\n") {
+    if (data === "exit") {
         // Program exit.
         console.log("User input complete, program exit.");
         process.exit();
-    } else {
-        // Print user input in console.
-        console.log("User Input Data : " + data);
+    } else if (data === "turn") {
+        Runner.Turn();
     }
 });

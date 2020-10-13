@@ -1,4 +1,6 @@
 import { Connection } from "DataBase";
+import { Player } from "./Player";
+import { Turn } from "./Turn";
 
 export class LogRecord {
 
@@ -15,6 +17,15 @@ export class LogRecord {
         res.playerId = dbobject.playerId;
         res.text = dbobject.text;
         return res;
+    }
+
+    public static async Log(player: Player, turn: Turn, text: string) {
+        const record = new LogRecord();
+        record.playerId = player.id;
+        record.turnId = turn.id;
+        record.text = text;
+
+        await this.Insert(record);
     }
 
     public static async GetById(id: number): Promise<LogRecord>

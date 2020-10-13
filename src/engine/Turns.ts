@@ -5,8 +5,12 @@ export class Turns {
     public static CurrentTurn: Turn = new Turn();
     static LastTurn: Turn;
 
-    public static async MakeReport() {
+    public static async Init() {
         this.LastTurn = await Turn.Last();
+        this.CurrentTurn.id = this.LastTurn.id + 1;
+    }
+
+    public static async MakeReport() {
         this.CurrentTurn.datetime = new Date().toString();
         this.CurrentTurn.freecash += this.LastTurn.freecash;
 

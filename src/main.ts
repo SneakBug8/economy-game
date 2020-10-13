@@ -2,7 +2,9 @@
 // import { AppModule } from './app.module';
 // import session = require('express-session');
 
+
 import {Load} from "./moduleloader";
+import { Recipes } from "engine/Recipes";
 
 async function bootstrap() {
   // const app = await NestFactory.create(AppModule);
@@ -16,8 +18,6 @@ async function bootstrap() {
   require("console/main");
 
   // await new Runner().Start();
-
-  // BuyOffer.GetById(1);
 }
 
 bootstrap();
