@@ -1,5 +1,5 @@
-import { Good } from "entity/Good";
-import { Market } from "entity/Market";
+import { Good } from "./Good";
+import { Market } from "./Market";
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, getRepository } from "typeorm";
 
 @Entity()

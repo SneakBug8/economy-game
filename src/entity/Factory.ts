@@ -1,4 +1,3 @@
-import { Good } from "entity/Good";
 import { PrimaryGeneratedColumn, OneToOne, JoinColumn, Column, Entity, getRepository } from "typeorm";
 
 @Entity()
@@ -9,9 +8,8 @@ export class Factory {
     public employeesCount: number;
     @Column()
     public salary: number;
-    @OneToOne(type => Good)
-    @JoinColumn()
-    public Good: Good;
+    @Column()
+    public RecipeId : number;
 }
 
 export const FactoryRepository = getRepository(Factory);

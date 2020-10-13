@@ -1,7 +1,7 @@
-import { Good } from "entity/Good";
-import { Market } from "entity/Market";
+import { Good } from "./Good";
+import { Market } from "./Market";
 import { PrimaryGeneratedColumn, OneToOne, JoinColumn, Column } from "typeorm";
-import { MarketActor } from "entity/MarketActor";
+import { MarketActor } from "./MarketActor";
 
 export class MarketOffer {
     @PrimaryGeneratedColumn()

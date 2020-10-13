@@ -1,5 +1,5 @@
-import { Factory } from "entity/Factory";
-import { MarketActor } from "entity/MarketActor";
+import { Factory } from "./Factory";
+import { MarketActor } from "./MarketActor";
 import { PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, Entity, getRepository } from "typeorm";
 
 @Entity()

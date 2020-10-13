@@ -2,7 +2,7 @@
 // import { AppModule } from './app.module';
 // import session = require('express-session');
 
-import * as res from "moduleloader";
+import {Load} from "./moduleloader";
 
 async function bootstrap() {
   // const app = await NestFactory.create(AppModule);
@@ -11,11 +11,13 @@ async function bootstrap() {
 
   console.log("Starting game server");
 
+  await Load();
+
+  require("console/main");
+
   // await new Runner().Start();
 
   // BuyOffer.GetById(1);
 }
-
-import { Runner } from "./old/Runner";
 
 bootstrap();

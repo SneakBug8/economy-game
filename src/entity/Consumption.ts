@@ -1,7 +1,6 @@
-import { Market } from "entity/Market";
-import { Good } from "entity/Good";
+import { Market } from "./Market";
+import { Good } from "./Good";
 import { Entity, Column, PrimaryGeneratedColumn, JoinColumn, OneToOne, getRepository } from "typeorm";
-import { isNullOrUndefined } from "util";
 
 @Entity()
 export class Consumption {

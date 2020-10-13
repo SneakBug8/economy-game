@@ -1,4 +1,4 @@
-import { MarketOffer } from "entity/MarketOffer";
+import { MarketOffer } from "./MarketOffer";
 import { Entity, getRepository } from "typeorm";
 
 @Entity()

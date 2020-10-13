@@ -1,14 +1,16 @@
 //import sqlite3 = require('sqlite3').sqlite3.verbose();
-import { createConnection } from "typeorm";
 
-createConnection();
+export const conn = new Sequelize({
+    dialect: "sqlite",
+    storage: "database.sqlite"
+  });
+
 
 /*export const Connection = new sqlite3.Database("./db.db", (err) =>
 {
     if (err) {
         return console.error(err.message);
     }
-    console.log('Connected to the SQlite database.');
 });
 
 export const getAsync = (query, args) => {
