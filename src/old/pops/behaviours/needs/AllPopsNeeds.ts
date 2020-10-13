@@ -1,5 +1,5 @@
-import { GoodsInventory } from "engine/goods/GoodsInventory";
-import { Goods } from "engine/goods/Goods";
+import { GoodsInventory } from "old/goods/GoodsInventory";
+import { Goods } from "old/goods/Goods";
 
 export class AllPopsNeeds {
     public static Farmers: PopNeedsPack = {

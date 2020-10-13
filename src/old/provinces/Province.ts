@@ -1,10 +1,10 @@
 import { ProvincialEntity } from "./ProvincialEntity";
 import { UpdatedEntity } from "../updatedentity";
 import { RGO } from "./RGO";
-import { Country } from "engine/countries/Country";
-import { CashPile } from "engine/CashPile";
-import { Good } from "engine/goods/Good";
-import { Goods } from "engine/goods/Goods";
+import { Country } from "old/countries/Country";
+import { CashPile } from "old/CashPile";
+import { Good } from "old/goods/Good";
+import { Goods } from "old/goods/Goods";
 
 export class Province extends UpdatedEntity {
     Id: number;

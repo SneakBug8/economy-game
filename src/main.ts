@@ -16,7 +16,6 @@ async function bootstrap() {
   // BuyOffer.GetById(1);
 }
 
-import { Runner } from "./engine/Runner";
-import { BuyOffer } from "BuyOffer";
+import { Runner } from "./old/Runner";
 
 bootstrap();

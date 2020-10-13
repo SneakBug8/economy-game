@@ -1,4 +1,4 @@
-import { Country } from "./Country.js";
+import { Country } from "old/countries/Country.js";
 import { Provinces } from "../provinces/Provinces.js";
 import { UpdatedEntity } from "../updatedentity.js";
 

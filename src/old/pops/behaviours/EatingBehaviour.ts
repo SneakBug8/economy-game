@@ -1,5 +1,5 @@
 import { PopBehaviour } from "../popbehaviour";
-import { GoodsInventory } from "engine/goods/GoodsInventory";
+import { GoodsInventory } from "old/goods/GoodsInventory";
 
 export class EatingBehaviour extends PopBehaviour
 {

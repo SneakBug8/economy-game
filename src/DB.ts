@@ -1,8 +1,9 @@
 //import sqlite3 = require('sqlite3').sqlite3.verbose();
-import * as sqlite3 from "sqlite3";
-sqlite3.verbose();
+import { createConnection } from "typeorm";
 
-export const Connection = new sqlite3.Database("./db.db", (err) =>
+createConnection();
+
+/*export const Connection = new sqlite3.Database("./db.db", (err) =>
 {
     if (err) {
         return console.error(err.message);
@@ -42,3 +43,4 @@ export const runAsync = (query, args) => {
             resolve(row);
         });
 })};
+*/

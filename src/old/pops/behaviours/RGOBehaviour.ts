@@ -1,5 +1,5 @@
 import { PopBehaviour } from "../popbehaviour";
-import { GoodsMarket } from "engine/goods/GoodsMarket";
+import { GoodsMarket } from "old/goods/GoodsMarket";
 
 export class RGOBehaviour extends PopBehaviour {
     public constructor() {

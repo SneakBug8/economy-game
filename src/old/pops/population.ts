@@ -1,7 +1,7 @@
 import { PopBehaviour } from "./popbehaviour";
 import { ProvincialEntity } from "../provinces/ProvincialEntity";
-import { CashPile } from "engine/CashPile";
-import { GoodsInventory } from "engine/goods/GoodsInventory";
+import { CashPile } from "old/CashPile";
+import { GoodsInventory } from "old/goods/GoodsInventory";
 import { BasicNeeds } from "./behaviours/needs/BasicNeeds";
 import { EverydayNeeds } from "./behaviours/needs/EverydayNeeds";
 import { LuxuryNeeds } from "./behaviours/needs/LuxuryNeeds";

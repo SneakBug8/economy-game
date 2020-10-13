@@ -1,6 +1,6 @@
 import { Province } from "../provinces/Province";
 import { World } from "../World";
-import { CashPile } from "engine/CashPile";
+import { CashPile } from "old/CashPile";
 
 export class Country {
     Id: number;

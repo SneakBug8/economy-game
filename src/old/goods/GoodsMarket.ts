@@ -1,6 +1,6 @@
 import { Good } from "./Good";
 import { Population } from "../pops/population";
-import { UpdatedEntity } from "engine/updatedentity";
+import { UpdatedEntity } from "old/updatedentity";
 
 export class GoodsMarket extends UpdatedEntity {
     Good: Good;

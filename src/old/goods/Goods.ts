@@ -1,5 +1,5 @@
 import { Good } from "./Good";
-import { UpdatedEntity } from "engine/updatedentity";
+import { UpdatedEntity } from "old/updatedentity";
 
 import fs = require("fs");
 import { Config } from "config";
