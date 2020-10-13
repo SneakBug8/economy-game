@@ -1,10 +1,14 @@
 import { Good } from "./Good";
-import goods = require("../../../data/goods.json");
 import { UpdatedEntity } from "engine/updatedentity";
+
+import fs = require("fs");
+import { Config } from "config";
+const goods = JSON.parse(fs.readFileSync(Config.dataPath() + "/goods.json", "utf8"));
 
 class GoodsClass extends UpdatedEntity {
 
-    Goods: Good[];
+    Goods: Good[] = new Array<Good>();
+    Food: Good;
 
     public constructor() {
         super();
@@ -27,6 +31,10 @@ class GoodsClass extends UpdatedEntity {
         res.Id = good.Id;
         res.Name = good.Name;
         res.Price = good.BasePrice;
+
+        if (res.Name === "Food") {
+            this.Food = res;
+        }
 
         return res;
     }

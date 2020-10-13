@@ -141,39 +141,69 @@
         "version": "2311e2da818c45ba802155ab27a384cc90905d1d64b5327d3bdd2c42637e120c",
         "signature": "e016b605731f5f223f26988c1d31c477d947d4bd61a731c3f9c11f45e7f946a2"
       },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts": {
+        "version": "de53340b0dddf3c86b1ae43d69ea962260924eb15fcadfcdc17ae6c7e5693e01",
+        "signature": "7b02bb537645934b57c78ecc2a15a89eaac72385ce18f3246001fcdede3159ce"
+      },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/province.ts": {
-        "version": "1489294e2442d5508ec796fe906b44cfbbf3fed117443cdea6c0bd0fbe317718",
-        "signature": "faf23b48ad7aec2215006543c6d9621dd1eb8fccd508f99e65340baba37beba4"
+        "version": "3d3212e56487cfdcf7b5f2f9cb36618ff8a2a2c498974afe7db6caaf3b3d29ee",
+        "signature": "ce7c58b05388565babf08086e5322a050388c67cdb50899023351fd9ddbd3909"
       },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/country.ts": {
-        "version": "e8f67d8326767b4163f974f9f0b85a13a1b41f07b0e0aa06b1606ca85338038f",
-        "signature": "caf29fe7277cd11e7fea300a49516cc3d38c1f6fd88ccf3945389c8630654461"
+        "version": "3f6e0d0659cea4b9953deb705028e1cdd85eedde9eb197e6ad572cb7f46b14e5",
+        "signature": "ab3c0e401c09e8b8339ab82255dc043c0b28525ac0d6c2f3f6dc55ca31ac761b"
       },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/world.ts": {
         "version": "81045b9475b1c646eff3708f304473ab06f8064f8e5d529b45c0f1a8717d3605",
         "signature": "7d74633a1a3569ceba04656d8855940a6cf7e217ba14786fa90c6f1269ea1751"
       },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatealgorithm.ts": {
-        "version": "1175ac25914bcb5ff5afa3cbfa04f9f88b79e10c01f2df21e7527db0314e0001",
+        "version": "93fe1719f1cf0f81bdde4bf70467106fd44c7c4f7ee7f99a4ab4914c8e396657",
         "signature": "d00b072d93c71595fd79620f4aa0b2414ffb2cd352c4632b2e370fbd9255f384"
       },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/utility/sleep.ts": {
         "version": "03ea6b5b3bd4e0766d447722304d737c84c374b17f1a1952fdc31a6803d19cc6",
         "signature": "9d4dfa768ba633d352ddfeae658a8d1cf0fcf46566dab5121b0d6289592cf060"
       },
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/countries.json": {
-        "version": "32a71c4e2880c9866ef0bd1bed309761ad8fb451dd59081d7b15d2a12541eefc"
-      },
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.json": {
-        "version": "bd99c2a3118eb9cb344c170d51f273b385d962813d1de8ee84735ea313bb852c"
-      },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/popbehaviour.ts": {
-        "version": "ffb49f578f164e025a3213ed9a7cc5f03f4c45dc763560f2c13b39122231a291",
-        "signature": "ac13c867753f16c12e6824581f629ce21de45a2de57fc815dc46b204a25e95d5"
+        "version": "ff3869dbaf7fa2818256597726540ad668af538d0ce75527f7ffc7b5eafa0b84",
+        "signature": "3962679ee82be52844102d9a879c3b9f28ecc41ff8ea79140d81d9e6791c1dc8"
+      },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsinventory.ts": {
+        "version": "30e67c7a7baff5810086f0cb68103cdbfaad8fda2546170eef1e53f9034ac626",
+        "signature": "96368adce1211f2bf98247dc2526b12a8ddb3653d363d60f66b15010292c97ca"
+      },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/eatingbehaviour.ts": {
+        "version": "757dbbb0ee8dd75055b2c42dfb41230d5845489351098662c29f13e327e45cae",
+        "signature": "65687e4b58286e8373d125ad4745e37106bdc9d889c597ceaf1998552087806d"
+      },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/basicneeds.ts": {
+        "version": "74c53ced1067ce710b359cc63caa88af597c4c10ca8d96ac662d2c211230b21c",
+        "signature": "2ba7f5e19c1c458ae0154375eaac4ca75f669e94bfd8ed83a07fe2d944951577"
+      },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/everydayneeds.ts": {
+        "version": "630efa9564919b6c9cdff20aace7dd10c7df5be806a39aa13f292e867eed47ed",
+        "signature": "5bc2856ccde989a491c824c8183877d43b6968b683a5b915467644df3682b3b0"
+      },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/luxuryneeds.ts": {
+        "version": "ba5c216703511a9be02df29218884a344af9f697648e228daf4283cfd363490f",
+        "signature": "c76289cf77580af419d0d8878b0ade44b605d73ab324bd39b8b8849098afde45"
       },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts": {
-        "version": "116680ee43c92e1969c413aa9ee8e9e33436259bc5f7350e312cff9bf1a5138d",
-        "signature": "0f0efa7ffb51f4af2cd073120d2dcd7a5065a34b42e6aed46c5262df374704ac"
+        "version": "cec54391bb22245a2df9df5ebc87eb1480cf0f282a4b4cb60542861970029a25",
+        "signature": "eb875efae37b8f49d949b7121bccd1001c5cedc0437df78a9e92d34a408e35e3"
+      },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.ts": {
+        "version": "01ac2af9369d2582ebf16b6df443a6f30c175e97d2395776241d6c146112f356",
+        "signature": "f445b331ad9c4e1e8166dfca16c8c4ee65ff52523df1ad1e159938216600c416"
+      },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/allpopsneeds.ts": {
+        "version": "da88125a9e8ea3ad92d8fc3e9d2defcf21bb6a19a5f93c051b16f64b22a50bd9",
+        "signature": "088d6c678eacc620c6e24c4d778e2f8d0a81d4809eb7e04fb47560ba54504a3b"
+      },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/farmers.ts": {
+        "version": "c6d60e06fc5ff5c22853ecdafca672b161c22c43a897b975cf5ffc70cad47f82",
+        "signature": "18ab451b39ab663e13d65c91f8174adce057822228bc8bb14cf98d1fe2de84b1"
       },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/aristocrats.ts": {
         "version": "6fae08e771875e381f936a97d81f80422a589149aae894268af5bb234a9370d1",
@@ -183,10 +213,6 @@
         "version": "287a7ae9fa57343da2fe466660be9087fc1176ad981ff5bb12d8045386facfad",
         "signature": "13c37d774988ef075c3d1033b9ed78d452f4baf95eaada327c131711cc830fe0"
       },
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/farmers.ts": {
-        "version": "867c523e126105e6d57c20842bc90ebd801fcb17ef89394261ac3f69dad00d36",
-        "signature": "2ae9514f5bab6dde6946d8134afb15ad6a6d52b6b96601041fea8855900abc9f"
-      },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/miners.ts": {
         "version": "fb52f8916be432494ded1e8fd34590326a01e04eac55892eaa2d02afb56abc0f",
         "signature": "f76ec6c68debfdceb7935da5cd354f30c18d0b9c23d746c902f65c84d792d4d0"
@@ -195,40 +221,37 @@
         "version": "988233f7c814bbedb13c49906f13474cfda685bdd71f8fcdce5c8cbd3ee3f32c",
         "signature": "41a29d927b33c5f9d4c7612ee0cfa1b9de81d1f3482be4ca898d83ff8bb864e5"
       },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/populations.ts": {
+        "version": "592ef7186496d419eaa161f6e8575a3ff247df30d11ceb2d9943f79b5032161d",
+        "signature": "dcf9580fab34fdac531743c5e580eb50414ebfe4abdb7e4f7de1b88800e8e8c0"
+      },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.ts": {
-        "version": "15083c7ef764f1fcf24f4825a511ce30ba2d0bc61dd8c205c83f7160a75fa935",
+        "version": "b4b4ebaf9cf855d7f8c6b1b27a66ed45ab63d057aac891aac5397c76d3b9d0f5",
         "signature": "a6060d9da4189bdfbed8f9c60e7c7c9a309dbb94e701c7fee09519ba8a7a8383"
       },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/countries.ts": {
-        "version": "bdec8ee42fe492e90df48b5db37679ea3b98c0c67273794f86510acbfc5b2553",
+        "version": "546d9276039f41b552db027f5fc640d84c9ebf5f0496dea894dae521a60ec417",
         "signature": "af7183381ebe599a4d63079a3630c88d8ae9b8be7b1573371c42f6943316bffa"
-      },
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.json": {
-        "version": "c8c6e61ad9aa84874c29a690308982fb64fe3a928a8401891c66d47e1d8ff509"
-      },
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.ts": {
-        "version": "4175b6a2b1bd036385ec2866c55a88d249969095bf249b4376f90d1e5dbaa233",
-        "signature": "b9998d26e773dd53bc1cb0e447bffa37d2c8646d836cc91d16f36ccb7a9b72f6"
       },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/runner.ts": {
         "version": "207810e17d7963f5da720df8c78eed1d7bf9fe61383802d489b934d284528a7e",
         "signature": "1e44dc0e939b2961fe45e5f53c3e8ea1f5ccbcdd4eacd6d474145e9589d61ffe"
       },
-      "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/app-module-path/index.d.ts": {
-        "version": "10996ce7974941cca2903c4e63e0de4127f37f927a6440f39e3f7dd7492bdaaa",
-        "signature": "10996ce7974941cca2903c4e63e0de4127f37f927a6440f39e3f7dd7492bdaaa"
-      },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/main.ts": {
-        "version": "1e461b88791d7d779c77c5c5772dc0c073a4ed2bbdf0e63ad3dfa5ffe24fae02",
-        "signature": "f761c91419d0a89422a0004ef1a92929dd4d2d5e5c16758654d8b0467d1998c6"
-      },
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts": {
-        "version": "de53340b0dddf3c86b1ae43d69ea962260924eb15fcadfcdc17ae6c7e5693e01",
-        "signature": "7b02bb537645934b57c78ecc2a15a89eaac72385ce18f3246001fcdede3159ce"
+        "version": "7a73bd33b9619c5e34a7cf0834faa26076956b0b93435d9302b0a680d94d8cf2",
+        "signature": "908964f119ea2b865e5af232ce3bdf19feae1ac705931f5cd6b9f6d8c99f9f66"
       },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsmarket.ts": {
-        "version": "1f5b4778e33ecfd29ef98381ea68d756e4949119969729117e8e1df23aa1b55c",
-        "signature": "848b9bc5c15e30dd87cfafc2c66b6aeca0f63cea80f29b3d012ee9a8a7a5d97f"
+        "version": "69560d2f7f549e7a9a6523489edaaeef31b7b07f469e9254b1dc9707346627e7",
+        "signature": "86e25ec300c82512e21133b86fb6fe8814f005b35b9ccca4d8a92f07879e206b"
+      },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/buyingbehaviour.ts": {
+        "version": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "signature": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/rgobehaviour.ts": {
+        "version": "75f6bff7ba263733fe8caf4fb0b8b360873a840b6344558ded218ccbe424e960",
+        "signature": "3b363fbf4f0a04c2978707e53b9ea1be7b992a925b3952582aed362f1135c8f2"
       },
       "c:/users/sneak/documents/projects-2020/node/dominions/src/utility/exceptions/notimplementedexception.ts": {
         "version": "b2261d393e5d5bce6d73f8a9ba64b5d20210842614b762babcc005d8d98c859c",
@@ -575,17 +598,24 @@
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/province.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provincialentity.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/rgo.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/country.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/country.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/province.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/world.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
@@ -604,22 +634,68 @@
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/countries.json": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
-      ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.json": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
-      ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/popbehaviour.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsinventory.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/good.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/eatingbehaviour.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/popbehaviour.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsinventory.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/basicneeds.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/eatingbehaviour.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/everydayneeds.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/eatingbehaviour.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/luxuryneeds.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/eatingbehaviour.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/popbehaviour.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provincialentity.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsinventory.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/basicneeds.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/everydayneeds.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/luxuryneeds.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/good.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/fs.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/allpopsneeds.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsinventory.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/farmers.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/basicneeds.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/everydayneeds.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/luxuryneeds.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/allpopsneeds.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
@@ -629,11 +705,6 @@
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/bureucrats.ts": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
-      ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/farmers.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
@@ -648,33 +719,29 @@
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.ts": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/province.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.json",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/populations.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/farmers.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/aristocrats.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/bureucrats.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/farmers.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/miners.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/workers.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/province.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/populations.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/fs.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/countries.ts": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/countries.json",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/country.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
-      ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.json": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
-      ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.ts": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/good.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.json",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/fs.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
@@ -688,18 +755,8 @@
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/app-module-path/index.d.ts": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
-      ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/main.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/runner.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/app-module-path/index.d.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
-      ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
@@ -707,6 +764,16 @@
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/good.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/buyingbehaviour.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/rgobehaviour.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/popbehaviour.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsmarket.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
       ],
@@ -1116,26 +1183,63 @@
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/rgo.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/good.ts"
       ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts"
+      ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/province.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/rgo.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/country.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provincialentity.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/country.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/province.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/world.ts"
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/world.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/world.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/country.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/popbehaviour.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsinventory.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/good.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/eatingbehaviour.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsinventory.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/popbehaviour.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/basicneeds.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/eatingbehaviour.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/everydayneeds.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/eatingbehaviour.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/luxuryneeds.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/eatingbehaviour.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/popbehaviour.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsinventory.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/basicneeds.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/everydayneeds.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/luxuryneeds.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provincialentity.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/good.ts",
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/allpopsneeds.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsinventory.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/farmers.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/aristocrats.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts"
@@ -1143,13 +1247,13 @@
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/bureucrats.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts"
       ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/farmers.ts": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts"
-      ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/miners.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/workers.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/populations.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.ts": [
@@ -1160,20 +1264,13 @@
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/country.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts"
       ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.ts": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/good.ts"
-      ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/app-module-path/index.d.ts": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
-        "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/util.d.ts"
-      ],
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts": [
-        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts"
-      ],
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsmarket.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/good.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts",
         "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatedentity.ts"
+      ],
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/rgobehaviour.ts": [
+        "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/popbehaviour.ts"
       ],
       "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/globals.d.ts": [
         "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/util.d.ts",
@@ -1481,27 +1578,33 @@
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provincialentity.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/good.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/rgo.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/province.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/country.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/world.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatealgorithm.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/utility/sleep.ts",
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/countries.json",
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.json",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/popbehaviour.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsinventory.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/eatingbehaviour.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/basicneeds.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/everydayneeds.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/luxuryneeds.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/population.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/needs/allpopsneeds.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/farmers.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/aristocrats.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/bureucrats.ts",
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/farmers.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/miners.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/types/workers.ts",
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/populations.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/countries/countries.ts",
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.json",
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goods.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/runner.ts",
-      "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/app-module-path/index.d.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/main.ts",
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/cashpile.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/goods/goodsmarket.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/buyingbehaviour.ts",
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/pops/behaviours/rgobehaviour.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/src/utility/exceptions/notimplementedexception.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/globals.d.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/async_hooks.d.ts",
@@ -1548,8 +1651,7 @@
       "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/base.d.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.1/assert.d.ts",
       "c:/users/sneak/documents/projects-2020/node/dominions/node_modules/@types/node/ts3.6/index.d.ts",
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/province.ts",
-      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/updatealgorithm.ts"
+      "c:/users/sneak/documents/projects-2020/node/dominions/src/engine/provinces/provinces.ts"
     ]
   },
   "version": "3.4.3"

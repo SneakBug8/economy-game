@@ -1,8 +1,11 @@
 import { Province } from "./province";
 
-import provinces = require("../../../data/provinces.json");
 import { UpdatedEntity } from "../updatedentity";
-import { Populations } from "engine/pops/Populations";
+import { Populations } from "../pops/Populations";
+
+import fs = require("fs");
+import { Config } from "config";
+const provinces = JSON.parse(fs.readFileSync(Config.dataPath() + "/provinces.json", "utf8"));
 
 class ProvincesClass extends UpdatedEntity {
     Provinces: Province[] = new Array<Province>();
@@ -31,6 +34,8 @@ class ProvincesClass extends UpdatedEntity {
         if (province.Cash) {
             res.Cash.Amount += province.Cash;
         }
+
+        //TODO: Read RGOs
 
         for (const pop of province.Pops) {
             res.Add(Populations.ReadPopulation(pop));

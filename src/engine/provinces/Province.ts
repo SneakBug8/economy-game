@@ -3,6 +3,8 @@ import { UpdatedEntity } from "../updatedentity";
 import { RGO } from "./RGO";
 import { Country } from "engine/countries/Country";
 import { CashPile } from "engine/CashPile";
+import { Good } from "engine/goods/Good";
+import { Goods } from "engine/goods/Goods";
 
 export class Province extends UpdatedEntity {
     Id: number;
@@ -13,8 +15,13 @@ export class Province extends UpdatedEntity {
 
     public Start(): void
     {
-        if (RGO == null) {
+        if (!this.RGO) {
+            console.log("Created default RGO for " + this.Name);
             this.RGO = new RGO();
+            this.RGO.Good = Goods.Food;
+        }
+        else {
+            console.log(this.Name + " has RGO producing " + this.RGO.Good.Name);
         }
 
         for (const entity of this.ProvincialEntities) {

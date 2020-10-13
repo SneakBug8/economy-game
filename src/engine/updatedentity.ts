@@ -18,7 +18,18 @@ export abstract class UpdatedEntity {
     public abstract Start(): void;
     public abstract Update(): void;
 
+    customName: boolean = false;
+
     protected addClass(classname: string) {
         this.Class += " / " + classname;
+
+        if (!this.customName) {
+            this.Name = classname;
+        }
+    }
+
+    protected setName(name: string) {
+        this.Name = name;
+        this.customName = true;
     }
 }

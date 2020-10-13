@@ -2,7 +2,7 @@ import { Good } from "../goods/Good";
 
 export class RGO {
     Good: Good;
-    NaturalWealth: number;
+    NaturalWealth: number = 1;
 
     public RGOEfficiency(): number {
         return 1 * this.NaturalWealth;

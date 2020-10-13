@@ -1,7 +1,10 @@
-import countries = require("../../../data/countries.json");
 import { Country } from "./Country.js";
 import { Provinces } from "../provinces/Provinces.js";
 import { UpdatedEntity } from "../updatedentity.js";
+
+import fs = require("fs");
+import { Config } from "config";
+const countries = JSON.parse(fs.readFileSync(Config.dataPath() + "/countries.json", "utf8"));
 
 class CountriesClass extends UpdatedEntity {
     public Countries: Country[] = new Array<Country>();

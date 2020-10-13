@@ -3,7 +3,12 @@
         "Id": 1,
         "Name": "London",
         "Pops": [
-
+            {
+                "type": "farmers",
+                "Name": "farmers",
+                "Size": 1000,
+                "Cash": 100
+            }
         ]
     }
 ]

@@ -8,12 +8,13 @@
       "rootDir": "src",
       "types": ["node"],
       // "strict": true,
-      "incremental": true,
+      "incremental": false,
       "pretty": true,
-      "sourceMap": false,
+      "sourceMap": true,
       "declaration": false,
-      "resolveJsonModule": true
-
+      "resolveJsonModule": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true
   },
   "include": [
       "src/**/*"
