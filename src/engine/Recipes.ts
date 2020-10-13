@@ -2,6 +2,7 @@ import { Good } from "entity/Good";
 
 export class Recipe
 {
+    public id: number;
     public Requisites: RecipeEntry[];
     public employeesneeded: number = 1;
     public Results: RecipeEntry[];
@@ -40,9 +41,9 @@ export class RecipeEntry
 export class Recipes
 {
     // tslint:disable: one-variable-per-declaration
-    public static FirstToFirst;
+    public static FirstToFirst: Recipe;
 
-    public static firstgood;
+    public static firstgood: Good;
 
     public static async Init()
     {
@@ -55,8 +56,19 @@ export class Recipes
                 new RecipeEntry(this.firstgood, 2),
             ]
         );
-        this.All[1] = this.FirstToFirst;
+        this.FirstToFirst.id = 1;
+        this.All.push(this.FirstToFirst);
     }
 
-    public static All = [];
+    public static GetById(id: number) {
+        for (const recipe of this.All) {
+            if (recipe.id === id) {
+                return recipe;
+            }
+        }
+
+        return null;
+    }
+
+    static All = new Array<Recipe>();
 }
