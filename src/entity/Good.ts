@@ -1,15 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, getRepository } from "typeorm";
+import { Connection } from "DB";
 
-@Entity()
 export class Good
 {
-    @PrimaryGeneratedColumn()
     id: number;
-    @Column()
     name: string;
-
-    @Column()
     image: string;
+
+    public async GetById(id: number) : Promise<void> {
+        const res = GoodRepository.select().where("id", id);
+
+        console.log(res);
+    }
 }
 
-export const GoodRepository = getRepository(Good);
+export const GoodRepository = Connection("Goods");

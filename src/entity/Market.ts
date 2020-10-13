@@ -1,9 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, getRepository } from "typeorm";
+import { Connection } from "DB";
 
-@Entity()
 export class Market {
-    @PrimaryGeneratedColumn()
     public id: number;
 }
 
-export const MarketRepository = getRepository(Market);
+export const MarketRepository = Connection("Markets");

@@ -1,22 +1,13 @@
 import { Good } from "./Good";
 import { Market } from "./Market";
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, getRepository } from "typeorm";
+import { Connection } from "DB";
 
-@Entity()
 export class Production {
-    @PrimaryGeneratedColumn()
     public id: number;
-    @Column()
     public amount: number;
-    @Column()
     public minprice: number;
-    @OneToOne(type => Good)
-    @JoinColumn()
     public Good: Good;
-    @OneToOne(type => Market)
-    @JoinColumn()
     public Market: Market;
-
 }
 
-export const ProductionRepository = getRepository(Production);
+export const ProductionRepository = Connection("Productions");

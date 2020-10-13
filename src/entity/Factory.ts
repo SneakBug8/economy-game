@@ -1,15 +1,10 @@
-import { PrimaryGeneratedColumn, OneToOne, JoinColumn, Column, Entity, getRepository } from "typeorm";
+import { Connection } from "DB";
 
-@Entity()
 export class Factory {
-    @PrimaryGeneratedColumn()
     public id: number;
-    @Column()
     public employeesCount: number;
-    @Column()
     public salary: number;
-    @Column()
-    public RecipeId : number;
+    public RecipeId: number;
 }
 
-export const FactoryRepository = getRepository(Factory);
+export const FactoryRepository = Connection("Factories");

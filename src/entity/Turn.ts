@@ -1,19 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, getRepository } from "typeorm";
+import { Connection } from "DB";
 
-@Entity()
 export class Turn
 {
-    @PrimaryGeneratedColumn()
     public id: number;
-    @Column()
     public datetime: Date;
-    @Column()
     public totalcash: number;
-    @Column()
     public cashperplayer: number;
-    @Column()
     public freecash: number;
 
 }
 
-export const TurnRepository = getRepository(Turn);
+export const TurnRepository = Connection("Turns");

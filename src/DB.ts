@@ -1,9 +1,12 @@
 //import sqlite3 = require('sqlite3').sqlite3.verbose();
+import * as knex from "knex";
 
-export const conn = new Sequelize({
-    dialect: "sqlite",
-    storage: "database.sqlite"
-  });
+export const Connection = knex({
+    client: "sqlite3",
+    connection: {
+        filename: "../db.db",
+    }
+});
 
 
 /*export const Connection = new sqlite3.Database("./db.db", (err) =>

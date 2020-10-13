@@ -1,9 +1,8 @@
 import { MarketOffer } from "./MarketOffer";
-import { Entity, getRepository } from "typeorm";
+import { Connection } from "DB";
 
-@Entity()
 export class BuyOffer extends MarketOffer
 {
 }
 
-export const BuyOfferRepository = getRepository(BuyOffer);
+export const BuyOfferRepository = Connection("BuyOffers");
