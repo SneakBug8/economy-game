@@ -1,22 +1,26 @@
 import { MarketRepository } from "entity/Market";
 import { GoodRepository } from "entity/Good";
-import { BuyOfferRepository } from "entity/BuyOffer";
-import { SellOfferRepository } from "entity/SellOffer";
+import { BuyOfferRepository, BuyOffer } from "entity/BuyOffer";
+import { SellOfferRepository, SellOffer } from "entity/SellOffer";
 import { ConsumptionRepository } from "entity/Consumption";
 import { ProductionRepository } from "entity/Production";
 import { Good } from "entity/Good";
 import { MarketActor } from "entity/MarketActor";
 import { StorageRepository } from "entity/Storage";
-import { PlayerRepository } from "entity/Player";
+import { PlayerRepository, Player } from "entity/Player";
 import { FactoryRepository } from "entity/Factory";
+import * as Entity from "entity/Market";
 
 export class Market
 {
+    public static DefaultMarket;
     public static async Run(): Promise<void>
     {
-        for (const market of await MarketRepository.find()) {
-            for (const good of await GoodRepository.find()) {
-                const buyoffers = await BuyOfferRepository.find({
+        this.DefaultMarket = Entity.Market.GetById(1);
+
+        for (const market of await Entity.Market.All()) {
+            for (const good of await Good.All()) {
+                /*const buyoffers = await BuyOfferRepository.find({
                     where: { good }, order: {
                         price: "DESC"
                     }
@@ -62,30 +66,28 @@ export class Market
 
                     if (buy.amount === 0) {
                         buyoffers.shift();
-                        BuyOfferRepository.remove(buy);
+                        BuyOffer.Delete(buy.id);
                     }
 
                     if (sell.amount === 0) {
                         selloffers.shift();
-                        SellOfferRepository.remove(sell);
+                        SellOffer.Delete(sell.id);
                     }
 
                 }
+        */
+
             }
+
         }
     }
 
     public static async AddToStorage(actor: MarketActor, good: Good, amount: number): Promise<void>
     {
-        const player = await PlayerRepository.findOne({
-            where: {
-                Actor: actor,
-            },
-        });
-
+        const player = await Player.GetWithActor(actor.id);
         const factory = player.Factory;
 
-        const record = await StorageRepository.findOne({
+        /*const record = await StorageRepository.findOne({
             where: {
                 Factory: factory,
                 Good: good,
@@ -100,13 +102,14 @@ export class Market
                 Good: good,
                 amount,
             });
-        }
+        }*/
 
     }
 
     public static async RemoveFromStorage(actor: MarketActor, good: Good, amount: number): Promise<boolean>
     {
-        const player = await PlayerRepository.findOne({
+        return false;
+        /*const player = await PlayerRepository.findOne({
             where: {
                 Actor: actor,
             },
@@ -125,49 +128,42 @@ export class Market
             return false;
         } else {
             record.amount -= amount;
-        }
+        }*/
 
     }
 
     public static async TransferCash(actor: MarketActor, amount: number): Promise<void>
     {
-        const player = await PlayerRepository.findOne({
-            where: {
-                Actor: actor,
-            },
-        });
+        const player = await Player.GetWithActor(actor.id);
 
         player.cash += amount;
     }
 
-    public static async PlayerByActor(actor: MarketActor) {
-        return await PlayerRepository.findOne({
-            where: {
-                Actor: actor,
-            },
-        });
-    }
 
 
-    public static async AddBuyOffer(actor: MarketActor, good: Good, amount: number, price: number) {
-        const player = await this.PlayerByActor(actor);
+
+    public static async AddBuyOffer(actor: MarketActor, good: Good, amount: number, price: number)
+    {
+        const player = await Player.GetWithActor(actor.id);
 
         if (player.cash < amount * price) {
             return;
         }
 
         this.TransferCash(player.Actor, -amount * price);
-        BuyOfferRepository.create({
-            Market: await MarketRepository.findOne(1),
-            MarketActor: actor,
-            Good: good,
-            amount,
-            price,
-        });
+
+        const offer = new BuyOffer();
+        offer.Market = this.DefaultMarket;
+        offer.Good = good;
+        offer.amount = amount;
+        offer.MarketActor = actor;
+
+        SellOffer.Insert(offer);
     }
 
-    public static async AddSellOffer(actor: MarketActor, good: Good, amount: number, price: number) {
-        const player = await this.PlayerByActor(actor);
+    public static async AddSellOffer(actor: MarketActor, good: Good, amount: number, price: number)
+    {
+        const player = await Player.GetWithActor(actor.id);
 
         const res = await this.RemoveFromStorage(actor, good, amount);
 
@@ -175,12 +171,12 @@ export class Market
             return;
         }
 
-        SellOfferRepository.create({
-            Market: await MarketRepository.findOne(1),
-            MarketActor: actor,
-            Good: good,
-            amount,
-            price,
-        });
+        const offer = new SellOffer();
+        offer.Market = this.DefaultMarket;
+        offer.Good = good;
+        offer.amount = amount;
+        offer.MarketActor = actor;
+
+        SellOffer.Insert(offer);
     }
 }

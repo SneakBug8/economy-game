@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import "mocha";
 import { sleep } from "utility/sleep";
-import { Production } from "Production";
+import { Production } from "entity/Production";
 
 describe("ProductionTests", () =>
 {
@@ -22,5 +22,13 @@ describe("ProductionTests", () =>
 
         assert.ok(production.Good, "Good");
         assert.ok(production.Market, "Market");
+    });
+
+    it("All", async () =>
+    {
+        const prods = await Production.All();
+
+        assert.ok(prods.length, "count");
+        assert.ok(prods[0].id, "ID");
     });
 });

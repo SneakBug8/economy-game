@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import "mocha";
-import { Market } from "Market";
+import { Market } from "entity/Market";
 
 describe("MarketTests", () =>
 {
@@ -14,5 +14,13 @@ describe("MarketTests", () =>
         const market = await Market.GetById(1);
 
         assert.ok(market.id, "ID");
+    });
+
+    it("All", async () =>
+    {
+        const markets = await Market.All();
+
+        assert.ok(markets.length, "count");
+        assert.ok(markets[0].id, "ID");
     });
 });

@@ -1,12 +1,104 @@
 import { Factory } from "./Factory";
 import { Good } from "./Good";
-import { Connection } from "DB";
+import { Connection } from "DataBase";
 
-export class Storage {
+export class Storage
+{
     public id;
+    public factoryId: number;
     public Factory: Factory;
+    public goodId: number;
     public Good: Good;
     public amount: number;
+
+    public static async From(dbobject: any)
+    {
+        const res = new Storage();
+        res.id = dbobject.id;
+        res.factoryId = dbobject.factoryId;
+        res.goodId = dbobject.goodId;
+        res.amount = dbobject.amount;
+
+        if (res.factoryId) {
+            res.Factory = await Factory.GetById(res.factoryId);
+        }
+        if (res.goodId) {
+            res.Good = await Good.GetById(res.goodId);
+        }
+
+        return res;
+    }
+
+    public static async GetById(id: number): Promise<Storage>
+    {
+        const data = await StorageRepository().select().where("id", id).first();
+
+        if (data) {
+            return this.From(data);
+        }
+
+        return null;
+    }
+
+    public static async Count(): Promise<number>
+    {
+        const data = await StorageRepository().count("id as c").first() as any;
+
+        console.log(data);
+
+        if (data) {
+            return data.c;
+        }
+
+        return null;
+    }
+
+    public static async Exists(id: number): Promise<boolean>
+    {
+        const res = await StorageRepository().count("id as c").where("id", id).first() as any;
+
+        return res.c > 0;
+    }
+
+    public static async Update(record: Storage): Promise<number>
+    {
+        const d = await StorageRepository().where("id", record.id).update(record);
+
+        return d[0];
+    }
+
+
+    public static async Insert(record: Storage): Promise<number>
+    {
+        const d = await StorageRepository().insert(record);
+
+        record.id = d[0];
+
+        return d[0];
+    }
+
+    public static async Delete(id: number): Promise<boolean>
+    {
+        await StorageRepository().delete().where("id", id);
+
+        return true;
+    }
+
+    public static async All(): Promise<Storage[]>
+    {
+        const data = await StorageRepository().select();
+        const res = new Array<Storage>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
 }
 
-export const StorageRepository = Connection("Storages");
+export const StorageRepository = () => Connection<Storage>("Storages");

@@ -10,4 +10,6 @@ export class Config {
     public static dataPath(): string {
         return __dirname + "/../data";
     }
+
+    public static RegistrationCash = 500;
 }

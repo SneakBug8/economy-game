@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import "mocha";
 import { sleep } from "utility/sleep";
-import { SellOffer } from "SellOffer";
+import { SellOffer } from "entity/SellOffer";
 
 describe("SellOfferTests", () =>
 {
@@ -20,14 +20,16 @@ describe("SellOfferTests", () =>
         const selloffer = await SellOffer.GetById(1);
 
         assert.ok(selloffer.id, "ID");
-        assert.ok(selloffer.market_id, "Market ID");
-        assert.ok(selloffer.actor_id, "Actor ID");
-        assert.ok(selloffer.good_id, "good id");
+        assert.ok(selloffer.marketId, "Market ID");
+        assert.ok(selloffer.actorId, "Actor ID");
+        assert.ok(selloffer.goodId, "good id");
         assert.ok(selloffer.amount, "Amount");
         assert.ok(selloffer.price, "Price");
         assert.ok(selloffer.turn_id, "Turn ID");
 
         assert.ok(selloffer.Good, "Good");
         assert.ok(selloffer.Market, "Market");
+        assert.ok(selloffer.MarketActor, "Actor");
+
     });
 });

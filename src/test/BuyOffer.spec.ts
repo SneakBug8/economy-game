@@ -19,14 +19,15 @@ describe("BuyOfferTests", () =>
         const buyoffer = await BuyOffer.GetById(1);
 
         assert.ok(buyoffer.id, "ID");
-        assert.ok(buyoffer.market_id, "Market ID");
-        assert.ok(buyoffer.actor_id, "Actor ID");
-        assert.ok(buyoffer.good_id, "good");
+        assert.ok(buyoffer.marketId, "Market ID");
+        assert.ok(buyoffer.actorId, "Actor ID");
+        assert.ok(buyoffer.goodId, "good");
         assert.ok(buyoffer.amount, "Amount");
         assert.ok(buyoffer.price, "Price");
         assert.ok(buyoffer.turn_id, "Turn ID");
 
         assert.ok(buyoffer.Good, "Good");
+        assert.ok(buyoffer.MarketActor, "MarketActor");
         assert.ok(buyoffer.Market, "Market");
     });
 });

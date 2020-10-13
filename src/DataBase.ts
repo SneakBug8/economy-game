@@ -4,8 +4,9 @@ import * as knex from "knex";
 export const Connection = knex({
     client: "sqlite3",
     connection: {
-        filename: "../db.db",
-    }
+        filename: "db.db",
+    },
+    useNullAsDefault: true
 });
 
 

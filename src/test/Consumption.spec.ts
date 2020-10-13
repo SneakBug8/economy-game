@@ -1,7 +1,7 @@
 import * as assert from "assert";
 import "mocha";
 import { sleep } from "utility/sleep";
-import { Consumption } from "Consumption";
+import { Consumption } from "entity/Consumption";
 
 describe("ConsumptionTests", () =>
 {
@@ -22,5 +22,13 @@ describe("ConsumptionTests", () =>
 
         assert.ok(consumption.Good, "Good");
         assert.ok(consumption.Market, "Market");
+    });
+
+    it("All", async () =>
+    {
+        const cons = await Consumption.All();
+
+        assert.ok(cons.length, "count");
+        assert.ok(cons[0].id, "ID");
     });
 });
