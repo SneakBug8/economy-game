@@ -130,7 +130,13 @@ export class Player
 
     public static async Delete(id: number): Promise<boolean>
     {
+        const player = await this.GetById(id);
         await PlayerRepository().delete().where("id", id);
+
+        if (player) {
+            Factory.Delete(player.factory_id);
+            MarketActor.Delete(player.actor_id);
+        }
 
         return true;
     }

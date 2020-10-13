@@ -4,7 +4,7 @@ import { Factory } from "entity/Factory";
 import { MarketActor } from "entity/MarketActor";
 
 export class Users {
-    public static async Register(username: string, passwd: string) {
+    public static async Register(username: string, passwd: string) : Promise<number> {
         const player = new Player();
         player.cash = Config.RegistrationCash;
         player.username = username;
@@ -18,16 +18,18 @@ export class Users {
         player.Actor = actor;
         await MarketActor.Insert(actor);
 
-        await Player.Insert(player);
+        const id = await Player.Insert(player);
+
+        return id;
     }
 
-    public static async Login(username: string, passwd: string): Promise<boolean> {
+    public static async Login(username: string, passwd: string): Promise<Player> {
         const player = await Player.GetWithLogin(username);
 
-        if (player.password === passwd) {
-            return true;
+        if (player && player.password === passwd) {
+            return player;
         }
 
-        return false;
+        return null;
     }
 }
