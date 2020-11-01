@@ -43,12 +43,6 @@ export class Turn
 
     public static async Insert(turn: Turn): Promise<number>
     {
-        /*
-        res.id = dbobject.id;
-        res.datetime = dbobject.datetime;
-        res.totalcash = dbobject.totalcash;
-        res.cashperplayer = dbobject.cashperplayer;
-        res.freecash = dbobject.freecash;*/
         const d = await TurnRepository().insert({
             datetime: turn.datetime,
             totalcash: turn.totalcash,

@@ -10,15 +10,14 @@ export class UsersService {
         player.username = username;
         player.password = passwd;
 
-        const factory = new Factory();
-        await Factory.Insert(factory);
-        player.setFactory(factory);
-
         const actor = new MarketActor();
         await MarketActor.Insert(actor);
         player.setActor(actor);
 
         const id = await Player.Insert(player);
+
+        // TODO: Set default workers and salary
+        const factoryid = await Factory.Create(player, 10, 1);
 
         return id;
     }

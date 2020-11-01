@@ -65,7 +65,7 @@ export class MarketService
 
                         await this.TransferCash(buyactor, -transactioncost);
                         await this.TransferCash(sellactor, transactioncost);
-                        await Storage.AddGoodTo(await buyerplayer.getFactory(), good, transactionsize);
+                        await Storage.AddGoodTo(buyactor, good, transactionsize);
 
                         EventsList.onTrade.emit({
                             Type: TradeEventType.ToPlayer,
@@ -117,7 +117,7 @@ export class MarketService
                         await this.TransferCash(buyactor, -transactioncost);
                         Turn.CurrentTurn.ModifyFreeCash(transactioncost);
                         const buyerplayer = await Player.GetWithActor(buyactor);
-                        await Storage.AddGoodTo(await buyerplayer.getFactory(), good, transactionsize);
+                        await Storage.AddGoodTo(buyactor, good, transactionsize);
 
                         EventsList.onTrade.emit({
                             Type: TradeEventType.FromGovernment,
@@ -268,7 +268,7 @@ export class MarketService
     public static async AddSellOffer(actor: MarketActor, good: Good, amount: number)
     {
         const player = await Player.GetWithActor(actor);
-        const res = await Storage.Has(await player.getFactory(), good, amount);
+        const res = await Storage.Has(await actor, good, amount);
 
         if (!res) {
             return;

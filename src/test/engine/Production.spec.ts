@@ -19,7 +19,8 @@ describe("ProductionEngine", () =>
         const newplayerid = await UsersService.Register("1", "1");
         const player = await Player.GetById(newplayerid);
 
-        const factory = await player.getFactory();
+        const actor = await player.getActor();
+        const factory = (await player.getFactories())[0];
 
         // factory.RecipeId = RecipesService.FirstToFirst.id;
         await ProductionQueue.AddWithFactory(factory, {
@@ -30,11 +31,11 @@ describe("ProductionEngine", () =>
 
         await Factory.Update(factory);
 
-        await Storage.AddGoodTo(factory, RecipesService.firstgood, 10);
+        await Storage.AddGoodTo(actor, RecipesService.firstgood, 10);
 
         await ProductionService.Run();
 
-        assert.ok(await Storage.Has(factory, RecipesService.firstgood, 11), "Produced 2 goods");
+        assert.ok(await Storage.Has(actor, RecipesService.firstgood, 11), "Produced 2 goods");
 
         await Player.Delete(newplayerid);
     });

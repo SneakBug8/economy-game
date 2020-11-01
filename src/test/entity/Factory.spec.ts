@@ -18,7 +18,6 @@ describe("FactoryTests", () =>
         const factory = new Factory();
         factory.salary = 1;
         factory.employeesCount = 1;
-        factory.RecipeId = 1;
 
         const res = await Factory.Insert(factory);
 
@@ -32,7 +31,6 @@ describe("FactoryTests", () =>
         const factory = await Factory.GetById(lastid);
 
         assert.ok(factory.id, "ID");
-        assert.ok(factory.RecipeId, "good id");
         assert.ok(factory.salary, "salary");
         assert.ok(factory.employeesCount, "employees_count");
     });

@@ -12,12 +12,15 @@ export class ProductionService
         for (const factory of await Factory.All()) {
             const queue = await ProductionQueue.GetWithFactory(factory);
 
+            const player = await factory.getOwner();
+            const actor = await player.getActor();
+
             if (!queue) {
                 continue;
             }
 
             let remainingemployees = factory.employeesCount;
-            for (let i = 0; i < queue.Queue.length; i++) {
+            while (queue.Queue && queue.Queue.length) {
                 const queueentry = queue.Queue.shift();
                 const recipe = RecipesService.GetById(queueentry.RecipeId);
 
@@ -41,7 +44,7 @@ export class ProductionService
 
                 // Check for resources
                 for (const input of recipe.Requisites) {
-                    const storageentry = await Storage.GetWithGoodAndFactory(factory, input.Good);
+                    const storageentry = await Storage.GetWithGoodAndActor(actor, input.Good);
 
                     if (!storageentry) {
                         break;
@@ -60,14 +63,12 @@ export class ProductionService
 
                 remainingemployees -= reciperepeats * recipe.employeesneeded;
 
-                const player = await Player.GetWithFactory(factory);
-
                 for (const input of recipe.Requisites) {
-                    await Storage.TakeGoodFrom(factory, input.Good, reciperepeats * input.amount);
+                    await Storage.TakeGoodFrom(actor, input.Good, reciperepeats * input.amount);
                 }
 
                 for (const output of recipe.Results) {
-                    await Storage.AddGoodTo(factory, output.Good, reciperepeats * output.amount);
+                    await Storage.AddGoodTo(actor, output.Good, reciperepeats * output.amount);
 
                     EventsList.onProduction.emit({
                         Factory: factory,

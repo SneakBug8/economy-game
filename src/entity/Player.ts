@@ -1,4 +1,4 @@
-import { Factory } from "./Factory";
+import { Factory, FactoryRepository } from "./Factory";
 import { MarketActor } from "./MarketActor";
 import { Connection } from "DataBase";
 import { Log } from "./Log";
@@ -9,14 +9,6 @@ export class Player
     public username: string;
     public password: string;
     public cash: number;
-    public factoryId: number;
-
-    public async getFactory(): Promise<Factory> {
-        return Factory.GetById(this.factoryId);
-    }
-    public setFactory(factory: Factory) {
-        this.factoryId = factory.id;
-    }
 
     public actorId: number;
     public async getActor(): Promise<MarketActor>
@@ -35,14 +27,13 @@ export class Player
         res.username = dbobject.username;
         res.password = dbobject.password;
         res.cash = dbobject.cash;
-        res.factoryId = dbobject.factoryId;
         res.actorId = dbobject.actorId;
 
         return res;
     }
 
     public Verbose(): void {
-        Log.LogTemp(`Player ${this.username} (${this.id}) with factory ${this.factoryId} and actor ${this.actorId}, cash: ${this.cash}`);
+        Log.LogTemp(`Player ${this.username} (${this.id}) with actor ${this.actorId}, cash: ${this.cash}`);
     }
 
     public static async GetById(id: number): Promise<Player>
@@ -67,15 +58,31 @@ export class Player
         return null;
     }
 
+    // TODO: Get rid of
     public static async GetWithFactory(factory: Factory): Promise<Player>
     {
-        const data = await PlayerRepository().select().where("factoryId", factory.id).first();
+        return factory.getOwner();
+    }
+
+    public async getFactories(): Promise<Factory[]> {
+        return Player.GetFactories(this);
+    }
+
+    public static async GetFactories(player: Player): Promise<Factory[]>
+    {
+        const data = await FactoryRepository().select().where("playerId", player.id);
+
+        const res = new Array<Factory>();
 
         if (data) {
-            return this.From(data);
+            for (const entry of data) {
+                res.push(await Factory.From(entry));
+            }
+
+            return res;
         }
 
-        return null;
+        return [];
     }
 
     public static async GetWithActor(actor: MarketActor): Promise<Player>
@@ -112,7 +119,6 @@ export class Player
             username: player.username,
             password: player.password,
             cash: player.cash,
-            factoryId: player.factoryId,
             actorId: player.actorId,
         });
 
@@ -129,7 +135,6 @@ export class Player
             username: player.username,
             password: player.password,
             cash: player.cash,
-            factoryId: player.factoryId,
             actorId: player.actorId,
         });
 
@@ -147,9 +152,11 @@ export class Player
         if (player.getActor()) {
             MarketActor.Delete(player.actorId);
         }
-        if (player.getFactory()) {
-            Factory.Delete(player.factoryId);
+
+        for (const factory of await player.getFactories()) {
+            Factory.Delete(factory.id);
         }
+
         await PlayerRepository().delete().where("id", id);
 
         Log.LogText("Deleted player id " + id);

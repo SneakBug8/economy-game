@@ -3,6 +3,7 @@ import "mocha";
 import { Player } from "entity/Player";
 import { MarketActor } from "entity/MarketActor";
 import { Factory } from "entity/Factory";
+import { UsersService } from "services/UsersService";
 
 let lastid = 1;
 
@@ -15,22 +16,13 @@ describe("PlayerTests", () =>
 
     it("Add", async () =>
     {
-        const player = new Player();
-        const actor = new MarketActor();
-        const factory = new Factory();
+        const playerid = await UsersService.Register("a", "b");
 
-        const a = await MarketActor.Insert(actor);
-        const b = await Factory.Insert(factory);
+        const player = await Player.GetById(playerid);
 
-        player.actorId = a;
-        player.factoryId = b;
-        player.username = "a"; player.password = "b"; player.cash = 2;
+        assert.ok(player, "Insert res id");
 
-        const res = await Player.Insert(player);
-
-        assert.ok(res, "Insert res id");
-
-        lastid = res;
+        lastid = playerid;
     });
 
 
@@ -41,7 +33,7 @@ describe("PlayerTests", () =>
         assert.ok(res.id, "Last id res");
         assert.ok(res.username, "login");
         assert.ok(res.password, "password");
-        assert.ok(res.factoryId, "factory_id");
+        assert.ok(await res.getFactories(), "factory_id");
         assert.ok(res.cash, "cash");
         assert.ok(res.actorId, "actor_id");
     });
@@ -59,8 +51,7 @@ describe("PlayerTests", () =>
         assert.ok(res.id, "Last id res");
         assert.ok(res.username, "login");
         assert.ok(res.password, "password");
-        assert.ok(res.factoryId, "factory_id");
-        assert.ok(await res.getFactory(), "Factory");
+        assert.ok(await res.getFactories(), "Factory");
         assert.ok(res.cash, "cash");
         assert.ok(res.actorId, "actor_id");
         assert.ok(await res.getActor(), "Actor");

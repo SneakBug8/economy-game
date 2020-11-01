@@ -1,6 +1,7 @@
 import { Connection } from "DataBase";
 import { Log } from "./Log";
 import { ProductionQueue } from "./ProductionQueue";
+import { Player } from "./Player";
 
 export class Factory
 {
@@ -8,9 +9,19 @@ export class Factory
     public employeesCount: number;
     public targetEmployees: number;
     public salary: number;
-    public RecipeId: number;
     private Settings: IFactorySettings;
     public settings: string;
+    private playerId: number;
+
+    public async getOwner(): Promise<Player>
+    {
+        return await Player.GetById(this.playerId);
+    }
+
+    public setOwner(player: Player)
+    {
+        this.playerId = player.id;
+    }
 
     public getSettings()
     {
@@ -30,9 +41,9 @@ export class Factory
         res.employeesCount = dbobject.employees_count;
         res.targetEmployees = dbobject.targetEmployees;
         res.salary = dbobject.salary;
-        res.RecipeId = dbobject.recipe_id;
         res.settings = dbobject.settings;
         res.Settings = JSON.parse(res.settings);
+        res.playerId = dbobject.playerId;
 
         return res;
     }
@@ -48,6 +59,23 @@ export class Factory
         return null;
     }
 
+    public static async GetWithPlayer(player: Player): Promise<Factory[]>
+    {
+        const data = await FactoryRepository().select().where("playerId", player.id);
+
+        const res = new Array<Factory>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
     public static async Exists(id: number): Promise<boolean>
     {
         const res = await FactoryRepository().count("id as c").where("id", id).first() as any;
@@ -61,9 +89,18 @@ export class Factory
             employees_count: factory.employeesCount,
             targetEmployees: factory.targetEmployees,
             salary: factory.salary,
-            recipe_id: factory.RecipeId,
             settings: factory.settings,
+            playerId: factory.playerId,
         });
+    }
+
+    public static async Create(owner: Player, employeesCount: number, salary: number): Promise<number> {
+        const factory = new Factory();
+        factory.setOwner(owner);
+        factory.employeesCount = employeesCount;
+        factory.salary = salary;
+
+        return this.Insert(factory);
     }
 
     public static async Insert(factory: Factory): Promise<number>
@@ -73,8 +110,8 @@ export class Factory
             employees_count: factory.employeesCount,
             targetEmployees: factory.targetEmployees,
             salary: factory.salary,
-            recipe_id: factory.RecipeId,
             settings: factory.settings,
+            playerId: factory.playerId,
         });
 
         factory.id = d[0];

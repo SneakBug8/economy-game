@@ -76,9 +76,8 @@ export class SellOffer extends MarketOffer
 
     public static async Create(good: Good, amount: number, price: number, actor: MarketActor) {
         const player = await Player.GetWithActor(actor);
-        const factory = await player.getFactory();
 
-        if (!await Storage.Has(factory, good, amount)) {
+        if (!await Storage.Has(actor, good, amount)) {
             return;
         }
 
@@ -89,7 +88,7 @@ export class SellOffer extends MarketOffer
         offer.price = price;
         offer.setActor(actor);
 
-        await Storage.AddGoodTo(factory, good, -amount);
+        await Storage.AddGoodTo(actor, good, -amount);
 
 
         this.Insert(offer);

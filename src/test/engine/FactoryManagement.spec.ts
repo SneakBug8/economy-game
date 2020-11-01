@@ -19,7 +19,7 @@ describe("FactoryManagement", () =>
         const newplayerid = await UsersService.Register("1", "1");
         let player = await Player.GetById(newplayerid);
 
-        const factory = await player.getFactory();
+        const factory = (await player.getFactories())[0];
 
         const playermoneyprev = player.cash;
 
@@ -46,7 +46,7 @@ describe("FactoryManagement", () =>
         const newplayerid = await UsersService.Register("1", "1");
         const player = await Player.GetById(newplayerid);
 
-        let factory = await player.getFactory();
+        let factory = (await player.getFactories())[0];
 
         const playermoneyprev = player.cash;
 
