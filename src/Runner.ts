@@ -1,21 +1,21 @@
-import "engine/Turns";
-import "engine/Market";
-import "engine/Production";
-import "engine/Users";
-import { Turns } from "engine/Turns";
-import { Recipes } from "engine/Recipes";
-import { Production } from "engine/Production";
-import { Market } from "engine/Market";
+import "services/TurnsService";
+import "services/MarketService";
+import "services/ProductionService";
+import "services/UsersService";
+import { TurnsService } from "services/TurnsService";
+import { RecipesService } from "services/RecipesService";
+import { ProductionService } from "services/ProductionService";
+import { MarketService } from "services/MarketService";
 
 export class Runner {
     public static async Init() {
-        Turns.Init();
-        Recipes.Init();
+        TurnsService.Init();
+        RecipesService.Init();
     }
 
     public static async Turn() {
-        Production.Run();
-        Market.Run();
+        ProductionService.Run();
+        MarketService.Run();
         // for each player
         // hire new employees
         // run production

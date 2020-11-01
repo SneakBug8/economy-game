@@ -1,7 +1,7 @@
 import { MarketOffer } from "./MarketOffer";
 import { Connection } from "DataBase";
 import { MarketActor } from "./MarketActor";
-import { Market } from "./Market";
+import { Market } from "entity/Market";
 import { Good } from "./Good";
 
 export class BuyOffer extends MarketOffer
@@ -28,6 +28,17 @@ export class BuyOffer extends MarketOffer
         }
 
         return res;
+    }
+
+    public static async Create(good: Good, amount: number, price: number, actor: MarketActor) {
+        const offer = new BuyOffer();
+        offer.marketId = Market.DefaultMarket.id;
+        offer.Good = good;
+        offer.amount = amount;
+        offer.price = price;
+        offer.MarketActor = actor;
+
+        this.Insert(offer);
     }
 
     public static async GetById(id: number): Promise<BuyOffer>

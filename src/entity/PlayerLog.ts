@@ -2,7 +2,7 @@ import { Connection } from "DataBase";
 import { Player } from "./Player";
 import { Turn } from "./Turn";
 
-export class LogRecord {
+export class PlayerLog {
 
     public id: number;
     public turnId: number;
@@ -11,7 +11,7 @@ export class LogRecord {
 
     public static async From(dbobject: any)
     {
-        const res = new LogRecord();
+        const res = new PlayerLog();
         res.id = dbobject.id;
         res.turnId = dbobject.turnId;
         res.playerId = dbobject.playerId;
@@ -20,15 +20,17 @@ export class LogRecord {
     }
 
     public static async Log(player: Player, turn: Turn, text: string) {
-        const record = new LogRecord();
+        const record = new PlayerLog();
         record.playerId = player.id;
         record.turnId = turn.id;
         record.text = text;
 
         await this.Insert(record);
+
+        console.log(`[${player.id}] ${turn.id}: ${text}`);
     }
 
-    public static async GetById(id: number): Promise<LogRecord>
+    public static async GetById(id: number): Promise<PlayerLog>
     {
         const data = await LogRecordRepository().select().where("id", id).first();
 
@@ -58,7 +60,7 @@ export class LogRecord {
         return res.c > 0;
     }
 
-    public static async Update(record: LogRecord): Promise<number>
+    public static async Update(record: PlayerLog): Promise<number>
     {
         const d = await LogRecordRepository().where("id", record.id).update({
             playerId: record.playerId,
@@ -70,7 +72,7 @@ export class LogRecord {
     }
 
 
-    public static async Insert(record: LogRecord): Promise<number>
+    public static async Insert(record: PlayerLog): Promise<number>
     {
         const d = await LogRecordRepository().insert({
             playerId: record.playerId,
@@ -90,9 +92,9 @@ export class LogRecord {
         return true;
     }
 
-    public static async All(): Promise<LogRecord[]> {
+    public static async All(): Promise<PlayerLog[]> {
         const data = await LogRecordRepository().select();
-        const res = new Array<LogRecord>();
+        const res = new Array<PlayerLog>();
 
         if (data) {
             for (const entry of data) {
@@ -106,4 +108,4 @@ export class LogRecord {
     }
 }
 
-export const LogRecordRepository = () => Connection<LogRecord>("LogRecords");
+export const LogRecordRepository = () => Connection<PlayerLog>("PlayerLogs");

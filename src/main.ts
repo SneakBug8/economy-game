@@ -4,7 +4,7 @@
 
 
 import {Load} from "./moduleloader";
-import { Recipes } from "engine/Recipes";
+import { RecipesService } from "services/RecipesService";
 import { Runner } from "Runner";
 
 async function bootstrap() {

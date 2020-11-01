@@ -1,4 +1,5 @@
 import { Good } from "entity/Good";
+import { Log } from "entity/Log";
 
 export class Recipe
 {
@@ -38,7 +39,7 @@ export class RecipeEntry
     }
 }
 
-export class Recipes
+export class RecipesService
 {
     // tslint:disable: one-variable-per-declaration
     public static FirstToFirst: Recipe;
@@ -47,6 +48,7 @@ export class Recipes
 
     public static async Init()
     {
+        // Where recipes are added
         this.firstgood = await Good.GetById(1);
         this.FirstToFirst = new Recipe(
             [
@@ -58,6 +60,8 @@ export class Recipes
         );
         this.FirstToFirst.id = 1;
         this.All.push(this.FirstToFirst);
+
+        Log.LogText("Recipes initialized");
     }
 
     public static GetById(id: number) {

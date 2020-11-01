@@ -3,7 +3,7 @@ import { Config } from "config";
 import { Factory } from "entity/Factory";
 import { MarketActor } from "entity/MarketActor";
 
-export class Users {
+export class UsersService {
     public static async Register(username: string, passwd: string) : Promise<number> {
         const player = new Player();
         player.cash = Config.RegistrationCash;

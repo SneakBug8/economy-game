@@ -1,6 +1,6 @@
 import "mocha";
 import { Player } from "entity/Player";
-import { Users } from "engine/Users";
+import { UsersService } from "services/UsersService";
 import assert = require("assert");
 
 let lastid: number;
@@ -9,7 +9,7 @@ describe("UsersEngine", () =>
 {
     it("Registration", async () =>
     {
-        lastid = await Users.Register("1", "1");
+        lastid = await UsersService.Register("1", "1");
         const player = await Player.GetById(lastid);
 
         assert.ok(player, "New Player");
@@ -20,7 +20,7 @@ describe("UsersEngine", () =>
 
     it("Login", async () =>
     {
-        const player = await Users.Login("1", "1");
+        const player = await UsersService.Login("1", "1");
 
         assert.ok(player, "New Player");
         assert.ok(player.id, "ID");

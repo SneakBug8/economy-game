@@ -39,6 +39,22 @@ export class Consumption {
         return null;
     }
 
+    public static async GetWithGood(good: Good): Promise<Consumption[]> {
+        const data = await ConsumptionRepository().select().where("good_id", good.id);
+
+        const res = new Array<Consumption>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
     public static async Exists(id: number): Promise<boolean> {
         const res = await ConsumptionRepository().count("id as c").where("id", id).first() as any;
 

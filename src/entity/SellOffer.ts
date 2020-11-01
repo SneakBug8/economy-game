@@ -3,6 +3,7 @@ import { Connection } from "DataBase";
 import { Market } from "./Market";
 import { MarketActor } from "./MarketActor";
 import { Good } from "./Good";
+import * as Engine from "services/MarketService";
 
 export class SellOffer extends MarketOffer
 {
@@ -39,6 +40,17 @@ export class SellOffer extends MarketOffer
         }
 
         return null;
+    }
+
+    public static async Create(good: Good, amount: number, price: number, actor: MarketActor) {
+        const offer = new SellOffer();
+        offer.marketId = Market.DefaultMarket.id;
+        offer.Good = good;
+        offer.amount = amount;
+        offer.price = price;
+        offer.MarketActor = actor;
+
+        this.Insert(offer);
     }
 
     public static async Exists(id: number): Promise<boolean>

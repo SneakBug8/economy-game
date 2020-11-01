@@ -1,10 +1,10 @@
 import * as assert from "assert";
 import "mocha";
 import { Factory } from "entity/Factory";
-import { Recipes } from "engine/Recipes";
+import { RecipesService } from "services/RecipesService";
 import { Player } from "entity/Player";
-import { Users } from "engine/Users";
-import { Production } from "engine/Production";
+import { UsersService } from "services/UsersService";
+import { ProductionService } from "services/ProductionService";
 import { Storage } from "entity/Storage";
 import { Runner } from "Runner";
 
@@ -13,23 +13,23 @@ describe("ProductionEngine", () =>
 
     it("Produces", async () =>
     {
-        const newplayerid = await Users.Register("1", "1");
+        Runner.Init();
+
+        const newplayerid = await UsersService.Register("1", "1");
         const player = await Player.GetById(newplayerid);
 
         const factory = player.Factory;
         const actor = player.Actor;
 
-        Runner.Init();
-
-        factory.RecipeId = Recipes.FirstToFirst.id;
+        factory.RecipeId = RecipesService.FirstToFirst.id;
         factory.employeesCount = 1;
 
         Factory.Update(factory);
 
-        await Storage.AddGoodTo(factory, Recipes.firstgood, 10);
+        await Storage.AddGoodTo(factory, RecipesService.firstgood, 10);
 
-        await Production.Run();
+        await ProductionService.Run();
 
-        assert.ok(await Storage.Has(factory, Recipes.firstgood, 11), "Produced 2 goods");
+        assert.ok(await Storage.Has(factory, RecipesService.firstgood, 11), "Produced 2 goods");
     });
 });

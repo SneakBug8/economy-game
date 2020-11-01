@@ -1,16 +1,17 @@
 import { Factory } from "entity/Factory";
-import { Recipes, Recipe } from "./Recipes";
+import { RecipesService, Recipe } from "./RecipesService";
 import { Storage } from "entity/Storage";
 import { Player } from "entity/Player";
-import { LogRecord } from "entity/LogRecord";
-import { Turns } from "./Turns";
+import { PlayerLog } from "entity/PlayerLog";
+import { TurnsService } from "./TurnsService";
+import { Turn } from "entity/Turn";
 
-export class Production
+export class ProductionService
 {
     public static async Run(): Promise<void>
     {
         for (const factory of await Factory.All()) {
-            const recipe = Recipes.GetById(factory.RecipeId);
+            const recipe = RecipesService.GetById(factory.RecipeId);
 
             if (!recipe) {
                 continue;
@@ -40,7 +41,7 @@ export class Production
 
             for (const output of recipe.Results) {
                 await Storage.AddGoodTo(factory, output.Good, reciperepeats * output.amount);
-                LogRecord.Log(player, Turns.CurrentTurn, "Produced " + reciperepeats * output.amount + " items");
+                PlayerLog.Log(player, Turn.CurrentTurn, "Produced " + reciperepeats * output.amount + " items");
                 // Market.AddToStorage(player.Actor, output.Good, reciperepeats * output.amount);
             }
         }

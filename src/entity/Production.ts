@@ -39,6 +39,22 @@ export class Production {
         return null;
     }
 
+    public static async GetWithGood(good: Good): Promise<Production[]> {
+        const data = await ProductionRepository().select().where("good_id", good.id);
+
+        const res = new Array<Production>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
     public static async Exists(id: number): Promise<boolean> {
         const res = await ProductionRepository().count("id as c").where("id", id).first() as any;
 

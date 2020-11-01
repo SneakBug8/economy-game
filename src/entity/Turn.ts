@@ -8,6 +8,7 @@ export class Turn
     public cashperplayer: number;
     public freecash: number;
 
+    public static CurrentTurn: Turn;
 
     public static async From(dbobject: any) {
         const res = new Turn();
@@ -18,6 +19,10 @@ export class Turn
         res.freecash = dbobject.freecash;
 
         return res;
+    }
+
+    public ModifyFreeCash(amount: number) {
+        this.freecash += amount;
     }
 
     public static async GetById(id: number): Promise<Turn> {
