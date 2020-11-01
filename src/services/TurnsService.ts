@@ -22,5 +22,7 @@ export class TurnsService {
         Turn.CurrentTurn.totalcash += Turn.CurrentTurn.freecash;
 
         Turn.Insert(Turn.CurrentTurn);
+
+        await this.Init();
     }
 }

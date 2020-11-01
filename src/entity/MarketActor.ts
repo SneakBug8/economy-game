@@ -1,4 +1,5 @@
 import { Connection } from "DataBase";
+import { Log } from "./Log";
 
 export class MarketActor {
     public id: number;
@@ -38,6 +39,8 @@ export class MarketActor {
 
     public static async Delete(id: number): Promise<boolean> {
         await MarketActorRepository().delete().where("id", id);
+
+        Log.LogText("Deleted actor id " + id);
 
         return true;
     }

@@ -42,7 +42,7 @@ export class Player
     }
 
     public Verbose(): void {
-        Log.LogTemp(`Player ${this.id} with factory ${this.factoryId} and actor ${this.actorId}, cash: ${this.cash}`);
+        Log.LogTemp(`Player ${this.username} (${this.id}) with factory ${this.factoryId} and actor ${this.actorId}, cash: ${this.cash}`);
     }
 
     public static async GetById(id: number): Promise<Player>
@@ -141,12 +141,18 @@ export class Player
     public static async Delete(id: number): Promise<boolean>
     {
         const player = await this.GetById(id);
-        await PlayerRepository().delete().where("id", id);
-
-        if (player) {
-            Factory.Delete(player.factoryId);
+        if (!player) {
+            return false;
+        }
+        if (player.getActor()) {
             MarketActor.Delete(player.actorId);
         }
+        if (player.getFactory()) {
+            Factory.Delete(player.factoryId);
+        }
+        await PlayerRepository().delete().where("id", id);
+
+        Log.LogText("Deleted player id " + id);
 
         return true;
     }

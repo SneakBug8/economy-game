@@ -40,11 +40,50 @@ describe("MarketEngine", () =>
 
         await MarketService.Run();
 
-        console.log(await Storage.Amount(factorysecond, RecipesService.firstgood));
-
-        assert.ok(await Storage.Has(factorysecond, RecipesService.firstgood, 10), "Bought 10 goods");
+        assert.ok(await Storage.Amount(factorysecond, RecipesService.firstgood) > 0, "Traded goods")
+        assert.ok(await Storage.Has(factorysecond, RecipesService.firstgood, 10), "Traded 10 goods");
 
         await Player.Delete(newplayerid);
         await Player.Delete(anotherlayerid);
+    });
+
+    let playerid;
+
+    it("BuyFromServer", async () =>
+    {
+        Runner.Init();
+
+        playerid = await UsersService.Register("3", "3");
+        const player = await Player.GetById(playerid);
+        player.Verbose();
+
+        const actor = await player.getActor();
+        const factory = await player.getFactory();
+
+        await BuyOffer.Create(RecipesService.firstgood, 10, 1, actor);
+
+        await MarketService.Run();
+
+        assert.ok(await Storage.Amount(factory, RecipesService.firstgood) > 0, "Bought goods")
+        assert.ok(await Storage.Has(factory, RecipesService.firstgood, 10), "Bought 10 goods");
+    });
+
+    it("SellToServer", async () =>
+    {
+        Runner.Init();
+
+        const player = await Player.GetById(playerid);
+        player.Verbose();
+
+        const actor = await player.getActor();
+        const factory = await player.getFactory();
+
+        await SellOffer.Create(RecipesService.firstgood, 10, 1, actor);
+
+        await MarketService.Run();
+
+        assert.ok(await Storage.Amount(factory, RecipesService.firstgood) === 0, "Sold goods")
+
+        await Player.Delete(playerid);
     });
 });

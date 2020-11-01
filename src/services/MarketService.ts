@@ -61,15 +61,15 @@ export class MarketService
                         tradeamount += transactionsize;
                         lastprice = sell.price;
 
-                        this.TransferCash(buyactor, -transactioncost);
-                        this.TransferCash(sellactor, transactioncost);
-                        Storage.AddGoodTo(await buyerplayer.getFactory(), good, transactionsize);
+                        await this.TransferCash(buyactor, -transactioncost);
+                        await this.TransferCash(sellactor, transactioncost);
+                        await Storage.AddGoodTo(await buyerplayer.getFactory(), good, transactionsize);
 
-                        Log.LogText(`Transaction between ${buyactor.id} and ${sellactor.id} for ${transactioncost} in ${good.name}`);
+                        Log.LogText(`Transaction between ${sellactor.id} and ${buyactor.id} for ${transactioncost} in ${good.name}`);
                         PlayerLog.Log(buyerplayer, Turn.CurrentTurn, `Bought ${transactionsize} of ${good.name}` +
-                            `for ${transactioncost} from ${sellerplayer.username}`);
+                            ` for ${transactioncost} from ${sellerplayer.username}`);
                         PlayerLog.Log(sellerplayer, Turn.CurrentTurn, `Sold ${transactionsize}` +
-                            `of ${good.name} for ${transactioncost} to ${buyerplayer.username}`);
+                            ` of ${good.name} for ${transactioncost} to ${buyerplayer.username}`);
                     }
                     else {
                         break;
@@ -103,10 +103,13 @@ export class MarketService
                         tradeamount += transactionsize;
                         lastprice = buy.price;
 
-                        this.TransferCash(buyactor, -transactioncost);
+                        await this.TransferCash(buyactor, -transactioncost);
                         Turn.CurrentTurn.ModifyFreeCash(transactioncost);
                         const buyerplayer = await Player.GetWithActor(buyactor);
-                        Storage.AddGoodTo(await buyerplayer.getFactory(), good, transactionsize);
+                        await Storage.AddGoodTo(await buyerplayer.getFactory(), good, transactionsize);
+
+                        PlayerLog.Log(buyerplayer, Turn.CurrentTurn, `Bought ${transactionsize} of ${good.name}` +
+                            ` for ${transactioncost} from state`);
                     }
                     else {
                         break;
@@ -128,6 +131,7 @@ export class MarketService
                     const consumption = consumptions[0];
 
                     const sellactor = await sell.getActor();
+                    const sellerplayer = await Player.GetWithActor(sellactor);
 
                     if (sell.price <= consumption.maxprice) {
                         const transactionsize = Math.min(sell.amount, consumption.amount);
@@ -139,8 +143,11 @@ export class MarketService
                         tradeamount += transactionsize;
                         lastprice = sell.price;
 
-                        this.TransferCash(sellactor, transactioncost);
+                        await this.TransferCash(sellactor, transactioncost);
                         Turn.CurrentTurn.ModifyFreeCash(-transactioncost);
+
+                        PlayerLog.Log(sellerplayer, Turn.CurrentTurn, `Sold ${transactionsize}` +
+                            ` of ${good.name} for ${transactioncost} to state`);
                     }
                     else {
                         break;

@@ -1,4 +1,5 @@
 import { Connection } from "DataBase";
+import { Log } from "./Log";
 
 export class Factory {
     public id: number;
@@ -60,6 +61,8 @@ export class Factory {
 
     public static async Delete(id: number): Promise<boolean> {
         await FactoryRepository().delete().where("id", id);
+
+        Log.LogText("Deleted factory id " + id);
 
         return true;
     }
