@@ -9,6 +9,19 @@ export class Factory
     public targetEmployees: number;
     public salary: number;
     public RecipeId: number;
+    private Settings: IFactorySettings;
+    public settings: string;
+
+    public getSettings()
+    {
+        return this.Settings;
+    }
+
+    public setSettings(settings: IFactorySettings)
+    {
+        this.Settings = settings;
+        this.settings = JSON.stringify(settings);
+    }
 
     public static async From(dbobject: any): Promise<Factory>
     {
@@ -18,6 +31,8 @@ export class Factory
         res.targetEmployees = dbobject.targetEmployees;
         res.salary = dbobject.salary;
         res.RecipeId = dbobject.recipe_id;
+        res.settings = dbobject.settings;
+        res.Settings = JSON.parse(res.settings);
 
         return res;
     }
@@ -47,6 +62,7 @@ export class Factory
             targetEmployees: factory.targetEmployees,
             salary: factory.salary,
             recipe_id: factory.RecipeId,
+            settings: factory.settings,
         });
     }
 
@@ -58,6 +74,7 @@ export class Factory
             targetEmployees: factory.targetEmployees,
             salary: factory.salary,
             recipe_id: factory.RecipeId,
+            settings: factory.settings,
         });
 
         factory.id = d[0];
@@ -96,6 +113,11 @@ export class Factory
 
         return [];
     }
+}
+
+export interface IFactorySettings
+{
+    testSetting: boolean;
 }
 
 export const FactoryRepository = () => Connection("Factories");

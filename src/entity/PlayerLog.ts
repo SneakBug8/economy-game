@@ -41,6 +41,23 @@ export class PlayerLog {
         return null;
     }
 
+    public static async GetWithPlayer(id: number): Promise<PlayerLog[]>
+    {
+        const data = await LogRecordRepository().select().where("playerId", id);
+
+        const res = new Array<PlayerLog>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
     public static async Count(): Promise<number> {
         const data = await LogRecordRepository().count("id as c").first() as any;
 

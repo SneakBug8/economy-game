@@ -8,6 +8,8 @@ import { ProductionService } from "services/ProductionService";
 import { MarketService } from "services/MarketService";
 import { TradeWatcher } from "watchers/TradeWatcher";
 import { ProductionWatcher } from "watchers/ProductionWatcher";
+import * as child_process from "child_process";
+import { FactoryManagementService } from "services/FactoryManagementService";
 
 export class Runner {
     public static async Init() {
@@ -18,19 +20,19 @@ export class Runner {
         // Watchers
         TradeWatcher.Init();
         ProductionWatcher.Init();
+
+        require("web/main");
+        //child_process.exec("npm run-script web");
     }
 
     public static async Turn() {
+        // Production
         ProductionService.Run();
+        // Trade
         MarketService.Run();
-        TurnsService.MakeReport();
-        // for each player
-        // hire new employees
-        // run production
-        //
-        // for each Market
-        // for each Good
-        // run market cycle
+        // Salaries and employees
+        FactoryManagementService.Run();
 
+        TurnsService.MakeReport();
     }
 }

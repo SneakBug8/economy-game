@@ -163,7 +163,7 @@ export class MarketService
                         Turn.CurrentTurn.ModifyFreeCash(-transactioncost);
 
                         EventsList.onTrade.emit({
-                            Type: TradeEventType.FromGovernment,
+                            Type: TradeEventType.ToGovernment,
                             Actor: sellactor,
                             Good: good,
                             Amount: transactionsize,
