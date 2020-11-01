@@ -10,11 +10,12 @@
     "ordered-imports": [false],
     "max-line-length": [true, 150],
     "member-ordering": [false],
-    "interface-name": [false],
+    "interface-name": [true],
     "arrow-parens": false,
     "object-literal-sort-keys": false,
     "max-classes-per-file":false,
-    "no-console": false
+    "no-console": false,
+    "one-line": false
   },
   "rulesDirectory": []
 }

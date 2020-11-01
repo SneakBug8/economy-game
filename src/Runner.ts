@@ -6,12 +6,18 @@ import { TurnsService } from "services/TurnsService";
 import { RecipesService } from "services/RecipesService";
 import { ProductionService } from "services/ProductionService";
 import { MarketService } from "services/MarketService";
+import { TradeWatcher } from "watchers/TradeWatcher";
+import { ProductionWatcher } from "watchers/ProductionWatcher";
 
 export class Runner {
     public static async Init() {
         TurnsService.Init();
         RecipesService.Init();
         MarketService.Init();
+
+        // Watchers
+        TradeWatcher.Init();
+        ProductionWatcher.Init();
     }
 
     public static async Turn() {

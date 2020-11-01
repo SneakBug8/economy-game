@@ -37,19 +37,19 @@ describe("FactoryTests", () =>
         assert.ok(factory.employeesCount, "employees_count");
     });
 
-    it("Delete", async () =>
-    {
-        await Factory.Delete(lastid);
-
-        const res = await Factory.Exists(lastid);
-        assert.ok(!res, "Deleted player");
-    });
-
     it("All", async () =>
     {
         const good = await Factory.All();
 
         assert.ok(good.length, "count");
         assert.ok(good[0].id, "ID");
+    });
+
+    it("Delete", async () =>
+    {
+        await Factory.Delete(lastid);
+
+        const res = await Factory.Exists(lastid);
+        assert.ok(!res, "Deleted player");
     });
 });

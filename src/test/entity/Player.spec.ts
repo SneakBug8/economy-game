@@ -66,15 +66,6 @@ describe("PlayerTests", () =>
         assert.ok(await res.getActor(), "Actor");
     });
 
-
-    it("Delete", async () =>
-    {
-        await Player.Delete(lastid);
-
-        const res = await Player.Exists(lastid);
-        assert.ok(!res, "Deleted player");
-    });
-
     it("All", async () =>
     {
         const players = await Player.All();
@@ -88,5 +79,13 @@ describe("PlayerTests", () =>
         const count = await Player.Count();
 
         assert.ok(count, "count");
+    });
+
+    it("Delete", async () =>
+    {
+        await Player.Delete(lastid);
+
+        const res = await Player.Exists(lastid);
+        assert.ok(!res, "Deleted player");
     });
 });

@@ -1,14 +1,17 @@
 import { Connection } from "DataBase";
 import { Log } from "./Log";
+import { ProductionQueue } from "./ProductionQueue";
 
-export class Factory {
+export class Factory
+{
     public id: number;
     public employeesCount: number;
     public targetEmployees: number;
     public salary: number;
     public RecipeId: number;
 
-    public static async From(dbobject: any): Promise<Factory> {
+    public static async From(dbobject: any): Promise<Factory>
+    {
         const res = new Factory();
         res.id = dbobject.id;
         res.employeesCount = dbobject.employees_count;
@@ -19,7 +22,8 @@ export class Factory {
         return res;
     }
 
-    public static async GetById(id: number): Promise<Factory> {
+    public static async GetById(id: number): Promise<Factory>
+    {
         const data = await FactoryRepository().select().where("id", id).first();
 
         if (data) {
@@ -29,7 +33,8 @@ export class Factory {
         return null;
     }
 
-    public static async Exists(id: number): Promise<boolean> {
+    public static async Exists(id: number): Promise<boolean>
+    {
         const res = await FactoryRepository().count("id as c").where("id", id).first() as any;
 
         return res.c > 0;
@@ -45,7 +50,8 @@ export class Factory {
         });
     }
 
-    public static async Insert(factory: Factory): Promise<number> {
+    public static async Insert(factory: Factory): Promise<number>
+    {
         const d = await FactoryRepository().insert({
             id: factory.id,
             employees_count: factory.employeesCount,
@@ -59,7 +65,15 @@ export class Factory {
         return d[0];
     }
 
-    public static async Delete(id: number): Promise<boolean> {
+    public static async Delete(id: number): Promise<boolean>
+    {
+        const factory = await this.GetById(id);
+
+        const queue = await ProductionQueue.GetWithFactory(factory);
+        if (queue) {
+            ProductionQueue.Delete(queue.id);
+        }
+
         await FactoryRepository().delete().where("id", id);
 
         Log.LogText("Deleted factory id " + id);
@@ -67,7 +81,8 @@ export class Factory {
         return true;
     }
 
-    public static async All(): Promise<Factory[]> {
+    public static async All(): Promise<Factory[]>
+    {
         const data = await FactoryRepository().select();
         const res = new Array<Factory>();
 

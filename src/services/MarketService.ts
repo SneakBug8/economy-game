@@ -12,6 +12,8 @@ import { Market } from "entity/Market";
 import { Log } from "entity/Log";
 import { PlayerLog } from "entity/PlayerLog";
 import { PriceRecord } from "entity/PriceRecord";
+import { EventsList } from "events/EventsList";
+import { ITradeEvent, TradeEventType } from "events/types/TradeEvent";
 
 export class MarketService
 {
@@ -65,11 +67,20 @@ export class MarketService
                         await this.TransferCash(sellactor, transactioncost);
                         await Storage.AddGoodTo(await buyerplayer.getFactory(), good, transactionsize);
 
-                        Log.LogText(`Transaction between ${sellactor.id} and ${buyactor.id} for ${transactioncost} in ${good.name}`);
-                        PlayerLog.Log(buyerplayer, Turn.CurrentTurn, `Bought ${transactionsize} of ${good.name}` +
-                            ` for ${transactioncost} from ${sellerplayer.username}`);
-                        PlayerLog.Log(sellerplayer, Turn.CurrentTurn, `Sold ${transactionsize}` +
-                            ` of ${good.name} for ${transactioncost} to ${buyerplayer.username}`);
+                        EventsList.onTrade.emit({
+                            Type: TradeEventType.ToPlayer,
+                            Actor: sellactor,
+                            Good: good,
+                            Amount: transactionsize,
+                            Price: sell.price,
+                        });
+                        EventsList.onTrade.emit({
+                            Type: TradeEventType.FromPlayer,
+                            Actor: buyactor,
+                            Good: good,
+                            Amount: transactionsize,
+                            Price: sell.price,
+                        });
                     }
                     else {
                         break;
@@ -108,8 +119,13 @@ export class MarketService
                         const buyerplayer = await Player.GetWithActor(buyactor);
                         await Storage.AddGoodTo(await buyerplayer.getFactory(), good, transactionsize);
 
-                        PlayerLog.Log(buyerplayer, Turn.CurrentTurn, `Bought ${transactionsize} of ${good.name}` +
-                            ` for ${transactioncost} from state`);
+                        EventsList.onTrade.emit({
+                            Type: TradeEventType.FromGovernment,
+                            Actor: buyactor,
+                            Good: good,
+                            Amount: transactionsize,
+                            Price: buy.price,
+                        });
                     }
                     else {
                         break;
@@ -146,8 +162,13 @@ export class MarketService
                         await this.TransferCash(sellactor, transactioncost);
                         Turn.CurrentTurn.ModifyFreeCash(-transactioncost);
 
-                        PlayerLog.Log(sellerplayer, Turn.CurrentTurn, `Sold ${transactionsize}` +
-                            ` of ${good.name} for ${transactioncost} to state`);
+                        EventsList.onTrade.emit({
+                            Type: TradeEventType.FromGovernment,
+                            Actor: sellactor,
+                            Good: good,
+                            Amount: transactionsize,
+                            Price: sell.price,
+                        });
                     }
                     else {
                         break;
