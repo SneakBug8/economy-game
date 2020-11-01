@@ -22,10 +22,8 @@ describe("PlayerTests", () =>
         const a = await MarketActor.Insert(actor);
         const b = await Factory.Insert(factory);
 
-        player.Actor = actor;
-        player.Factory = factory;
-        player.actor_id = a;
-        player.factory_id = b;
+        player.actorId = a;
+        player.factoryId = b;
         player.username = "a"; player.password = "b"; player.cash = 2;
 
         const res = await Player.Insert(player);
@@ -43,11 +41,9 @@ describe("PlayerTests", () =>
         assert.ok(res.id, "Last id res");
         assert.ok(res.username, "login");
         assert.ok(res.password, "password");
-        assert.ok(res.factory_id, "factory_id");
-        assert.ok(res.Factory, "Factory");
+        assert.ok(res.factoryId, "factory_id");
         assert.ok(res.cash, "cash");
-        assert.ok(res.actor_id, "actor_id");
-        assert.ok(res.Actor, "Actor");
+        assert.ok(res.actorId, "actor_id");
     });
 
     it("Update", async () =>
@@ -63,11 +59,11 @@ describe("PlayerTests", () =>
         assert.ok(res.id, "Last id res");
         assert.ok(res.username, "login");
         assert.ok(res.password, "password");
-        assert.ok(res.factory_id, "factory_id");
-        assert.ok(res.Factory, "Factory");
+        assert.ok(res.factoryId, "factory_id");
+        assert.ok(await res.getFactory(), "Factory");
         assert.ok(res.cash, "cash");
-        assert.ok(res.actor_id, "actor_id");
-        assert.ok(res.Actor, "Actor");
+        assert.ok(res.actorId, "actor_id");
+        assert.ok(await res.getActor(), "Actor");
     });
 
 

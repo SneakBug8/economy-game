@@ -33,7 +33,7 @@ export class ProductionService
                 }
             }
 
-            const player = await Player.GetWithFactory(factory.id);
+            const player = await Player.GetWithFactory(factory);
 
             for (const input of recipe.Requisites) {
                 await Storage.TakeGoodFrom(factory, input.Good, reciperepeats * input.amount);

@@ -20,8 +20,8 @@ describe("ProductionTests", () =>
         assert.ok(production.amount, "Amount");
         assert.ok(production.minprice, "Min Price");
 
-        assert.ok(production.Good, "Good");
-        assert.ok(production.Market, "Market");
+        assert.ok(await production.getGood(), "Good");
+        assert.ok(await production.getMarket(), "Market");
     });
 
     it("All", async () =>

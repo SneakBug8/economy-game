@@ -18,8 +18,8 @@ describe("ProductionEngine", () =>
         const newplayerid = await UsersService.Register("1", "1");
         const player = await Player.GetById(newplayerid);
 
-        const factory = player.Factory;
-        const actor = player.Actor;
+        const factory = await player.getFactory();
+        const actor = await player.getActor();
 
         factory.RecipeId = RecipesService.FirstToFirst.id;
         factory.employeesCount = 1;

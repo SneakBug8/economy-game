@@ -7,9 +7,23 @@ export class Production {
     public amount: number;
     public minprice: number;
     public good_id: number;
-    public Good: Good;
+
+    public async getGood(): Promise<Good> {
+        return Good.GetById(this.good_id);
+    }
+    public setGood(good: Good) {
+        this.good_id = good.id;
+    }
+
     public market_id: number;
-    public Market: Market;
+
+    public async getMarket() : Promise<Market> {
+        return Market.GetById(this.market_id);
+    }
+
+    public setMarket(market: Market) {
+        this.market_id = market.id;
+    }
 
     public static async From(dbobject: any) {
         const res = new Production();
@@ -18,13 +32,6 @@ export class Production {
         res.minprice = dbobject.minprice;
         res.good_id = dbobject.good_id;
         res.market_id = dbobject.market_id;
-
-        if (res.good_id) {
-            res.Good = await Good.GetById(res.good_id);
-        }
-        if (res.market_id) {
-            res.Market = await Market.GetById(res.market_id);
-        }
 
         return res;
     }
@@ -65,7 +72,7 @@ export class Production {
         const d = await ProductionRepository().insert({
             id: prod.id,
             market_id: prod.market_id,
-            good_id: prod.Good.id || prod.good_id,
+            good_id: prod.good_id,
             amount: prod.amount,
             minprice: prod.minprice,
         });

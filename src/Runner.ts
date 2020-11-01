@@ -11,11 +11,13 @@ export class Runner {
     public static async Init() {
         TurnsService.Init();
         RecipesService.Init();
+        MarketService.Init();
     }
 
     public static async Turn() {
         ProductionService.Run();
         MarketService.Run();
+        TurnsService.MakeReport();
         // for each player
         // hire new employees
         // run production

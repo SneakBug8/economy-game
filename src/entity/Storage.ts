@@ -157,6 +157,16 @@ export class Storage
         return false;
     }
 
+    public static async Amount(factory: Factory, good: Good): Promise<number> {
+        const existingstorage = await this.GetWithGoodAndFactory(factory, good);
+
+        if (existingstorage && existingstorage.amount) {
+            return existingstorage.amount;
+        }
+
+        return 0;
+    }
+
     public static async TakeGoodFrom(factory: Factory, good: Good, amount: number): Promise<boolean> {
         const existingstorage = await this.GetWithGoodAndFactory(factory, good);
 

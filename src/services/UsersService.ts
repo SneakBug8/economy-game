@@ -11,12 +11,12 @@ export class UsersService {
         player.password = passwd;
 
         const factory = new Factory();
-        player.Factory = factory;
         await Factory.Insert(factory);
+        player.setFactory(factory);
 
         const actor = new MarketActor();
-        player.Actor = actor;
         await MarketActor.Insert(actor);
+        player.setActor(actor);
 
         const id = await Player.Insert(player);
 

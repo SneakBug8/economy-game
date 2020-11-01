@@ -1,4 +1,6 @@
 import { Connection } from "DataBase";
+import { Good } from "./Good";
+import { Turn } from "./Turn";
 
 export class PriceRecord {
 
@@ -17,6 +19,16 @@ export class PriceRecord {
         res.price = dbobject.price;
         res.tradeamount = dbobject.tradeamount;
         return res;
+    }
+
+    public static async Create(turn: Turn, good: Good, price: number, tradeamount: number) {
+        const record = new PriceRecord();
+        record.turnId = turn.id;
+        record.goodId = good.id;
+        record.price = price;
+        record.tradeamount = tradeamount;
+
+        this.Insert(record);
     }
 
     public static async GetById(id: number): Promise<PriceRecord>

@@ -32,6 +32,10 @@ export class Log {
         this.Log(Turn.CurrentTurn, text);
     }
 
+    public static async LogTemp(text: string) {
+        console.log(`${Turn.CurrentTurn.id}: ${text}`);
+    }
+
     public static async Insert(record: Log): Promise<number>
     {
         const d = await LogRecordRepository().insert({

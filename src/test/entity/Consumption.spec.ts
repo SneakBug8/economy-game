@@ -20,8 +20,8 @@ describe("ConsumptionTests", () =>
         assert.ok(consumption.amount, "Amount");
         assert.ok(consumption.maxprice, "Max Price");
 
-        assert.ok(consumption.Good, "Good");
-        assert.ok(consumption.Market, "Market");
+        assert.ok(await consumption.getGood(), "Good");
+        assert.ok(await consumption.getMarket(), "Market");
     });
 
     it("All", async () =>

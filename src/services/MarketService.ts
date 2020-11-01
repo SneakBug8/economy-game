@@ -9,12 +9,19 @@ import { Production } from "entity/Production";
 import { Turn } from "entity/Turn";
 import { TurnsService } from "./TurnsService";
 import { Market } from "entity/Market";
+import { Log } from "entity/Log";
+import { PlayerLog } from "entity/PlayerLog";
+import { PriceRecord } from "entity/PriceRecord";
 
 export class MarketService
 {
-    public static async Run(): Promise<void>
+    public static async Init(): Promise<void>
     {
         Market.DefaultMarket = await Market.GetById(1);
+    }
+
+    public static async Run(): Promise<void>
+    {
 
         for (const market of await Market.All()) {
             for (const good of await Good.All()) {
@@ -25,19 +32,24 @@ export class MarketService
                 const consumptions = await Consumption.GetWithGood(good);
                 const productions = await Production.GetWithGood(good);
 
+                let tradeamount = 0;
+                let lastprice = 0;
+
                 // Offers vs offers
                 while (buyoffers.length && selloffers.length) {
                     const buy = buyoffers[0];
                     const sell = selloffers[0];
 
                     if (buy.price >= sell.price) {
-
-                        const buyerplayer = await Player.GetWithActor(buy.id);
+                        const buyactor = await buy.getActor();
+                        const sellactor = await sell.getActor();
+                        const buyerplayer = await Player.GetWithActor(buyactor);
+                        const sellerplayer = await Player.GetWithActor(sellactor);
 
                         const transactionsize = Math.min(sell.amount, buy.amount);
                         const transactioncost = transactionsize * sell.price;
 
-                        if (!Player.HasCash(buyerplayer.id, transactioncost)) {
+                        if (!await Player.HasCash(buyerplayer.id, transactioncost)) {
                             buyoffers.shift();
                             BuyOffer.Delete(buy.id);
                             continue;
@@ -46,9 +58,18 @@ export class MarketService
                         sell.amount -= transactionsize;
                         buy.amount -= transactionsize;
 
-                        this.TransferCash(buy.MarketActor, -transactioncost);
-                        this.TransferCash(sell.MarketActor, transactioncost);
-                        Storage.AddGoodTo(buyerplayer.Factory, good, transactionsize);
+                        tradeamount += transactionsize;
+                        lastprice = sell.price;
+
+                        this.TransferCash(buyactor, -transactioncost);
+                        this.TransferCash(sellactor, transactioncost);
+                        Storage.AddGoodTo(await buyerplayer.getFactory(), good, transactionsize);
+
+                        Log.LogText(`Transaction between ${buyactor.id} and ${sellactor.id} for ${transactioncost} in ${good.name}`);
+                        PlayerLog.Log(buyerplayer, Turn.CurrentTurn, `Bought ${transactionsize} of ${good.name}` +
+                            `for ${transactioncost} from ${sellerplayer.username}`);
+                        PlayerLog.Log(sellerplayer, Turn.CurrentTurn, `Sold ${transactionsize}` +
+                            `of ${good.name} for ${transactioncost} to ${buyerplayer.username}`);
                     }
                     else {
                         break;
@@ -70,6 +91,7 @@ export class MarketService
                 while (buyoffers.length && productions.length) {
                     const buy = buyoffers[0];
                     const production = productions[0];
+                    const buyactor = await buy.getActor();
 
                     if (buy.price >= production.minprice) {
                         const transactionsize = Math.min(buy.amount, production.amount);
@@ -78,10 +100,13 @@ export class MarketService
                         buy.amount -= transactionsize;
                         production.amount -= transactionsize;
 
-                        this.TransferCash(buy.MarketActor, -transactioncost);
+                        tradeamount += transactionsize;
+                        lastprice = buy.price;
+
+                        this.TransferCash(buyactor, -transactioncost);
                         Turn.CurrentTurn.ModifyFreeCash(transactioncost);
-                        const buyerplayer = await Player.GetWithActor(buy.id);
-                        Storage.AddGoodTo(buyerplayer.Factory, good, transactionsize);
+                        const buyerplayer = await Player.GetWithActor(buyactor);
+                        Storage.AddGoodTo(await buyerplayer.getFactory(), good, transactionsize);
                     }
                     else {
                         break;
@@ -102,6 +127,8 @@ export class MarketService
                     const sell = selloffers[0];
                     const consumption = consumptions[0];
 
+                    const sellactor = await sell.getActor();
+
                     if (sell.price <= consumption.maxprice) {
                         const transactionsize = Math.min(sell.amount, consumption.amount);
                         const transactioncost = transactionsize * sell.price;
@@ -109,7 +136,10 @@ export class MarketService
                         sell.amount -= transactionsize;
                         consumption.amount -= transactionsize;
 
-                        this.TransferCash(sell.MarketActor, transactioncost);
+                        tradeamount += transactionsize;
+                        lastprice = sell.price;
+
+                        this.TransferCash(sellactor, transactioncost);
                         Turn.CurrentTurn.ModifyFreeCash(-transactioncost);
                     }
                     else {
@@ -125,6 +155,8 @@ export class MarketService
                         consumptions.shift();
                     }
                 }
+
+                PriceRecord.Create(Turn.CurrentTurn, good, lastprice, tradeamount);
             }
 
         }
@@ -152,36 +184,36 @@ export class MarketService
         }*/
 
     //}
-/*
-    public static async RemoveFromStorage(): Promise<boolean>
-    {
-        return false;
-        /*const player = await PlayerRepository.findOne({
-            where: {
-                Actor: actor,
-            },
-        });
-
-        const factory = player.Factory;
-
-        const record = await StorageRepository.findOne({
-            where: {
-                Factory: factory,
-                Good: good,
-            },
-        });
-
-        if (!record || record.amount < amount) {
+    /*
+        public static async RemoveFromStorage(): Promise<boolean>
+        {
             return false;
-        } else {
-            record.amount -= amount;
-        }*/
+            /*const player = await PlayerRepository.findOne({
+                where: {
+                    Actor: actor,
+                },
+            });
+
+            const factory = player.Factory;
+
+            const record = await StorageRepository.findOne({
+                where: {
+                    Factory: factory,
+                    Good: good,
+                },
+            });
+
+            if (!record || record.amount < amount) {
+                return false;
+            } else {
+                record.amount -= amount;
+            }*/
 
     //}*/
 
     public static async TransferCash(actor: MarketActor, amount: number): Promise<void>
     {
-        const player = await Player.GetWithActor(actor.id);
+        const player = await Player.GetWithActor(actor);
 
         player.cash += amount;
 
@@ -190,35 +222,35 @@ export class MarketService
 
     public static async AddBuyOffer(actor: MarketActor, good: Good, amount: number, price: number)
     {
-        const player = await Player.GetWithActor(actor.id);
+        const player = await Player.GetWithActor(actor);
 
         if (player.cash < amount * price) {
             return;
         }
 
         const offer = new BuyOffer();
-        offer.Market = Market.DefaultMarket;
-        offer.Good = good;
+        offer.setMarket(Market.DefaultMarket);
+        offer.setGood(good);
         offer.amount = amount;
-        offer.MarketActor = actor;
+        offer.setActor(actor);
 
         SellOffer.Insert(offer);
     }
 
     public static async AddSellOffer(actor: MarketActor, good: Good, amount: number)
     {
-        const player = await Player.GetWithActor(actor.id);
-        const res = await Storage.Has(player.Factory, good, amount);
+        const player = await Player.GetWithActor(actor);
+        const res = await Storage.Has(await player.getFactory(), good, amount);
 
         if (!res) {
             return;
         }
 
         const offer = new SellOffer();
-        offer.Market = Market.DefaultMarket;
-        offer.Good = good;
+        offer.setMarket(Market.DefaultMarket);
+        offer.setGood(good);
         offer.amount = amount;
-        offer.MarketActor = actor;
+        offer.setActor(actor);
 
         SellOffer.Insert(offer);
     }

@@ -5,9 +5,24 @@ import { Connection } from "DataBase";
 export class Consumption {
     public id: number;
     public market_id: number;
-    public Market: Market;
+
+    public async getMarket() : Promise<Market> {
+        return Market.GetById(this.market_id);
+    }
+
+    public setMarket(market: Market) {
+        this.market_id = market.id;
+    }
+
     public good_id: number;
-    public Good: Good;
+
+    public async getGood() : Promise<Good> {
+        return Good.GetById(this.good_id);
+    }
+    public setGood(good: Good) {
+        this.good_id = good.id;
+    }
+
     public amount: number;
     public maxprice: number;
 
@@ -18,13 +33,6 @@ export class Consumption {
         res.good_id = dbobject.good_id;
         res.amount = dbobject.amount;
         res.maxprice = dbobject.maxprice;
-
-        if (res.market_id) {
-            res.Market = await Market.GetById(res.market_id);
-        }
-        if (res.good_id) {
-            res.Good = await Good.GetById(res.good_id);
-        }
 
         return res;
     }
@@ -65,7 +73,7 @@ export class Consumption {
         const d = await ConsumptionRepository().insert({
             id: cons.id,
             market_id: cons.market_id,
-            good_id: cons.Good.id || cons.good_id,
+            good_id: cons.good_id,
             amount: cons.amount,
             maxprice: cons.maxprice,
         });

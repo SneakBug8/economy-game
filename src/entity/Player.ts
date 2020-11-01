@@ -1,6 +1,7 @@
 import { Factory } from "./Factory";
 import { MarketActor } from "./MarketActor";
 import { Connection } from "DataBase";
+import { Log } from "./Log";
 
 export class Player
 {
@@ -8,10 +9,24 @@ export class Player
     public username: string;
     public password: string;
     public cash: number;
-    public factory_id: number;
-    public Factory: Factory;
-    public actor_id: number;
-    public Actor: MarketActor;
+    public factoryId: number;
+
+    public async getFactory(): Promise<Factory> {
+        return Factory.GetById(this.factoryId);
+    }
+    public setFactory(factory: Factory) {
+        this.factoryId = factory.id;
+    }
+
+    public actorId: number;
+    public async getActor(): Promise<MarketActor>
+    {
+        return MarketActor.GetById(this.actorId);
+    }
+    public setActor(actor: MarketActor)
+    {
+        this.actorId = actor.id;
+    }
 
     public static async From(dbobject: any)
     {
@@ -20,17 +35,14 @@ export class Player
         res.username = dbobject.username;
         res.password = dbobject.password;
         res.cash = dbobject.cash;
-        res.factory_id = dbobject.factory_id;
-        res.actor_id = dbobject.actor_id;
-
-        if (res.factory_id) {
-            res.Factory = await Factory.GetById(res.factory_id);
-        }
-        if (res.actor_id) {
-            res.Actor = await MarketActor.GetById(res.actor_id);
-        }
+        res.factoryId = dbobject.factoryId;
+        res.actorId = dbobject.actorId;
 
         return res;
+    }
+
+    public Verbose(): void {
+        Log.LogTemp(`Player ${this.id} with factory ${this.factoryId} and actor ${this.actorId}, cash: ${this.cash}`);
     }
 
     public static async GetById(id: number): Promise<Player>
@@ -55,9 +67,9 @@ export class Player
         return null;
     }
 
-    public static async GetWithFactory(id: number): Promise<Player>
+    public static async GetWithFactory(factory: Factory): Promise<Player>
     {
-        const data = await PlayerRepository().select().where("factory_id", id).first();
+        const data = await PlayerRepository().select().where("factoryId", factory.id).first();
 
         if (data) {
             return this.From(data);
@@ -66,9 +78,9 @@ export class Player
         return null;
     }
 
-    public static async GetWithActor(id: number): Promise<Player>
+    public static async GetWithActor(actor: MarketActor): Promise<Player>
     {
-        const data = await PlayerRepository().select().where("actor_id", id).first();
+        const data = await PlayerRepository().select().where("actorId", actor.id).first();
 
         if (data) {
             return this.From(data);
@@ -100,8 +112,8 @@ export class Player
             username: player.username,
             password: player.password,
             cash: player.cash,
-            factory_id: player.Factory.id || player.factory_id,
-            actor_id: player.Actor.id || player.actor_id,
+            factoryId: player.factoryId,
+            actorId: player.actorId,
         });
 
         player.id = d[0];
@@ -117,8 +129,8 @@ export class Player
             username: player.username,
             password: player.password,
             cash: player.cash,
-            factory_id: player.Factory.id || player.factory_id,
-            actor_id: player.Actor.id || player.actor_id,
+            factoryId: player.factoryId,
+            actorId: player.actorId,
         });
 
         player.id = d[0];
@@ -132,8 +144,8 @@ export class Player
         await PlayerRepository().delete().where("id", id);
 
         if (player) {
-            Factory.Delete(player.factory_id);
-            MarketActor.Delete(player.actor_id);
+            Factory.Delete(player.factoryId);
+            MarketActor.Delete(player.actorId);
         }
 
         return true;
