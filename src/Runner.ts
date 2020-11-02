@@ -10,19 +10,19 @@ import { TradeWatcher } from "watchers/TradeWatcher";
 import { ProductionWatcher } from "watchers/ProductionWatcher";
 import * as child_process from "child_process";
 import { FactoryManagementService } from "services/FactoryManagementService";
+import { sleep } from "utility/sleep";
 
 export class Runner {
     public static async Init() {
-        TurnsService.Init();
-        RecipesService.Init();
-        MarketService.Init();
+        await TurnsService.Init();
+        await RecipesService.Init();
+        await MarketService.Init();
 
         // Watchers
-        TradeWatcher.Init();
-        ProductionWatcher.Init();
+        await TradeWatcher.Init();
+        await ProductionWatcher.Init();
 
         require("web/main");
-        //child_process.exec("npm run-script web");
     }
 
     public static async Turn() {
@@ -30,11 +30,33 @@ export class Runner {
 
         await TurnsService.StartTurn();
 
+        console.log("abab");
+
+        await TurnsService.CheckBalance();
+
         await ProductionService.Run();
+
+        console.log("acac");
+
+
+        await TurnsService.CheckBalance();
+
         // Trade
         await MarketService.Run();
+
+        console.log("dede");
+
+
+        await TurnsService.CheckBalance();
+
         // Salaries and employees
         await FactoryManagementService.Run();
+
+        console.log("fefe");
+
+        await TurnsService.CheckBalance();
+
+        console.log("lili");
 
         await TurnsService.EndTurn();
     }

@@ -40,7 +40,7 @@ export class ProductionService
                     queue.Queue.unshift(queueentry);
                 }
 
-                ProductionQueue.Update(queue);
+                await ProductionQueue.Update(queue);
 
                 // Check for resources
                 for (const input of recipe.Requisites) {

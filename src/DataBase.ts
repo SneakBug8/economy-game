@@ -6,7 +6,13 @@ export const Connection = knex({
     connection: {
         filename: "db.db",
     },
-    useNullAsDefault: true
+    useNullAsDefault: true,
+    log: {
+        debug(message)
+        {
+            console.log(message);
+        },
+    },
 });
 
 

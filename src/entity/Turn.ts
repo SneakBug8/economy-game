@@ -8,9 +8,8 @@ export class Turn
     public cashperplayer: number = 0;
     public freecash: number = 0;
 
-    public static CurrentTurn: Turn;
-
-    public static async From(dbobject: any) {
+    public static async From(dbobject: any)
+    {
         const res = new Turn();
         res.id = dbobject.id;
         res.datetime = dbobject.datetime;
@@ -21,11 +20,13 @@ export class Turn
         return res;
     }
 
-    public AddFreeCash(amount: number) {
+    public AddFreeCash(amount: number)
+    {
         this.freecash += amount;
     }
 
-    public static async GetById(id: number): Promise<Turn> {
+    public static async GetById(id: number): Promise<Turn>
+    {
         const data = await TurnRepository().select().where("id", id).first();
 
         if (data) {
@@ -35,7 +36,8 @@ export class Turn
         return null;
     }
 
-    public static async Exists(id: number): Promise<boolean> {
+    public static async Exists(id: number): Promise<boolean>
+    {
         const res = await TurnRepository().count("id as c").where("id", id).first() as any;
 
         return res.c > 0;
@@ -69,7 +71,8 @@ export class Turn
         return d[0];
     }
 
-    public static async Last(): Promise<Turn> {
+    public static async Last(): Promise<Turn>
+    {
         const data = await TurnRepository().select().orderBy("id", "desc").first();
 
         if (data) {

@@ -57,6 +57,10 @@ export class MarketService
                             continue;
                         }
 
+                        if (transactionsize < 1) {
+                            return;
+                        }
+
                         sell.amount -= transactionsize;
                         buy.amount -= transactionsize;
 
@@ -107,16 +111,23 @@ export class MarketService
                         const transactionsize = Math.min(buy.amount, production.amount);
                         const transactioncost = transactionsize * buy.price;
 
+                        const buyerplayer = await Player.GetWithActor(buyactor);
+
+                        if (buyerplayer.cash < transactioncost || transactionsize < 1) {
+                            return;
+                        }
+
+                        const transactionres = await buyerplayer.payCashToState(transactioncost);
+                        if (!transactionres) {
+                            return;
+                        }
+
                         buy.amount -= transactionsize;
                         production.amount -= transactionsize;
 
-                        tradeamount += transactionsize;
                         lastprice = buy.price;
+                        tradeamount += transactionsize;
 
-
-                        const buyerplayer = await Player.GetWithActor(buyactor);
-
-                        await buyerplayer.payCashToState(transactioncost);
                         await Storage.AddGoodTo(buyactor, good, transactionsize);
 
                         EventsList.onTrade.emit({
@@ -183,7 +194,7 @@ export class MarketService
                     }
                 }
 
-                PriceRecord.Create(Turn.CurrentTurn, good, lastprice, tradeamount);
+                PriceRecord.Create(TurnsService.CurrentTurn, good, lastprice, tradeamount);
             }
 
         }

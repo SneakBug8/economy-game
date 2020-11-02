@@ -2,8 +2,12 @@ import { Connection } from "DataBase";
 import { Player } from "./Player";
 import { Turn } from "./Turn";
 import { TurnsService } from "services/TurnsService";
+import * as debug from "debug";
 
-export class Log {
+const debuglogger = debug("log:");
+
+export class Log
+{
 
     public id: number;
     public turnId: number;
@@ -18,22 +22,27 @@ export class Log {
         return res;
     }
 
-    public static async Log(turn: Turn, text: string) {
-        const record = new Log();
+    public static async Log(turn: Turn, text: string)
+    {
+        /*const record = new Log();
         record.turnId = turn.id;
         record.text = text;
 
         await this.Insert(record);
-
+*/
         console.log(`${turn.id}: ${text}`);
+        // debuglogger("[%s] %s", turn.id, text);
     }
 
-    public static async LogText(text: string) {
-        this.Log(Turn.CurrentTurn, text);
+    public static async LogText(text: string)
+    {
+        this.Log(TurnsService.CurrentTurn, text);
     }
 
-    public static async LogTemp(text: string) {
-        console.log(`${Turn.CurrentTurn.id}: ${text}`);
+    public static async LogTemp(text: string)
+    {
+        // debuglogger(`${TurnsService.CurrentTurn.id}: ${text}`);
+        console.log(`${TurnsService.CurrentTurn.id}: ${text}`);
     }
 
     public static async Insert(record: Log): Promise<number>

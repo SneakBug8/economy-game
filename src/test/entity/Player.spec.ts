@@ -16,15 +16,12 @@ describe("PlayerTests", () =>
 
     it("Add", async () =>
     {
-        const playerid = await UsersService.Register("a", "b");
+        lastid = await UsersService.Register("a", "b");
 
-        const player = await Player.GetById(playerid);
+        const player = await Player.GetById(lastid);
 
         assert.ok(player, "Insert res id");
-
-        lastid = playerid;
     });
-
 
     it("GetByid", async () =>
     {

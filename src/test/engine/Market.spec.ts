@@ -52,6 +52,7 @@ describe("MarketEngine", () =>
 
         playerid = await UsersService.Register("3", "3");
         const player = await Player.GetById(playerid);
+
         player.Verbose();
 
         const actor = await player.getActor();

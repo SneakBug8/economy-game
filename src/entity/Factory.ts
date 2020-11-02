@@ -99,6 +99,7 @@ export class Factory
         const factory = new Factory();
         factory.setOwner(owner);
         factory.employeesCount = employeesCount;
+        factory.targetEmployees = employeesCount;
         factory.salary = salary;
 
         return this.Insert(factory);
@@ -108,11 +109,11 @@ export class Factory
     {
         const d = await FactoryRepository().insert({
             id: factory.id,
+            playerId: factory.playerId,
             employees_count: factory.employeesCount,
             targetEmployees: factory.targetEmployees,
             salary: factory.salary,
             settings: factory.settings,
-            playerId: factory.playerId,
         });
 
         factory.id = d[0];

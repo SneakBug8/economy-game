@@ -14,7 +14,7 @@ describe("WholeTurn", () =>
     let playerid;
     it("Init", async () =>
     {
-        Runner.Init();
+        await Runner.Init();
 
         playerid = await UsersService.Register("1", "1");
         const player = await Player.GetById(playerid);
@@ -39,7 +39,10 @@ describe("WholeTurn", () =>
         await Runner.Turn();
 
         assert.ok(ProductionWatcher.GDP > 0, "GDP not zero");
+    });
 
+    it("Delete", async () =>
+    {
         await Player.Delete(playerid);
     });
 });

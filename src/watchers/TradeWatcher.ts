@@ -3,6 +3,7 @@ import { ITradeEvent, TradeEventType } from "events/types/TradeEvent";
 import { Player } from "entity/Player";
 import { Turn } from "entity/Turn";
 import { PlayerLog } from "entity/PlayerLog";
+import { TurnsService } from "services/TurnsService";
 
 export class TradeWatcher
 {
@@ -19,25 +20,25 @@ export class TradeWatcher
     {
         if (event.Type === TradeEventType.FromPlayer) {
             const player = await Player.GetWithActor(event.Actor);
-            PlayerLog.Log(player, Turn.CurrentTurn, `Bought ${event.Amount} of ${event.Good.name}` +
+            PlayerLog.Log(player, TurnsService.CurrentTurn, `Bought ${event.Amount} of ${event.Good.name}` +
                 ` for ${event.Price}`);
         }
         else if (event.Type === TradeEventType.ToPlayer) {
             const player = await Player.GetWithActor(event.Actor);
 
-            PlayerLog.Log(player, Turn.CurrentTurn, `Sold ${event.Amount}` +
+            PlayerLog.Log(player, TurnsService.CurrentTurn, `Sold ${event.Amount}` +
                 ` of ${event.Good.name} for ${event.Price}`);
         }
         else if (event.Type === TradeEventType.FromGovernment) {
             const player = await Player.GetWithActor(event.Actor);
 
-            PlayerLog.Log(player, Turn.CurrentTurn, `Bought ${event.Amount} of ${event.Good.name}` +
+            PlayerLog.Log(player, TurnsService.CurrentTurn, `Bought ${event.Amount} of ${event.Good.name}` +
                 ` for ${event.Price} from state`);
 
         }
         else if (event.Type === TradeEventType.ToGovernment) {
             const player = await Player.GetWithActor(event.Actor);
-            PlayerLog.Log(player, Turn.CurrentTurn, `Sold ${event.Amount}` +
+            PlayerLog.Log(player, TurnsService.CurrentTurn, `Sold ${event.Amount}` +
                 ` of ${event.Good.name} for ${event.Price} to state`);
         }
     }

@@ -9,7 +9,7 @@ export class Player
     public id: number;
     public username: string;
     public password: string;
-    public cash: number;
+    public cash: number = 0;
 
     public actorId: number;
     public async getActor(): Promise<MarketActor>
@@ -61,25 +61,21 @@ export class Player
         // return d[0];
     }
 
-    public payCashToState(amount: number): boolean
+    public async payCashToState(amount: number): Promise<boolean>
     {
         if (this.cash < amount) {
             return false;
         }
 
-        this.ModifyCash(-amount);
+        await this.ModifyCash(-amount);
         TurnsService.AddFreeCash(amount);
 
         return true;
     }
 
-    public takeCashFromState(amount: number): boolean
+    public async takeCashFromState(amount: number): Promise<boolean>
     {
-        if (this.cash < amount) {
-            return false;
-        }
-
-        this.ModifyCash(amount);
+        await this.ModifyCash(amount);
         TurnsService.AddFreeCash(-amount);
 
         return true;
@@ -208,7 +204,7 @@ export class Player
             return false;
         }
 
-        player.payCashToState(player.cash);
+        await player.payCashToState(player.cash);
 
         if (player.getActor()) {
             MarketActor.Delete(player.actorId);

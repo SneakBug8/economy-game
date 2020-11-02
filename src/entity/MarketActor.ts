@@ -1,17 +1,21 @@
 import { Connection } from "DataBase";
 import { Log } from "./Log";
+import { Storage } from "entity/Storage";
 
-export class MarketActor {
+export class MarketActor
+{
     public id: number;
 
-    public static async From(dbobject: any) {
+    public static async From(dbobject: any)
+    {
         const res = new MarketActor();
         res.id = dbobject.id;
 
         return res;
     }
 
-    public static async GetById(id: number): Promise<MarketActor> {
+    public static async GetById(id: number): Promise<MarketActor>
+    {
         const data = await MarketActorRepository().select().where("id", id).first();
 
         if (data) {
@@ -21,13 +25,15 @@ export class MarketActor {
         return null;
     }
 
-    public static async Exists(id: number): Promise<boolean> {
+    public static async Exists(id: number): Promise<boolean>
+    {
         const res = await MarketActorRepository().count("id as c").where("id", id).first() as any;
 
         return res.c > 0;
     }
 
-    public static async Insert(actor: MarketActor): Promise<number> {
+    public static async Insert(actor: MarketActor): Promise<number>
+    {
         const d = await MarketActorRepository().insert({
             id: actor.id,
         });
@@ -37,7 +43,14 @@ export class MarketActor {
         return d[0];
     }
 
-    public static async Delete(id: number): Promise<boolean> {
+    public static async Delete(id: number): Promise<boolean>
+    {
+        const actor = await this.GetById(id);
+        const storages = await Storage.GetWithActor(actor);
+        for (const storage of storages) {
+            await Storage.Delete(storage.id);
+        }
+
         await MarketActorRepository().delete().where("id", id);
 
         Log.LogText("Deleted actor id " + id);

@@ -6,6 +6,7 @@ import { EventsList } from "events/EventsList";
 export class TurnsService
 {
     static LastTurn: Turn;
+    public static CurrentTurn: Turn;
 
     public static Initialized = false;
 
@@ -17,50 +18,71 @@ export class TurnsService
 
         this.Initialized = true;
 
-        Turn.CurrentTurn = new Turn();
-
-        this.StartTurn(true);
+        this.StartTurn();
     }
 
-    public static async StartTurn(frominitialization: boolean = false)
+    public static async StartTurn()
     {
-        if (!frominitialization) {
-            Turn.CurrentTurn = new Turn();
-        }
-
+        this.CurrentTurn = await Turn.Last() || new Turn();1
         this.LastTurn = await Turn.Last();
 
         if (this.LastTurn) {
-            Turn.CurrentTurn.id = this.LastTurn.id + 1;
-            Turn.CurrentTurn.freecash = this.LastTurn.freecash;
+            this.CurrentTurn.id = this.LastTurn.id + 1;
         }
         else {
-            Turn.CurrentTurn.id = 1;
+            this.CurrentTurn.id = 1;
         }
 
-        Log.LogText("Now is turn " + Turn.CurrentTurn.id);
+        Log.LogText("Now is turn " + this.CurrentTurn.id);
 
-        EventsList.onTurn.emit(Turn.CurrentTurn);
+        EventsList.onTurn.emit(this.CurrentTurn);
     }
 
     public static async EndTurn()
     {
-        Turn.CurrentTurn.datetime = new Date().toString();
+        this.CurrentTurn.datetime = new Date().toString();
+
+        await this.CalculateBalance();
+
+        await Turn.Insert(this.CurrentTurn);
+    }
+
+    public static async CalculateBalance()
+    {
+        this.CurrentTurn.totalcash = 0;
 
         for (const pl of (await Player.All())) {
-            Turn.CurrentTurn.totalcash += pl.cash;
+            this.CurrentTurn.totalcash += pl.cash;
         }
 
-        Turn.CurrentTurn.cashperplayer = Turn.CurrentTurn.totalcash / (await Player.Count());
-        Turn.CurrentTurn.totalcash += Turn.CurrentTurn.freecash;
+        this.CurrentTurn.cashperplayer = this.CurrentTurn.totalcash / (await Player.Count());
+        this.CurrentTurn.totalcash += this.CurrentTurn.freecash;
+    }
 
-        Turn.Insert(Turn.CurrentTurn);
+    public static async CheckBalance(): Promise<boolean>
+    {
+        await this.CalculateBalance();
+
+        if (this.CurrentTurn.totalcash !== this.LastTurn.totalcash) {
+            console.log("===");
+            console.log("Wrong balance");
+            console.log(this.LastTurn);
+            console.log(this.CurrentTurn);
+            console.log("===");
+
+            this.LastTurn.totalcash = this.CurrentTurn.totalcash;
+            return false;
+        }
+
+        console.log(this.CurrentTurn);
+
+        return true;
     }
 
     public static AddFreeCash(amount: number)
     {
-        Turn.CurrentTurn.AddFreeCash(amount);
-        console.log(`Current free cash is: ` + Turn.CurrentTurn.freecash);
+        this.CurrentTurn.AddFreeCash(amount);
+        console.log(`Current free cash is: ${this.CurrentTurn.freecash} (change: ${amount})`);
     }
 
 }

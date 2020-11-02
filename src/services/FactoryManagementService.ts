@@ -13,9 +13,13 @@ export class FactoryManagementService
 
             const hastopay = factory.salary * factory.employeesCount;
 
-            player.payCashToState(hastopay);
+            await player.payCashToState(hastopay);
 
-            Log.LogTemp(`${player.id} paid salary for ${factory.id}`);
+            Log.LogTemp(`${player.id} paid ${hastopay} salary for ${factory.id}`);
+
+            if (player.cash < 0) {
+                factory.targetEmployees = this.Lerp(factory.targetEmployees, factory.employeesCount, 0.25);
+            }
 
             // Increase employees count
             if (player.cash > 0 && factory.targetEmployees > factory.employeesCount) {
