@@ -2,6 +2,7 @@ import { Factory, FactoryRepository } from "./Factory";
 import { MarketActor } from "./MarketActor";
 import { Connection } from "DataBase";
 import { Log } from "./Log";
+import { TurnsService } from "services/TurnsService";
 
 export class Player
 {
@@ -32,7 +33,60 @@ export class Player
         return res;
     }
 
-    public Verbose(): void {
+    public getCash()
+    {
+        return this.cash;
+    }
+
+    public payCash(to: Player, amount: number): boolean
+    {
+        if (this.cash < amount) {
+            return false;
+        }
+
+        this.ModifyCash(-amount);
+        to.ModifyCash(amount);
+
+        return true;
+    }
+
+    private async ModifyCash(amount: number)
+    {
+        this.cash += amount;
+        const d = await Connection.raw("UPDATE Players set cash = cash + ? WHERE id = ?", [amount, this.id]);
+        // const d = await PlayerRepository().where("id", this.id).update(Connection.raw("cash = cash + ?", amount));
+
+        // player.id = d[0];
+
+        // return d[0];
+    }
+
+    public payCashToState(amount: number): boolean
+    {
+        if (this.cash < amount) {
+            return false;
+        }
+
+        this.ModifyCash(-amount);
+        TurnsService.AddFreeCash(amount);
+
+        return true;
+    }
+
+    public takeCashFromState(amount: number): boolean
+    {
+        if (this.cash < amount) {
+            return false;
+        }
+
+        this.ModifyCash(amount);
+        TurnsService.AddFreeCash(-amount);
+
+        return true;
+    }
+
+    public Verbose(): void
+    {
         Log.LogTemp(`Player ${this.username} (${this.id}) with actor ${this.actorId}, cash: ${this.cash}`);
     }
 
@@ -64,7 +118,8 @@ export class Player
         return factory.getOwner();
     }
 
-    public async getFactories(): Promise<Factory[]> {
+    public async getFactories(): Promise<Factory[]>
+    {
         return Player.GetFactories(this);
     }
 
@@ -96,7 +151,8 @@ export class Player
         return null;
     }
 
-    public static async Count(): Promise<number> {
+    public static async Count(): Promise<number>
+    {
         const data = await PlayerRepository().count("id as c").first() as any;
 
         if (data) {
@@ -118,7 +174,7 @@ export class Player
         const d = await PlayerRepository().where("id", player.id).update({
             username: player.username,
             password: player.password,
-            cash: player.cash,
+            cash: player.getCash(),
             actorId: player.actorId,
         });
 
@@ -134,11 +190,13 @@ export class Player
             id: player.id,
             username: player.username,
             password: player.password,
-            cash: player.cash,
+            cash: player.getCash(),
             actorId: player.actorId,
         });
 
         player.id = d[0];
+
+        console.log("Created player " + player.id);
 
         return d[0];
     }
@@ -149,6 +207,9 @@ export class Player
         if (!player) {
             return false;
         }
+
+        player.payCashToState(player.cash);
+
         if (player.getActor()) {
             MarketActor.Delete(player.actorId);
         }
@@ -164,7 +225,8 @@ export class Player
         return true;
     }
 
-    public static async All(): Promise<Player[]> {
+    public static async All(): Promise<Player[]>
+    {
         const data = await PlayerRepository().select();
         const res = new Array<Player>();
 
@@ -179,7 +241,8 @@ export class Player
         return [];
     }
 
-    public static async HasCash(id: number, amount: number): Promise<boolean> {
+    public static async HasCash(id: number, amount: number): Promise<boolean>
+    {
         const player = await Player.GetById(id);
 
         if (player.cash >= amount) {

@@ -14,7 +14,7 @@ describe("FactoryManagement", () =>
 {
     it("Pays salaries", async () =>
     {
-        Runner.Init();
+        await Runner.Init();
 
         const newplayerid = await UsersService.Register("1", "1");
         let player = await Player.GetById(newplayerid);
@@ -41,14 +41,12 @@ describe("FactoryManagement", () =>
 
     it("Hires workers", async () =>
     {
-        Runner.Init();
+        await Runner.Init();
 
         const newplayerid = await UsersService.Register("1", "1");
         const player = await Player.GetById(newplayerid);
 
         let factory = (await player.getFactories())[0];
-
-        const playermoneyprev = player.cash;
 
         factory.employeesCount = 1;
         factory.targetEmployees = 10;

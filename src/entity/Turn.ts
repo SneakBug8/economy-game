@@ -4,9 +4,9 @@ export class Turn
 {
     public id: number;
     public datetime: string;
-    public totalcash: number;
-    public cashperplayer: number;
-    public freecash: number;
+    public totalcash: number = 0;
+    public cashperplayer: number = 0;
+    public freecash: number = 0;
 
     public static CurrentTurn: Turn;
 
@@ -21,7 +21,7 @@ export class Turn
         return res;
     }
 
-    public ModifyFreeCash(amount: number) {
+    public AddFreeCash(amount: number) {
         this.freecash += amount;
     }
 
@@ -44,6 +44,20 @@ export class Turn
     public static async Insert(turn: Turn): Promise<number>
     {
         const d = await TurnRepository().insert({
+            datetime: turn.datetime,
+            totalcash: turn.totalcash,
+            cashperplayer: turn.cashperplayer,
+            freecash: turn.freecash,
+        });
+
+        turn.id = d[0];
+
+        return d[0];
+    }
+
+    public static async Update(turn: Turn): Promise<number>
+    {
+        const d = await TurnRepository().where("id", turn.id).update({
             datetime: turn.datetime,
             totalcash: turn.totalcash,
             cashperplayer: turn.cashperplayer,

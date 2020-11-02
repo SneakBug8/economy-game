@@ -27,12 +27,15 @@ export class Runner {
 
     public static async Turn() {
         // Production
-        ProductionService.Run();
-        // Trade
-        MarketService.Run();
-        // Salaries and employees
-        FactoryManagementService.Run();
 
-        TurnsService.MakeReport();
+        await TurnsService.StartTurn();
+
+        await ProductionService.Run();
+        // Trade
+        await MarketService.Run();
+        // Salaries and employees
+        await FactoryManagementService.Run();
+
+        await TurnsService.EndTurn();
     }
 }

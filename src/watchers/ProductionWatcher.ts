@@ -4,6 +4,8 @@ import { Turn } from "entity/Turn";
 import { Good } from "entity/Good";
 import { Player } from "entity/Player";
 import { PlayerLog } from "entity/PlayerLog";
+import { PriceRecord } from "entity/PriceRecord";
+import { Log } from "entity/Log";
 
 interface GoodProductionStat
 {
@@ -25,6 +27,9 @@ export class ProductionWatcher
     }
 
     public static Stats = new Array<GoodProductionStat>();
+    // GDP consists of last prices for all productioned goods for the last turn
+    // though requires production and trade
+    public static GDP = 0;
 
     public static async OnProductionListener(event: ProductionEvent)
     {
@@ -46,6 +51,17 @@ export class ProductionWatcher
 
     public static async Reset(event: Turn)
     {
-        this.Stats = new Array<GoodProductionStat>();
+        ProductionWatcher.GDP = 0;
+
+        for (const stat of ProductionWatcher.Stats) {
+            const record = await PriceRecord.GetLatestWithGood(stat.good);
+
+            if (record) {
+                ProductionWatcher.GDP += record.price * stat.amount;
+            }
+        }
+
+        Log.LogText("GDP was: " + ProductionWatcher.GDP);
+        ProductionWatcher.Stats = new Array<GoodProductionStat>();
     }
 }

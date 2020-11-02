@@ -63,8 +63,7 @@ export class MarketService
                         tradeamount += transactionsize;
                         lastprice = sell.price;
 
-                        await this.TransferCash(buyactor, -transactioncost);
-                        await this.TransferCash(sellactor, transactioncost);
+                        await this.TransferCash(buyactor, sellactor, transactioncost);
                         await Storage.AddGoodTo(buyactor, good, transactionsize);
 
                         EventsList.onTrade.emit({
@@ -114,9 +113,10 @@ export class MarketService
                         tradeamount += transactionsize;
                         lastprice = buy.price;
 
-                        await this.TransferCash(buyactor, -transactioncost);
-                        Turn.CurrentTurn.ModifyFreeCash(transactioncost);
+
                         const buyerplayer = await Player.GetWithActor(buyactor);
+
+                        await buyerplayer.payCashToState(transactioncost);
                         await Storage.AddGoodTo(buyactor, good, transactionsize);
 
                         EventsList.onTrade.emit({
@@ -159,8 +159,7 @@ export class MarketService
                         tradeamount += transactionsize;
                         lastprice = sell.price;
 
-                        await this.TransferCash(sellactor, transactioncost);
-                        Turn.CurrentTurn.ModifyFreeCash(-transactioncost);
+                        await sellerplayer.takeCashFromState(transactioncost);
 
                         EventsList.onTrade.emit({
                             Type: TradeEventType.ToGovernment,
@@ -239,13 +238,12 @@ export class MarketService
 
     //}*/
 
-    public static async TransferCash(actor: MarketActor, amount: number): Promise<void>
+    public static async TransferCash(from: MarketActor, to: MarketActor, amount: number): Promise<void>
     {
-        const player = await Player.GetWithActor(actor);
+        const playerfrom = await Player.GetWithActor(from);
+        const playerto = await Player.GetWithActor(to);
 
-        player.cash += amount;
-
-        Player.Update(player);
+        playerfrom.payCash(playerto, amount);
     }
 
     public static async AddBuyOffer(actor: MarketActor, good: Good, amount: number, price: number)
@@ -268,7 +266,7 @@ export class MarketService
     public static async AddSellOffer(actor: MarketActor, good: Good, amount: number)
     {
         const player = await Player.GetWithActor(actor);
-        const res = await Storage.Has(await actor, good, amount);
+        const res = await Storage.Has(actor, good, amount);
 
         if (!res) {
             return;
@@ -279,6 +277,8 @@ export class MarketService
         offer.setGood(good);
         offer.amount = amount;
         offer.setActor(actor);
+
+        Storage.TakeGoodFrom(actor, good, amount);
 
         SellOffer.Insert(offer);
     }

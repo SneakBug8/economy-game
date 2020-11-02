@@ -6,9 +6,9 @@ import { Player } from "./Player";
 export class Factory
 {
     public id: number;
-    public employeesCount: number;
-    public targetEmployees: number;
-    public salary: number;
+    public employeesCount: number = 0;
+    public targetEmployees: number = 0;
+    public salary: number = 1;
     private Settings: IFactorySettings;
     public settings: string;
     private playerId: number;
@@ -94,7 +94,8 @@ export class Factory
         });
     }
 
-    public static async Create(owner: Player, employeesCount: number, salary: number): Promise<number> {
+    public static async Create(owner: Player, employeesCount: number, salary: number): Promise<number>
+    {
         const factory = new Factory();
         factory.setOwner(owner);
         factory.employeesCount = employeesCount;
@@ -115,6 +116,8 @@ export class Factory
         });
 
         factory.id = d[0];
+
+        console.log("Created factory " + factory.id);
 
         return d[0];
     }

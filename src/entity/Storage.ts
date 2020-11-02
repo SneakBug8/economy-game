@@ -50,6 +50,25 @@ export class Storage
         return null;
     }
 
+    public static async GetWithActor(actor: MarketActor): Promise<Storage[]>
+    {
+        const data = await StorageRepository()
+            .select()
+            .where("actorId", actor.id);
+
+        const res = new Array<Storage>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
     public static async GetWithGoodAndActor(actor: MarketActor, good: Good): Promise<Storage>
     {
         const data = await StorageRepository()

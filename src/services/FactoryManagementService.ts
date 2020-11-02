@@ -1,17 +1,21 @@
 import { Factory } from "entity/Factory";
 import { Player } from "entity/Player";
+import { TurnsService } from "./TurnsService";
+import { Log } from "entity/Log";
 
 export class FactoryManagementService
 {
     public static async Run(): Promise<void>
     {
-        for (const factory of await Factory.All()) {
+        for (const factory of (await Factory.All())) {
             // Pay salaries
             const player = await Player.GetWithFactory(factory);
 
-            player.cash -= factory.salary * factory.employeesCount;
+            const hastopay = factory.salary * factory.employeesCount;
 
-            Player.Update(player);
+            player.payCashToState(hastopay);
+
+            Log.LogTemp(`${player.id} paid salary for ${factory.id}`);
 
             // Increase employees count
             if (player.cash > 0 && factory.targetEmployees > factory.employeesCount) {

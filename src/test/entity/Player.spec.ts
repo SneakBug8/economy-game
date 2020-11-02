@@ -41,12 +41,12 @@ describe("PlayerTests", () =>
     it("Update", async () =>
     {
         const a = await Player.GetById(lastid);
-        a.cash *= 2;
+        a.username = "beta";
 
         await Player.Update(a);
         const res = await Player.GetById(lastid);
 
-        assert.ok(res.cash === a.cash, "Last id res");
+        assert.ok(res.username === a.username, "Last id res");
         assert.ok(res, "Select");
         assert.ok(res.id, "Last id res");
         assert.ok(res.username, "login");
