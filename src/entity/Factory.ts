@@ -13,6 +13,11 @@ export class Factory
     public settings: string;
     private playerId: number;
 
+    public getOwnerId(): number
+    {
+        return this.playerId;
+    }
+
     public async getOwner(): Promise<Player>
     {
         return await Player.GetById(this.playerId);

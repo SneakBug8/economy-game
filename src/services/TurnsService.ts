@@ -18,12 +18,12 @@ export class TurnsService
 
         this.Initialized = true;
 
-        this.StartTurn();
+        await this.StartTurn();
     }
 
     public static async StartTurn()
     {
-        this.CurrentTurn = await Turn.Last() || new Turn();1
+        this.CurrentTurn = await Turn.Last() || new Turn();
         this.LastTurn = await Turn.Last();
 
         if (this.LastTurn) {

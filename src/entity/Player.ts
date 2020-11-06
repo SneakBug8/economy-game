@@ -121,7 +121,12 @@ export class Player
 
     public static async GetFactories(player: Player): Promise<Factory[]>
     {
-        const data = await FactoryRepository().select().where("playerId", player.id);
+        return this.GetFactoriesById(player.id);
+    }
+
+    public static async GetFactoriesById(playerid: number): Promise<Factory[]>
+    {
+        const data = await FactoryRepository().select().where("playerId", playerid);
 
         const res = new Array<Factory>();
 

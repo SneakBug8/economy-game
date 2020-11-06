@@ -74,7 +74,8 @@ export class SellOffer extends MarketOffer
         return null;
     }
 
-    public static async Create(good: Good, amount: number, price: number, actor: MarketActor) {
+    public static async Create(good: Good, amount: number, price: number, actor: MarketActor)
+    {
         const player = await Player.GetWithActor(actor);
 
         if (!await Storage.Has(actor, good, amount)) {
@@ -140,7 +141,8 @@ export class SellOffer extends MarketOffer
         return true;
     }
 
-    public static async All(): Promise<SellOffer[]> {
+    public static async All(): Promise<SellOffer[]>
+    {
         const data = await SellOfferRepository().select();
         const res = new Array<SellOffer>();
 
@@ -155,8 +157,25 @@ export class SellOffer extends MarketOffer
         return [];
     }
 
-    public static async GetWithGoodOrdered(good: Good, sort: string = "asc") : Promise<SellOffer[]> {
+    public static async GetWithGoodOrdered(good: Good, sort: string = "asc"): Promise<SellOffer[]>
+    {
         const data = await SellOfferRepository().where("good_id", good.id).select().orderBy("price", sort);
+        const res = new Array<SellOffer>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
+    public static async GetWithActor(actorId: number): Promise<SellOffer[]>
+    {
+        const data = await SellOfferRepository().where("actor_id", actorId).select();
         const res = new Array<SellOffer>();
 
         if (data) {

@@ -160,6 +160,22 @@ export class BuyOffer extends MarketOffer
 
         return [];
     }
+
+    public static async GetWithActor(actorId: number): Promise<BuyOffer[]>
+    {
+        const data = await BuyOfferRepository().where("actor_id", actorId).select();
+        const res = new Array<BuyOffer>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
 }
 
 export const BuyOfferRepository = () => Connection("BuyOffers");

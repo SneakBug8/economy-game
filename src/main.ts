@@ -18,7 +18,7 @@ async function bootstrap() {
 
   await Runner.Init();
 
-  require("console/main");
+  require("api/console/main");
 
   // await new Runner().Start();
 }

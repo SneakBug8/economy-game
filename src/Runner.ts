@@ -12,8 +12,10 @@ import * as child_process from "child_process";
 import { FactoryManagementService } from "services/FactoryManagementService";
 import { sleep } from "utility/sleep";
 
-export class Runner {
-    public static async Init() {
+export class Runner
+{
+    public static async Init()
+    {
         await TurnsService.Init();
         await RecipesService.Init();
         await MarketService.Init();
@@ -22,10 +24,12 @@ export class Runner {
         await TradeWatcher.Init();
         await ProductionWatcher.Init();
 
-        require("web/main");
+        //require("web/main");
+        require("api/telegram/main");
     }
 
-    public static async Turn() {
+    public static async Turn()
+    {
         // Production
 
         await TurnsService.StartTurn();

@@ -6,12 +6,13 @@
   "license": "MIT",
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\"",
-    "start": "tsc && node bin/main.js",
+    "start": "ts-node src/main.ts",
     "start:prod": "node bin/main.js",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "build": "tsc",
     "test": "mocha -r ts-node/register src/**/*.spec.ts -r src/test/testloader.ts --exit",
-    "web": "ts-node src/web/main.ts"
+    "web": "ts-node src/web/main.ts",
+    "watch": "nodemon --exec \"npm start\" -V -w src -e ts"
   },
   "dependencies": {
     "app-module-path": "^2.2.0",
@@ -19,6 +20,7 @@
     "debug": "^4.2.0",
     "express": "^4.17.1",
     "node": "^10.20.1",
+    "node-telegram-bot-api": "^0.50.0",
     "sqlite": "^4.0.15",
     "sqlite3": "^5.0.0",
     "tarn": "^3.0.1"
@@ -31,6 +33,7 @@
     "@types/knex": "^0.16.1",
     "@types/mocha": "^8.0.3",
     "@types/node": "^10.12.18",
+    "@types/node-telegram-bot-api": "^0.50.4",
     "@types/sqlite3": "^3.1.6",
     "@types/supertest": "^2.0.7",
     "mocha": "^8.1.3",

@@ -30,6 +30,20 @@ export class ProductionQueue
         return res;
     }
 
+    public static async Clear(id: number)
+    {
+        const queue = await this.GetById(id);
+
+        if (!queue) {
+            return;
+        }
+
+        queue.queue = "[]";
+        queue.Queue = [];
+
+        this.Update(queue);
+    }
+
     public static async GetById(id: number): Promise<ProductionQueue>
     {
         const data = await ProductionQueueRepository().select().where("id", id).first();
@@ -54,7 +68,8 @@ export class ProductionQueue
         return null;
     }
 
-    public static async AddWithFactory(factory: Factory, entry: IQueueEntry) {
+    public static async AddWithFactory(factory: Factory, entry: IQueueEntry)
+    {
         let queueentry = await this.GetWithFactory(factory);
 
         if (!queueentry) {
@@ -109,7 +124,8 @@ export class ProductionQueue
         return res.c > 0;
     }
 
-    public static async Delete(id: number): Promise<boolean> {
+    public static async Delete(id: number): Promise<boolean>
+    {
         await ProductionQueueRepository().delete().where("id", id);
 
         Log.LogText("Deleted queue id " + id);

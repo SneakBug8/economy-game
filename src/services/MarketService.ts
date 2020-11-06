@@ -270,11 +270,12 @@ export class MarketService
         offer.setGood(good);
         offer.amount = amount;
         offer.setActor(actor);
+        offer.price = price;
 
-        SellOffer.Insert(offer);
+        return await BuyOffer.Insert(offer);
     }
 
-    public static async AddSellOffer(actor: MarketActor, good: Good, amount: number)
+    public static async AddSellOffer(actor: MarketActor, good: Good, amount: number, price: number)
     {
         const player = await Player.GetWithActor(actor);
         const res = await Storage.Has(actor, good, amount);
@@ -288,9 +289,10 @@ export class MarketService
         offer.setGood(good);
         offer.amount = amount;
         offer.setActor(actor);
+        offer.price = price;
 
         Storage.TakeGoodFrom(actor, good, amount);
 
-        SellOffer.Insert(offer);
+        return SellOffer.Insert(offer);
     }
 }
