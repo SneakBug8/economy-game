@@ -12,6 +12,7 @@ import { PriceRecord } from "entity/PriceRecord";
 import { EventsList } from "events/EventsList";
 import { ITradeEvent, TradeEventType } from "events/types/TradeEvent";
 import { PlayerService } from "./PlayerService";
+import { Config } from "config";
 
 export class MarketService
 {
@@ -59,15 +60,19 @@ export class MarketService
                         sell.amount -= transactionsize;
                         buy.amount -= transactionsize;
 
+                        // Take taxes for market trading from seller
+                        const taxcost = transactioncost * Config.MarketTaxPercent;
+
+                        await this.TransferCash(buyactor, sellactor, transactioncost - taxcost);
+                        await buyerplayer.payCashToState(taxcost);
+                        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
+
                         PlayerService.SendOffline(sellerplayer.id,
-                            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyerplayer.username}`);
+                            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyerplayer.username}, tax: ${taxcost}`);
                         PlayerService.SendOffline(buyerplayer.id,
-                            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username}`);
+                            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username}. tax: ${taxcost}`);
 
                         this.appendToRecords(good, sell.price, transactionsize);
-
-                        await this.TransferCash(buyactor, sellactor, transactioncost);
-                        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
 
                         EventsList.onTrade.emit({
                             Type: TradeEventType.ToPlayer,
@@ -124,12 +129,12 @@ export class MarketService
                         buy.amount -= transactionsize;
                         production.amount -= transactionsize;
 
+                        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
+
                         PlayerService.SendOffline(buyerplayer.id,
                             `Bought ${transactionsize} ${good.name} for ${transactioncost} from State`);
 
                         this.appendToRecords(good, buy.price, transactionsize);
-
-                        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
 
                         EventsList.onTrade.emit({
                             Type: TradeEventType.FromGovernment,
@@ -168,14 +173,13 @@ export class MarketService
                         sell.amount -= transactionsize;
                         consumption.amount -= transactionsize;
 
+                        const taxcost = transactioncost * Config.MarketTaxPercent;
+                        await sellerplayer.takeCashFromState(transactioncost - taxcost);
+
                         this.appendToRecords(good, sell.price, transactionsize);
 
                         PlayerService.SendOffline(sellerplayer.id,
-                            `Sold ${transactionsize} ${good.name} for ${transactioncost} to State`);
-
-                        this.appendToRecords(good, sell.price, transactionsize);
-
-                        await sellerplayer.takeCashFromState(transactioncost);
+                            `Sold ${transactionsize} ${good.name} for ${transactioncost} to State, tax: ${taxcost}`);
 
                         EventsList.onTrade.emit({
                             Type: TradeEventType.ToGovernment,

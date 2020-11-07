@@ -10,6 +10,7 @@ import { TradeWatcher } from "watchers/TradeWatcher";
 import { ProductionWatcher } from "watchers/ProductionWatcher";
 import { FactoryManagementService } from "services/FactoryManagementService";
 import { IApiProvider } from "api/ApiProvider";
+import { FixedTaxService } from "services/FixedTaxService";
 
 export class Runner
 {
@@ -33,33 +34,23 @@ export class Runner
     {
         // Production
 
-        console.log("abab");
-
         await TurnsService.CheckBalance();
 
         await ProductionService.Run();
-
-        console.log("acac");
-
 
         await TurnsService.CheckBalance();
 
         // Trade
         await MarketService.Run();
 
-        console.log("dede");
-
-
         await TurnsService.CheckBalance();
 
         // Salaries and employees
         await FactoryManagementService.Run();
 
-        console.log("fefe");
+        await FixedTaxService.Run();
 
         await TurnsService.CheckBalance();
-
-        console.log("lili");
 
         await TurnsService.EndTurn();
         await TurnsService.StartTurn();

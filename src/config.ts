@@ -11,5 +11,9 @@ export class Config {
         return __dirname + "/../data";
     }
 
+    // How much state gives to newly registered players
     public static RegistrationCash = 500;
+    // Everyday fixed tax
+    public static FixedTax = 100;
+    public static MarketTaxPercent = 0.04;
 }
