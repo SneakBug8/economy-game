@@ -8,7 +8,6 @@ import { Consumption } from "entity/Consumption";
 import { Production } from "entity/Production";
 import { TurnsService } from "./TurnsService";
 import { Market } from "entity/Market";
-import { Log } from "entity/Log";
 import { PriceRecord } from "entity/PriceRecord";
 import { EventsList } from "events/EventsList";
 import { ITradeEvent, TradeEventType } from "events/types/TradeEvent";
@@ -20,7 +19,6 @@ export class MarketService
     {
         Market.DefaultMarket = await Market.GetById(1);
     }
-
 
     public static async Run(): Promise<void>
     {
@@ -62,9 +60,10 @@ export class MarketService
                         buy.amount -= transactionsize;
 
                         PlayerService.SendOffline(sellerplayer.id,
-                            `Sold ${transactionsize} ${good.name} for ${transactionsize} to ${buyerplayer.username}`);
+                            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyerplayer.username}`);
                         PlayerService.SendOffline(buyerplayer.id,
-                            `Bought ${transactionsize} ${good.name} for ${transactionsize} from ${sellerplayer.username}`);
+                            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username}`);
+
                         this.appendToRecords(good, sell.price, transactionsize);
 
                         await this.TransferCash(buyactor, sellactor, transactioncost);
@@ -126,7 +125,7 @@ export class MarketService
                         production.amount -= transactionsize;
 
                         PlayerService.SendOffline(buyerplayer.id,
-                            `Bought ${transactionsize} ${good.name} for ${transactionsize} from State`);
+                            `Bought ${transactionsize} ${good.name} for ${transactioncost} from State`);
 
                         this.appendToRecords(good, buy.price, transactionsize);
 
@@ -172,7 +171,8 @@ export class MarketService
                         this.appendToRecords(good, sell.price, transactionsize);
 
                         PlayerService.SendOffline(sellerplayer.id,
-                            `Sold ${transactionsize} ${good.name} for ${transactionsize} to State`);
+                            `Sold ${transactionsize} ${good.name} for ${transactioncost} to State`);
+
                         this.appendToRecords(good, sell.price, transactionsize);
 
                         await sellerplayer.takeCashFromState(transactioncost);
@@ -265,41 +265,12 @@ export class MarketService
 
     public static async AddBuyOffer(actor: MarketActor, good: Good, amount: number, price: number)
     {
-        const player = await Player.GetWithActor(actor);
-
-        if (player.cash < amount * price) {
-            return;
-        }
-
-        const offer = new BuyOffer();
-        offer.setMarket(Market.DefaultMarket);
-        offer.setGood(good);
-        offer.amount = amount;
-        offer.setActor(actor);
-        offer.price = price;
-
-        return await BuyOffer.Insert(offer);
+        return await BuyOffer.Create(good, amount, price, actor);
     }
 
     public static async AddSellOffer(actor: MarketActor, good: Good, amount: number, price: number)
     {
-        const player = await Player.GetWithActor(actor);
-        const res = await Storage.Has(actor, good, amount);
-
-        if (!res) {
-            return;
-        }
-
-        const offer = new SellOffer();
-        offer.setMarket(Market.DefaultMarket);
-        offer.setGood(good);
-        offer.amount = amount;
-        offer.setActor(actor);
-        offer.price = price;
-
-        Storage.TakeGoodFrom(actor, good, amount);
-
-        return SellOffer.Insert(offer);
+        return await SellOffer.Create(good, amount, price, actor);
     }
 
     private static records: PriceRecord[] = [];
@@ -307,7 +278,7 @@ export class MarketService
     private static async commitRecords()
     {
         for (const record of this.records) {
-            await PriceRecord.Create(TurnsService.CurrentTurn, record.goodId, record.minprice, record.maxprice, record.tradeamount);
+            await PriceRecord.Create(TurnsService.CurrentTurn.id, record.goodId, record.minprice, record.maxprice, record.tradeamount);
         }
 
         this.records = [];
@@ -338,7 +309,7 @@ export class MarketService
 
         const newrecord = {
             goodId: good.id,
-            minprice: 0,
+            minprice: Number.MAX_SAFE_INTEGER,
             maxprice: 0,
             tradeamount: 0,
         };

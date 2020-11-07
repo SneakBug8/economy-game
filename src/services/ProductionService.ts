@@ -4,6 +4,7 @@ import { Storage } from "entity/Storage";
 import { Player } from "entity/Player";
 import { EventsList } from "events/EventsList";
 import { ProductionQueue } from "entity/ProductionQueue";
+import { PlayerService } from "./PlayerService";
 
 export class ProductionService
 {
@@ -20,7 +21,7 @@ export class ProductionService
             }
 
             let remainingemployees = factory.employeesCount;
-            while (queue.Queue && queue.Queue.length) {
+            while (queue.Queue && queue.Queue.length && remainingemployees) {
                 const queueentry = queue.Queue.shift();
                 const recipe = RecipesService.GetById(queueentry.RecipeId);
 
@@ -28,21 +29,15 @@ export class ProductionService
                     continue;
                 }
 
+                // First try - base repeats on workers
                 let reciperepeats = Math.min(remainingemployees / recipe.employeesneeded, queueentry.Amount);
 
                 if (reciperepeats < 1) {
+                    PlayerService.SendOffline(player.id, "Not enough workers to produce recipe");
                     break;
                 }
 
-                queueentry.Amount -= reciperepeats;
-
-                if (queueentry.Amount !== 0) {
-                    queue.Queue.unshift(queueentry);
-                }
-
-                await ProductionQueue.Update(queue);
-
-                // Check for resources
+                // Second try - repeats on resources
                 for (const input of recipe.Requisites) {
                     const storageentry = await Storage.GetWithGoodAndActor(actor.id, input.Good.id);
 
@@ -58,17 +53,30 @@ export class ProductionService
                 }
 
                 if (reciperepeats < 1) {
+                    PlayerService.SendOffline(player.id, "Not enough resources to produce recipe");
                     break;
                 }
 
+                queueentry.Amount -= reciperepeats;
+
+                // if has more in queue entry - return it to queue
+                if (queueentry.Amount !== 0) {
+                    queue.Queue.unshift(queueentry);
+                }
+                await ProductionQueue.Update(queue);
+
                 remainingemployees -= reciperepeats * recipe.employeesneeded;
 
+                // Take inputs
                 for (const input of recipe.Requisites) {
                     await Storage.TakeGoodFrom(actor, input.Good, reciperepeats * input.amount);
                 }
 
+                // Give outputs
                 for (const output of recipe.Results) {
                     await Storage.AddGoodTo(actor.id, output.Good.id, reciperepeats * output.amount);
+
+                    PlayerService.SendOffline(player.id, `Manufactured ${reciperepeats * output.amount} ${output.Good.name}`);
 
                     EventsList.onProduction.emit({
                         Factory: factory,

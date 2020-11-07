@@ -83,7 +83,7 @@ export class SellOffer extends MarketOffer
         const player = await Player.GetWithActor(actor);
 
         if (!await Storage.Has(actor, good, amount)) {
-            return;
+            return false;
         }
 
         const offer = new SellOffer();
@@ -95,8 +95,7 @@ export class SellOffer extends MarketOffer
 
         await Storage.AddGoodTo(actor.id, good.id, -amount);
 
-
-        this.Insert(offer);
+        return await this.Insert(offer);
     }
 
     public static async Exists(id: number): Promise<boolean>

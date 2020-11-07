@@ -24,9 +24,9 @@ export class PriceRecord {
         return res;
     }
 
-    public static async Create(turn: Turn, goodid: number, minprice: number, maxprice: number, tradeamount: number) {
+    public static async Create(turnId: number, goodid: number, minprice: number, maxprice: number, tradeamount: number) {
         const record = new PriceRecord();
-        record.turnId = turn.id;
+        record.turnId = turnId;
         record.goodId = goodid;
         record.minprice = minprice;
         record.maxprice = maxprice;

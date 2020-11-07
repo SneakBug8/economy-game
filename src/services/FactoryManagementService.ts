@@ -2,6 +2,7 @@ import { Factory } from "entity/Factory";
 import { Player } from "entity/Player";
 import { TurnsService } from "./TurnsService";
 import { Log } from "entity/Log";
+import { PlayerService } from "./PlayerService";
 
 export class FactoryManagementService
 {
@@ -16,9 +17,10 @@ export class FactoryManagementService
             await player.payCashToState(hastopay);
 
             Log.LogTemp(`${player.id} paid ${hastopay} salary for ${factory.id}`);
+            PlayerService.SendOffline(player.id, `Paid ${hastopay} in salaries`);
 
             if (player.cash < 0) {
-                factory.targetEmployees = this.Lerp(factory.targetEmployees, factory.employeesCount, 0.25);
+                factory.targetEmployees = this.Lerp(factory.targetEmployees, 0, 0.25);
             }
 
             // Increase employees count
@@ -28,10 +30,15 @@ export class FactoryManagementService
                     delta = 1;
                 }
                 factory.employeesCount += Math.round(delta);
+
+                PlayerService.SendOffline(player.id, `Hired ${delta} workers`);
             }
 
             if (factory.targetEmployees < factory.employeesCount) {
+                const delta = factory.employeesCount - factory.targetEmployees;
                 factory.employeesCount = factory.targetEmployees;
+
+                PlayerService.SendOffline(player.id, `Fired ${delta} workers`);
             }
 
             Factory.Update(factory);

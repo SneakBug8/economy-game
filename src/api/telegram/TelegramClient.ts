@@ -13,6 +13,7 @@ import { SellOffer } from "entity/SellOffer";
 import { Storage } from "entity/Storage";
 import { MarketActor } from "entity/MarketActor";
 import { PriceRecord } from "entity/PriceRecord";
+import { Runner } from "Runner";
 
 export class TelegramClient
 {
@@ -53,6 +54,7 @@ export class TelegramClient
             this.OnMarketSell,
             this.OnMarketSellDelete,
             this.OnMarketSellList,
+            this.OnTurn,
             this.UnknownCommand,
         ];
 
@@ -134,7 +136,7 @@ export class TelegramClient
             const teleuser = TelegramUser.Create(this.chatId, this.userId, this.playerId);
             TelegramUser.Insert(teleuser);
 
-            this.write(`Registered as ${username}}`);
+            this.write(`Registered as ${username}`);
 
             return true;
         }
@@ -560,7 +562,12 @@ export class TelegramClient
 
             const id = await MarketService.AddBuyOffer(actor, good, amount, price);
 
-            this.write("Added buy offer id " + id);
+            if (id) {
+                this.write("Added buy offer id " + id);
+            }
+            else {
+                this.write("Was unable to create buy offer");
+            }
 
             return true;
         }
@@ -647,7 +654,12 @@ export class TelegramClient
 
             const id = await MarketService.AddSellOffer(actor, good, amount, price);
 
-            this.write("Added sell offer id " + id);
+            if (id) {
+                this.write("Added sell offer id " + id);
+            }
+            else {
+                this.write("Was unable to create sell offer");
+            }
 
             return true;
         }
@@ -717,6 +729,19 @@ export class TelegramClient
                 async (x) => (await x.getGood()).name + ` (${x.id})`,
                 (x) => x.amount + "",
                 "Your storage");
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public async OnTurn(message: string): Promise<boolean>
+    {
+        const registerregex = new RegExp("\/turn 123456");
+        if (registerregex.test(message)) {
+
+            Runner.Turn();
 
             return true;
         }

@@ -33,8 +33,6 @@ export class Runner
     {
         // Production
 
-        await TurnsService.StartTurn();
-
         console.log("abab");
 
         await TurnsService.CheckBalance();
@@ -64,5 +62,6 @@ export class Runner
         console.log("lili");
 
         await TurnsService.EndTurn();
+        await TurnsService.StartTurn();
     }
 }

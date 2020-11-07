@@ -4,6 +4,7 @@ import { MarketActor } from "./MarketActor";
 import { Market } from "entity/Market";
 import { Good } from "./Good";
 import { Turn } from "./Turn";
+import { Player } from "./Player";
 
 export class BuyOffer extends MarketOffer
 {
@@ -65,6 +66,12 @@ export class BuyOffer extends MarketOffer
 
     public static async Create(good: Good, amount: number, price: number, actor: MarketActor)
     {
+        const player = await Player.GetWithActor(actor);
+
+        if (!await Player.HasCash(player.id, amount * price)) {
+            return false;
+        }
+
         const offer = new BuyOffer();
         offer.marketId = Market.DefaultMarket.id;
         offer.setGood(good);
@@ -72,7 +79,7 @@ export class BuyOffer extends MarketOffer
         offer.price = price;
         offer.setActor(actor);
 
-        this.Insert(offer);
+        return await this.Insert(offer);
     }
 
     public static async GetById(id: number): Promise<BuyOffer>

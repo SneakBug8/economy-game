@@ -63,6 +63,10 @@ export class TurnsService
     {
         await this.CalculateBalance();
 
+        if (!this.LastTurn) {
+            return true;
+        }
+
         if (this.CurrentTurn.totalcash !== this.LastTurn.totalcash) {
             console.log("===");
             console.log("Wrong balance");

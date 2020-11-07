@@ -33,14 +33,19 @@ export class TypedEvent<T> {
     {
         setImmediate(() =>
         {
-            /** Update any general listeners */
-            this.listeners.forEach((listener) => listener(event));
+            try {
+                /** Update any general listeners */
+                this.listeners.forEach((listener) => listener(event));
 
-            /** Clear the `once` queue */
-            if (this.listenersOncer.length > 0) {
-                const toCall = this.listenersOncer;
-                this.listenersOncer = [];
-                toCall.forEach((listener) => listener(event));
+                /** Clear the `once` queue */
+                if (this.listenersOncer.length > 0) {
+                    const toCall = this.listenersOncer;
+                    this.listenersOncer = [];
+                    toCall.forEach((listener) => listener(event));
+                }
+            }
+            catch (e) {
+                console.log(e);
             }
         });
     }
