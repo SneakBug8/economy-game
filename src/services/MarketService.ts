@@ -6,11 +6,9 @@ import { Player } from "entity/Player";
 import { Storage } from "entity/Storage";
 import { Consumption } from "entity/Consumption";
 import { Production } from "entity/Production";
-import { Turn } from "entity/Turn";
 import { TurnsService } from "./TurnsService";
 import { Market } from "entity/Market";
 import { Log } from "entity/Log";
-import { PlayerLog } from "entity/PlayerLog";
 import { PriceRecord } from "entity/PriceRecord";
 import { EventsList } from "events/EventsList";
 import { ITradeEvent, TradeEventType } from "events/types/TradeEvent";
@@ -21,6 +19,7 @@ export class MarketService
     {
         Market.DefaultMarket = await Market.GetById(1);
     }
+
 
     public static async Run(): Promise<void>
     {
@@ -33,9 +32,6 @@ export class MarketService
 
                 const consumptions = await Consumption.GetWithGood(good);
                 const productions = await Production.GetWithGood(good);
-
-                let tradeamount = 0;
-                let lastprice = 0;
 
                 // Offers vs offers
                 while (buyoffers.length && selloffers.length) {
@@ -64,8 +60,8 @@ export class MarketService
                         sell.amount -= transactionsize;
                         buy.amount -= transactionsize;
 
-                        tradeamount += transactionsize;
-                        lastprice = sell.price;
+
+                        this.appendToRecords(good, sell.price, transactionsize);
 
                         await this.TransferCash(buyactor, sellactor, transactioncost);
                         await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
@@ -125,8 +121,7 @@ export class MarketService
                         buy.amount -= transactionsize;
                         production.amount -= transactionsize;
 
-                        lastprice = buy.price;
-                        tradeamount += transactionsize;
+                        this.appendToRecords(good, buy.price, transactionsize);
 
                         await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
 
@@ -167,8 +162,8 @@ export class MarketService
                         sell.amount -= transactionsize;
                         consumption.amount -= transactionsize;
 
-                        tradeamount += transactionsize;
-                        lastprice = sell.price;
+                        this.appendToRecords(good, sell.price, transactionsize);
+
 
                         await sellerplayer.takeCashFromState(transactioncost);
 
@@ -194,10 +189,11 @@ export class MarketService
                     }
                 }
 
-                PriceRecord.Create(TurnsService.CurrentTurn, good, lastprice, tradeamount);
             }
 
         }
+
+        await this.commitRecords();
     }
 
     /*public static async AddToStorage(actor: MarketActor): Promise<void>
@@ -294,5 +290,51 @@ export class MarketService
         Storage.TakeGoodFrom(actor, good, amount);
 
         return SellOffer.Insert(offer);
+    }
+
+    private static records: PriceRecord[] = [];
+
+    private static async commitRecords()
+    {
+        for (const record of this.records) {
+            await PriceRecord.Create(TurnsService.CurrentTurn, record.goodId, record.minprice, record.maxprice, record.tradeamount);
+        }
+
+        this.records = [];
+    }
+
+    private static appendToRecords(good: Good, price: number, amount: number)
+    {
+        const record = this.getRecord(good);
+        if (price < record.minprice) {
+            record.minprice = price;
+        }
+        if (price > record.maxprice) {
+            record.maxprice = price;
+        }
+
+        if (amount) {
+            record.tradeamount += amount;
+        }
+    }
+
+    private static getRecord(good: Good)
+    {
+        for (const record of this.records) {
+            if (record.goodId === good.id) {
+                return record;
+            }
+        }
+
+        const newrecord = {
+            goodId: good.id,
+            minprice: 0,
+            maxprice: 0,
+            tradeamount: 0,
+        };
+
+        this.records.push(newrecord);
+
+        return newrecord;
     }
 }

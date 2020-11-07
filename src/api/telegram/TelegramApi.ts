@@ -81,3 +81,19 @@ async function MakeNewUser(msg: TelegramBot.Message): Promise<boolean>
 
     return true;
 }
+
+export class TelegramApi
+{
+    public static async sendOffline(playerId: number, message: string)
+    {
+        const user = await TelegramUser.GetByPlayer(playerId);
+
+        if (!user) {
+            return;
+        }
+
+        const client = await TelegramClient.Create(user.chatId, user.userId, user.playerId);
+
+        client.write(message);
+    }
+}

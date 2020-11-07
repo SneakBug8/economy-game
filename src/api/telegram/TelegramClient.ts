@@ -1,5 +1,5 @@
 import * as TelegramBot from "node-telegram-bot-api";
-import { bot } from "./main";
+import { bot } from "./TelegramApi";
 import { UsersService } from "services/UsersService";
 import { Player } from "entity/Player";
 import { Factory } from "entity/Factory";
@@ -12,6 +12,7 @@ import { BuyOffer } from "entity/BuyOffer";
 import { SellOffer } from "entity/SellOffer";
 import { Storage } from "entity/Storage";
 import { MarketActor } from "entity/MarketActor";
+import { PriceRecord } from "entity/PriceRecord";
 
 export class TelegramClient
 {
@@ -510,7 +511,17 @@ export class TelegramClient
 
             const goods = await Good.All();
 
-            this.writeList<Good>(goods, (x) => x.id, async (x) => `${x.name}`);
+            this.writeList<Good>(goods, (x) => x.id, async (x) =>
+            {
+                const lastrecord = await PriceRecord.GetLatestWithGood(x);
+
+                if (lastrecord) {
+                    return `${x.name}, price: ${lastrecord.minprice}-${lastrecord.maxprice} traded ${lastrecord.tradeamount}`;
+                }
+                else {
+                    return `${x.name}`;
+                }
+            });
 
             return true;
         }

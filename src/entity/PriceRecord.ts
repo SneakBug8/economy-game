@@ -4,10 +4,12 @@ import { Turn } from "./Turn";
 
 export class PriceRecord {
 
-    public id: number;
-    public turnId: number;
+    public id?: number;
+    public turnId?: number;
     public goodId: number;
-    public price: number;
+    public minprice: number;
+    public maxprice: number;
+
     public tradeamount: number;
 
     public static async From(dbobject: any)
@@ -16,16 +18,19 @@ export class PriceRecord {
         res.id = dbobject.id;
         res.turnId = dbobject.turnId;
         res.goodId = dbobject.goodId;
-        res.price = dbobject.price;
+        res.minprice = dbobject.minprice;
+        res.maxprice = dbobject.maxprice;
         res.tradeamount = dbobject.tradeamount;
         return res;
     }
 
-    public static async Create(turn: Turn, good: Good, price: number, tradeamount: number) {
+    public static async Create(turn: Turn, goodid: number, minprice: number, maxprice: number, tradeamount: number) {
         const record = new PriceRecord();
         record.turnId = turn.id;
-        record.goodId = good.id;
-        record.price = price;
+        record.goodId = goodid;
+        record.minprice = minprice;
+        record.maxprice = maxprice;
+
         record.tradeamount = tradeamount;
 
         this.Insert(record);

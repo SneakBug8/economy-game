@@ -29,6 +29,17 @@ export class TelegramUser
         return res;
     }
 
+    public static async GetByPlayer(playerId: number): Promise<TelegramUser>
+    {
+        const data = await TelegramUsersRepository().select().where("playerId", playerId).first();
+
+        if (data) {
+            return this.From(data);
+        }
+
+        return null;
+    }
+
     public static async GetByUser(userId: number): Promise<TelegramUser>
     {
         const data = await TelegramUsersRepository().select().where("userId", userId).first();

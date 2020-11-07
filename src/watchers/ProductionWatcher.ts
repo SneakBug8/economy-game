@@ -52,7 +52,7 @@ export class ProductionWatcher
 
     public static async Reset(event: Turn)
     {
-        ProductionWatcher.GDP = 0;
+        /* ProductionWatcher.GDP = 0;
 
         for (const stat of ProductionWatcher.Stats) {
             const record = await PriceRecord.GetLatestWithGood(stat.good);
@@ -63,6 +63,6 @@ export class ProductionWatcher
         }
 
         Log.LogText("GDP was: " + ProductionWatcher.GDP);
-        ProductionWatcher.Stats = new Array<GoodProductionStat>();
+        ProductionWatcher.Stats = new Array<GoodProductionStat>(); */
     }
 }

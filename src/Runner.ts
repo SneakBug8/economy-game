@@ -25,7 +25,7 @@ export class Runner
         await ProductionWatcher.Init();
 
         //require("web/main");
-        require("api/telegram/main");
+        require("api/telegram/TelegramApi");
     }
 
     public static async Turn()
