@@ -3,8 +3,9 @@ import { Config } from "config";
 import { Factory } from "entity/Factory";
 import { MarketActor } from "entity/MarketActor";
 import { TurnsService } from "./TurnsService";
+import { Runner } from "Runner";
 
-export class UsersService
+export class PlayerService
 {
     public static async Register(username: string, passwd: string): Promise<number>
     {
@@ -37,5 +38,11 @@ export class UsersService
         }
 
         return null;
+    }
+
+    public static async SendOffline(playerId: number, message: string) {
+        if (Runner.ApiProvider) {
+            await Runner.ApiProvider.sendOffline(playerId, message);
+        }
     }
 }

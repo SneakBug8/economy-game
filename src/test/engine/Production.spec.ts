@@ -3,7 +3,7 @@ import "mocha";
 import { Factory } from "entity/Factory";
 import { RecipesService } from "services/RecipesService";
 import { Player } from "entity/Player";
-import { UsersService } from "services/UsersService";
+import { PlayerService } from "services/PlayerService";
 import { ProductionService } from "services/ProductionService";
 import { Storage } from "entity/Storage";
 import { Runner } from "Runner";
@@ -16,7 +16,7 @@ describe("ProductionEngine", () =>
     {
         Runner.Init();
 
-        const newplayerid = await UsersService.Register("1", "1");
+        const newplayerid = await PlayerService.Register("1", "1");
         const player = await Player.GetById(newplayerid);
 
         const actor = await player.getActor();
@@ -31,7 +31,7 @@ describe("ProductionEngine", () =>
 
         await Factory.Update(factory);
 
-        await Storage.AddGoodTo(actor, RecipesService.firstgood, 10);
+        await Storage.AddGoodTo(actor.id, RecipesService.firstgood.id, 10);
 
         await ProductionService.Run();
 

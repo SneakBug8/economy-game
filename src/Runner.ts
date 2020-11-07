@@ -1,19 +1,20 @@
 import "services/TurnsService";
 import "services/MarketService";
 import "services/ProductionService";
-import "services/UsersService";
+import "services/PlayerService";
 import { TurnsService } from "services/TurnsService";
 import { RecipesService } from "services/RecipesService";
 import { ProductionService } from "services/ProductionService";
 import { MarketService } from "services/MarketService";
 import { TradeWatcher } from "watchers/TradeWatcher";
 import { ProductionWatcher } from "watchers/ProductionWatcher";
-import * as child_process from "child_process";
 import { FactoryManagementService } from "services/FactoryManagementService";
-import { sleep } from "utility/sleep";
+import { IApiProvider } from "api/ApiProvider";
 
 export class Runner
 {
+    public static ApiProvider: IApiProvider;
+
     public static async Init()
     {
         await TurnsService.Init();

@@ -1,6 +1,6 @@
 import * as TelegramBot from "node-telegram-bot-api";
 import { bot } from "./TelegramApi";
-import { UsersService } from "services/UsersService";
+import { PlayerService } from "services/PlayerService";
 import { Player } from "entity/Player";
 import { Factory } from "entity/Factory";
 import { TelegramUser, TelegramUsersRepository } from "./TelegramUser";
@@ -94,7 +94,7 @@ export class TelegramClient
             const username = matches[1];
             const password = matches[2];
 
-            const user = await UsersService.Login(username, password);
+            const user = await PlayerService.Login(username, password);
 
             if (!user) {
                 this.write(`Wrong login or password`);
@@ -122,7 +122,7 @@ export class TelegramClient
             const username = matches[1];
             const password = matches[2];
 
-            const user = await UsersService.Register(username, password);
+            const user = await PlayerService.Register(username, password);
 
             if (!user) {
                 this.write(`Registration failed`);

@@ -3,6 +3,8 @@ process.env.NTBA_FIX_319 = "true";
 import * as TelegramBot from "node-telegram-bot-api";
 import { TelegramClient } from "./TelegramClient";
 import { TelegramUser } from "./TelegramUser";
+import { Runner } from "Runner";
+import { IApiProvider } from "api/ApiProvider";
 
 // replace the value below with the Telegram token you receive from @BotFather
 const token = "802583168:AAFO15UjYkoksdC2iJIen34PdkXynC-_yvM";
@@ -82,9 +84,9 @@ async function MakeNewUser(msg: TelegramBot.Message): Promise<boolean>
     return true;
 }
 
-export class TelegramApi
+export class TelegramApiProvider implements IApiProvider
 {
-    public static async sendOffline(playerId: number, message: string)
+    public async sendOffline(playerId: number, message: string)
     {
         const user = await TelegramUser.GetByPlayer(playerId);
 
@@ -97,3 +99,5 @@ export class TelegramApi
         client.write(message);
     }
 }
+
+Runner.ApiProvider = new TelegramApiProvider();

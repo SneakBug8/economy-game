@@ -1,6 +1,6 @@
 import "mocha";
 import { Player } from "entity/Player";
-import { UsersService } from "services/UsersService";
+import { PlayerService } from "services/PlayerService";
 import assert = require("assert");
 import { Runner } from "Runner";
 import { ProductionQueue } from "entity/ProductionQueue";
@@ -16,7 +16,7 @@ describe("WholeTurn", () =>
     {
         await Runner.Init();
 
-        playerid = await UsersService.Register("1", "1");
+        playerid = await PlayerService.Register("1", "1");
         const player = await Player.GetById(playerid);
 
         const actor = await player.getActor();
@@ -31,7 +31,7 @@ describe("WholeTurn", () =>
 
         await Factory.Update(factory);
 
-        await Storage.AddGoodTo(actor, RecipesService.firstgood, 10);
+        await Storage.AddGoodTo(actor.id, RecipesService.firstgood.id, 10);
     });
 
     it("Turn", async () =>

@@ -12,6 +12,7 @@ import { Log } from "entity/Log";
 import { PriceRecord } from "entity/PriceRecord";
 import { EventsList } from "events/EventsList";
 import { ITradeEvent, TradeEventType } from "events/types/TradeEvent";
+import { PlayerService } from "./PlayerService";
 
 export class MarketService
 {
@@ -60,7 +61,10 @@ export class MarketService
                         sell.amount -= transactionsize;
                         buy.amount -= transactionsize;
 
-
+                        PlayerService.SendOffline(sellerplayer.id,
+                            `Sold ${transactionsize} ${good.name} for ${transactionsize} to ${buyerplayer.username}`);
+                        PlayerService.SendOffline(buyerplayer.id,
+                            `Bought ${transactionsize} ${good.name} for ${transactionsize} from ${sellerplayer.username}`);
                         this.appendToRecords(good, sell.price, transactionsize);
 
                         await this.TransferCash(buyactor, sellactor, transactioncost);
@@ -121,6 +125,9 @@ export class MarketService
                         buy.amount -= transactionsize;
                         production.amount -= transactionsize;
 
+                        PlayerService.SendOffline(buyerplayer.id,
+                            `Bought ${transactionsize} ${good.name} for ${transactionsize} from State`);
+
                         this.appendToRecords(good, buy.price, transactionsize);
 
                         await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
@@ -164,6 +171,9 @@ export class MarketService
 
                         this.appendToRecords(good, sell.price, transactionsize);
 
+                        PlayerService.SendOffline(sellerplayer.id,
+                            `Sold ${transactionsize} ${good.name} for ${transactionsize} to State`);
+                        this.appendToRecords(good, sell.price, transactionsize);
 
                         await sellerplayer.takeCashFromState(transactioncost);
 

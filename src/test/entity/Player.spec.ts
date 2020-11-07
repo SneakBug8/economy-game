@@ -3,7 +3,7 @@ import "mocha";
 import { Player } from "entity/Player";
 import { MarketActor } from "entity/MarketActor";
 import { Factory } from "entity/Factory";
-import { UsersService } from "services/UsersService";
+import { PlayerService } from "services/PlayerService";
 
 let lastid = 1;
 
@@ -16,7 +16,7 @@ describe("PlayerTests", () =>
 
     it("Add", async () =>
     {
-        lastid = await UsersService.Register("a", "b");
+        lastid = await PlayerService.Register("a", "b");
 
         const player = await Player.GetById(lastid);
 

@@ -3,7 +3,7 @@ import "mocha";
 import { Factory } from "entity/Factory";
 import { RecipesService } from "services/RecipesService";
 import { Player } from "entity/Player";
-import { UsersService } from "services/UsersService";
+import { PlayerService } from "services/PlayerService";
 import { ProductionService } from "services/ProductionService";
 import { Storage } from "entity/Storage";
 import { Runner } from "Runner";
@@ -19,18 +19,18 @@ describe("MarketEngine", () =>
     {
         Runner.Init();
 
-        const newplayerid = await UsersService.Register("1", "1");
+        const newplayerid = await PlayerService.Register("1", "1");
         const playerfirst = await Player.GetById(newplayerid);
         playerfirst.Verbose();
 
-        const anotherlayerid = await UsersService.Register("2", "2");
+        const anotherlayerid = await PlayerService.Register("2", "2");
         const playersecond = await Player.GetById(anotherlayerid);
         playersecond.Verbose();
 
         const actorfirst = await playerfirst.getActor();
         const actorsecond = await playersecond.getActor();
 
-        await Storage.AddGoodTo(actorfirst, RecipesService.firstgood, 10);
+        await Storage.AddGoodTo(actorfirst.id, RecipesService.firstgood.id, 10);
 
         await SellOffer.Create(RecipesService.firstgood, 10, 1, actorfirst);
         await BuyOffer.Create(RecipesService.firstgood, 10, 1, actorsecond);
@@ -50,7 +50,7 @@ describe("MarketEngine", () =>
     {
         Runner.Init();
 
-        playerid = await UsersService.Register("3", "3");
+        playerid = await PlayerService.Register("3", "3");
         const player = await Player.GetById(playerid);
 
         player.Verbose();
