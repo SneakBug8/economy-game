@@ -44,7 +44,7 @@ export class ProductionService
 
                 // Check for resources
                 for (const input of recipe.Requisites) {
-                    const storageentry = await Storage.GetWithGoodAndActor(actor, input.Good);
+                    const storageentry = await Storage.GetWithGoodAndActor(actor.id, input.Good.id);
 
                     if (!storageentry) {
                         break;
@@ -68,7 +68,7 @@ export class ProductionService
                 }
 
                 for (const output of recipe.Results) {
-                    await Storage.AddGoodTo(actor, output.Good, reciperepeats * output.amount);
+                    await Storage.AddGoodTo(actor.id, output.Good.id, reciperepeats * output.amount);
 
                     EventsList.onProduction.emit({
                         Factory: factory,

@@ -1,16 +1,17 @@
-import * as TelegramBot from 'node-telegram-bot-api';
+import * as TelegramBot from "node-telegram-bot-api";
 import { bot } from "./main";
 import { UsersService } from "services/UsersService";
 import { Player } from "entity/Player";
 import { Factory } from "entity/Factory";
 import { TelegramUser, TelegramUsersRepository } from "./TelegramUser";
 import { RecipesService } from "services/RecipesService";
-import { ProductionQueue } from "entity/ProductionQueue";
+import { ProductionQueue, IQueueEntry } from "entity/ProductionQueue";
 import { Good } from "entity/Good";
 import { MarketService } from "services/MarketService";
 import { BuyOffer } from "entity/BuyOffer";
 import { SellOffer } from "entity/SellOffer";
 import { Storage } from "entity/Storage";
+import { MarketActor } from "entity/MarketActor";
 
 export class TelegramClient
 {
@@ -18,6 +19,7 @@ export class TelegramClient
     public userId: number;
 
     public playerId: number;
+    public actorId: number;
 
     public attach(socket: TelegramBot.Message)
     {
@@ -29,40 +31,57 @@ export class TelegramClient
     {
         const message = msg.text;
 
-        const functions = [
+        const functions: Array<(message: string) => Promise<boolean>> = [
             this.OnLogin,
             this.OnRegister,
             this.CheckLogin,
+            this.OnInfo,
             this.OnGoods,
-            this.OnFactories,
+            this.OnStorageView,
+            this.OnFactoryQueueAdd,
+            this.OnFactoryQueueClear,
+            this.OnFactoryQueueDelete,
+            this.OnFactoryQueueGet,
             this.OnFactorySetSalary,
             this.OnFactorySetWorkers,
             this.OnFactoryGet,
+            this.OnFactories,
             this.OnMarketBuy,
+            this.OnMarketBuyDelete,
             this.OnMarketBuyList,
             this.OnMarketSell,
+            this.OnMarketSellDelete,
             this.OnMarketSellList,
-            this.OnStorageView,
             this.UnknownCommand,
         ];
 
         for (const f of functions) {
             const res = await f.call(this, message);
 
-            if (res) {
+            if (res !== false) {
                 break;
             }
         }
     }
 
-    public static Create(chatId: number, userId: number, playerId: number)
+    public static async Create(chatId: number, userId: number, playerId: number)
     {
         const res = new TelegramClient();
         res.chatId = chatId;
         res.userId = userId;
         res.playerId = playerId;
 
+        await res.LoadActorId();
+
         return res;
+    }
+
+    public async LoadActorId()
+    {
+        const player = await Player.GetById(this.playerId);
+        const actor = await player.getActor();
+
+        this.actorId = actor.id;
     }
 
     public async OnLogin(message: string): Promise<boolean>
@@ -122,9 +141,29 @@ export class TelegramClient
         return false;
     }
 
+    public async OnInfo(message: string): Promise<boolean>
+    {
+        const inforegex = new RegExp("\/info");
+        if (inforegex.test(message)) {
+
+            const player = await Player.GetById(this.playerId);
+
+            if (!player) {
+                this.write("Something went wrong with retrieving player");
+                return;
+            }
+
+            this.write(`Player: ${player.username}\n---\nCash: ${player.cash}`);
+
+            return true;
+        }
+
+        return false;
+    }
+
     public async OnFactoryGet(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/factory ([0-9]+)");
+        const registerregex = new RegExp("^\/factory ([0-9]+)$");
         if (registerregex.test(message)) {
             const matches = registerregex.exec(message);
 
@@ -157,7 +196,7 @@ export class TelegramClient
 
     public async OnFactorySetSalary(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/factory ([0-9]+) set salary ([0-9]+)");
+        const registerregex = new RegExp("^\/factory ([0-9]+) set salary ([0-9]+)$");
         if (registerregex.test(message)) {
             const matches = registerregex.exec(message);
 
@@ -200,7 +239,7 @@ export class TelegramClient
 
     public async OnFactorySetWorkers(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/factory ([0-9]+) set workers ([0-9]+)");
+        const registerregex = new RegExp("^\/factory ([0-9]+) set workers ([0-9]+)$");
         if (registerregex.test(message)) {
             const matches = registerregex.exec(message);
 
@@ -243,7 +282,7 @@ export class TelegramClient
 
     public async OnFactoryQueueGet(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/factory ([0-9]+) queue");
+        const registerregex = new RegExp("^\/factory ([0-9]+) queue$");
         if (registerregex.test(message)) {
             const matches = registerregex.exec(message);
 
@@ -266,9 +305,16 @@ export class TelegramClient
                 return;
             }
 
-            const queue = ProductionQueue.GetWithFactory(factory);
+            const dbo = await ProductionQueue.GetWithFactory(factory);
 
-            this.write(JSON.stringify(queue));
+            if (!dbo) {
+                await ProductionQueue.Create(factory, []);
+                return;
+            }
+
+            const queue = dbo.Queue;
+
+            this.writeList<IQueueEntry>(queue, (x) => x.Order, (x) => `Recipe: ${x.RecipeId}, Amount: ${x.Amount}`, "Factory production queue");
 
             return true;
         }
@@ -278,7 +324,7 @@ export class TelegramClient
 
     public async OnFactoryQueueClear(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/factory ([0-9]+) queue clear");
+        const registerregex = new RegExp("^\/factory ([0-9]+) queue clear$");
         if (registerregex.test(message)) {
             const matches = registerregex.exec(message);
 
@@ -319,7 +365,7 @@ export class TelegramClient
 
     public async OnFactoryQueueAdd(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/factory ([0-9]+) queue add ([0-9]+) ([0-9]*)");
+        const registerregex = new RegExp("^\/factory ([0-9]+) queue add ([0-9]+) ([0-9]*)$");
         if (registerregex.test(message)) {
             const matches = registerregex.exec(message);
 
@@ -333,12 +379,12 @@ export class TelegramClient
 
             if (!factoryid) {
                 this.write("Wrong factory id");
-                return;
+                return true;
             }
 
             if (!recipeid) {
                 this.write("Wrong recipe id");
-                return;
+                return true;
             }
 
             const factory = await Factory.GetById(factoryid);
@@ -346,17 +392,17 @@ export class TelegramClient
 
             if (!factory) {
                 this.write("No such factory");
-                return;
+                return true;
             }
 
             if (!recipe) {
                 this.write("No such recipe");
-                return;
+                return true;
             }
 
             if (factory.getOwnerId() !== this.playerId) {
                 this.write("That's not your factory");
-                return;
+                return true;
             }
 
             await ProductionQueue.AddWithFactory(factory, {
@@ -372,16 +418,67 @@ export class TelegramClient
         return false;
     }
 
+    public async OnFactoryQueueDelete(message: string): Promise<boolean>
+    {
+        const registerregex = new RegExp("^\/factory ([0-9]+) queue delete ([0-9]+)$");
+        if (registerregex.test(message)) {
+            const matches = registerregex.exec(message);
+
+            const factoryid = Number.parseInt(matches[1], 10);
+            const orderid = Number.parseInt(matches[2], 10);
+
+            if (!factoryid) {
+                this.write("Wrong factory id");
+                return true;
+            }
+
+            if (!orderid) {
+                this.write("Wrong order id");
+                return true;
+            }
+
+            const factory = await Factory.GetById(factoryid);
+
+            if (!factory) {
+                this.write("No such factory");
+                return true;
+            }
+
+            if (factory.getOwnerId() !== this.playerId) {
+                this.write("That's not your factory");
+                return true;
+            }
+
+            const dbo = await ProductionQueue.GetWithFactory(factory);
+
+            if (!dbo) {
+                await ProductionQueue.Create(factory, []);
+                return;
+            }
+
+            dbo.Queue = dbo.Queue.filter((x) => x.Order !== orderid);
+
+            await ProductionQueue.Update(dbo);
+
+            this.write("Queue updated");
+
+            return true;
+        }
+
+        return false;
+    }
+
     public async OnFactories(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/factory list");
+        const registerregex = new RegExp("^\/factory$");
         if (registerregex.test(message)) {
 
             const factories = await Player.GetFactoriesById(this.playerId);
 
-            for (const factory of factories) {
-                this.write(JSON.stringify(factory));
-            }
+            this.writeList<Factory>(factories,
+                (x) => x.id,
+                (x) => `Employees: ${x.employeesCount} / ${x.targetEmployees}, salary: ${x.salary}`,
+                "Your factories");
 
             return true;
         }
@@ -460,9 +557,39 @@ export class TelegramClient
         return false;
     }
 
+    public async OnMarketBuyDelete(message: string): Promise<boolean>
+    {
+        const registerregex = new RegExp("\/market buy delete ([0-9]+)");
+        if (registerregex.test(message)) {
+            const matches = registerregex.exec(message);
+
+            const offerid = Number.parseInt(matches[1], 10);
+
+            if (!offerid) {
+                this.write("Wrong offer id");
+                return;
+            }
+
+            const offer = await BuyOffer.GetById(offerid);
+
+            if (offer.getActorId() !== this.actorId) {
+                this.write("That's not your offer");
+                return;
+            }
+
+            await BuyOffer.Delete(offer.id);
+
+            this.write("Deleted buy offer id " + offer.id);
+
+            return true;
+        }
+
+        return false;
+    }
+
     public async OnMarketBuyList(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/market buy list");
+        const registerregex = new RegExp("^\/market buy$");
         if (registerregex.test(message)) {
 
             const player = await Player.GetById(this.playerId);
@@ -517,9 +644,39 @@ export class TelegramClient
         return false;
     }
 
+    public async OnMarketSellDelete(message: string): Promise<boolean>
+    {
+        const marketsellregex = new RegExp("\/market sell delete ([0-9]+)");
+        if (marketsellregex.test(message)) {
+            const matches = marketsellregex.exec(message);
+
+            const offerid = Number.parseInt(matches[1], 10);
+
+            if (!offerid) {
+                this.write("Wrong offer id");
+                return;
+            }
+
+            const offer = await SellOffer.GetById(offerid);
+
+            if (offer.getActorId() !== this.actorId) {
+                this.write("That's not your offer");
+                return;
+            }
+
+            await SellOffer.Delete(offer.id);
+
+            this.write("Deleted sell offer id " + offer.id);
+
+            return true;
+        }
+
+        return false;
+    }
+
     public async OnMarketSellList(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/market sell list");
+        const registerregex = new RegExp("^\/market sell$");
         if (registerregex.test(message)) {
 
             const player = await Player.GetById(this.playerId);
@@ -574,17 +731,17 @@ export class TelegramClient
 
     public async write(msg: string)
     {
+        console.log(msg);
+
         await bot.sendMessage(this.chatId, msg, {
             parse_mode: "Markdown",
         });
-
-        console.log(msg);
     }
 
     public async writeList<T>(array: T[],
-                              idselector: (entry: T) => number | string | Promise<string>,
-                              formatter: (entry: T) => string | Promise<string>,
-                              header?: string)
+        idselector: (entry: T) => number | string | Promise<string>,
+        formatter: (entry: T) => number | string | Promise<string>,
+        header?: string)
     {
         let buffer = (header) ? `**${header}**\n---\n` : "";
 
@@ -595,6 +752,11 @@ export class TelegramClient
             buffer += "\`" + idnumber + "\` " + text + "\n";
         }
 
-        await this.write(buffer);
+        if (buffer) {
+            await this.write(buffer);
+        }
+        else {
+            await this.write("No entries to show");
+        }
     }
 }

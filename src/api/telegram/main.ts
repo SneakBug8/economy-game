@@ -58,9 +58,9 @@ async function TryTelegramUser(userId: number): Promise<boolean>
     const telegramuser = await TelegramUser.GetByUser(userId);
 
     if (telegramuser) {
-        const client = TelegramClient.Create(telegramuser.chatId, telegramuser.userId, telegramuser.playerId);
+        const client = await TelegramClient.Create(telegramuser.chatId, telegramuser.userId, telegramuser.playerId);
 
-        client.write("Connected and logined.");
+        // client.write("Connected and logined.");
 
         clients.push(client);
 
@@ -77,7 +77,7 @@ async function MakeNewUser(msg: TelegramBot.Message): Promise<boolean>
     client.attach(msg);
     clients.push(client);
 
-    client.write("Connected. Now login or register");
+    client.write("Now login or register");
 
     return true;
 }

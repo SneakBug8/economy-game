@@ -39,6 +39,10 @@ export class BuyOffer extends MarketOffer
     {
         this.actorId = actor.id;
     }
+    public getActorId(): number
+    {
+        return this.actorId;
+    }
 
     public async From(dbobject: any)
     {

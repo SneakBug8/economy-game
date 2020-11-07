@@ -68,7 +68,7 @@ export class MarketService
                         lastprice = sell.price;
 
                         await this.TransferCash(buyactor, sellactor, transactioncost);
-                        await Storage.AddGoodTo(buyactor, good, transactionsize);
+                        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
 
                         EventsList.onTrade.emit({
                             Type: TradeEventType.ToPlayer,
@@ -128,7 +128,7 @@ export class MarketService
                         lastprice = buy.price;
                         tradeamount += transactionsize;
 
-                        await Storage.AddGoodTo(buyactor, good, transactionsize);
+                        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
 
                         EventsList.onTrade.emit({
                             Type: TradeEventType.FromGovernment,

@@ -15,6 +15,15 @@ export class Storage
         this.actorId = actor.id;
     }
 
+    public getActorId()
+    {
+        return this.actorId;
+    }
+    public setActorId(actorid: number)
+    {
+        this.actorId = actorid;
+    }
+
     public goodId: number;
 
     public async getGood(): Promise<Good>
@@ -24,6 +33,14 @@ export class Storage
     public setGood(good: Good)
     {
         this.goodId = good.id;
+    }
+    public getGoodId(): number
+    {
+        return this.goodId;
+    }
+    public setGoodId(goodid: number)
+    {
+        this.goodId = goodid;
     }
 
     public amount: number;
@@ -69,12 +86,12 @@ export class Storage
         return [];
     }
 
-    public static async GetWithGoodAndActor(actor: MarketActor, good: Good): Promise<Storage>
+    public static async GetWithGoodAndActor(actorid: number, goodid: number): Promise<Storage>
     {
         const data = await StorageRepository()
             .select()
-            .where("actorId", actor.id)
-            .andWhere("goodId", good.id)
+            .where("actorId", actorid)
+            .andWhere("goodId", goodid)
             .first();
 
         if (data) {
@@ -153,9 +170,9 @@ export class Storage
         return [];
     }
 
-    public static async AddGoodTo(actor: MarketActor, good: Good, amount: number)
+    public static async AddGoodTo(actorid: number, goodid: number, amount: number)
     {
-        const existingstorage = await this.GetWithGoodAndActor(actor, good);
+        const existingstorage = await this.GetWithGoodAndActor(actorid, goodid);
 
         if (existingstorage) {
             existingstorage.amount += amount;
@@ -164,8 +181,8 @@ export class Storage
         }
 
         const newStorage = new Storage();
-        newStorage.setActor(actor);
-        newStorage.setGood(good);
+        newStorage.setActorId(actorid);
+        newStorage.setGoodId(goodid);
         newStorage.amount = amount;
 
         await this.Insert(newStorage);
@@ -173,7 +190,7 @@ export class Storage
 
     public static async Has(actor: MarketActor, good: Good, amount: number): Promise<boolean>
     {
-        const existingstorage = await this.GetWithGoodAndActor(actor, good);
+        const existingstorage = await this.GetWithGoodAndActor(actor.id, good.id);
 
         if (existingstorage && existingstorage.amount >= amount) {
             return true;
@@ -184,7 +201,7 @@ export class Storage
 
     public static async Amount(actor: MarketActor, good: Good): Promise<number>
     {
-        const existingstorage = await this.GetWithGoodAndActor(actor, good);
+        const existingstorage = await this.GetWithGoodAndActor(actor.id, good.id);
 
         if (existingstorage && existingstorage.amount) {
             return existingstorage.amount;
@@ -195,7 +212,7 @@ export class Storage
 
     public static async TakeGoodFrom(actor: MarketActor, good: Good, amount: number): Promise<boolean>
     {
-        const existingstorage = await this.GetWithGoodAndActor(actor, good);
+        const existingstorage = await this.GetWithGoodAndActor(actor.id, good.id);
 
         if (existingstorage && existingstorage.amount >= amount) {
             existingstorage.amount -= amount;

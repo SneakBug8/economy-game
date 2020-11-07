@@ -70,11 +70,11 @@ export class ProductionQueue
 
     public static async AddWithFactory(factory: Factory, entry: IQueueEntry)
     {
-        let queueentry = await this.GetWithFactory(factory);
+        const queueentry = await this.GetWithFactory(factory);
 
         if (!queueentry) {
             await this.Create(factory, [entry]);
-            queueentry = await this.GetWithFactory(factory);
+            return;
         }
 
         queueentry.Queue.push(entry);
@@ -84,6 +84,7 @@ export class ProductionQueue
 
     public static async Update(queue: ProductionQueue)
     {
+        queue.SetOrder();
         queue.queue = JSON.stringify(queue.Queue);
 
         await ProductionQueueRepository().where("id", queue.id).update({
@@ -97,13 +98,13 @@ export class ProductionQueue
         const entry = new ProductionQueue();
         entry.factoryId = factory.id;
         entry.Queue = Queue;
-        entry.queue = JSON.stringify(Queue);
 
         this.Insert(entry);
     }
 
     public static async Insert(queue: ProductionQueue): Promise<number>
     {
+        queue.SetOrder();
         queue.queue = JSON.stringify(queue.Queue);
 
         const d = await ProductionQueueRepository().insert({
@@ -149,10 +150,19 @@ export class ProductionQueue
         return [];
     }
 
+    private SetOrder()
+    {
+        let i = 0;
+        for (const entry of this.Queue) {
+            i++;
+            entry.Order = i;
+        }
+    }
 }
 
 export interface IQueueEntry
 {
+    Order?: number;
     RecipeId: number;
     Amount: number;
 }

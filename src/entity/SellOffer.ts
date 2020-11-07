@@ -43,6 +43,10 @@ export class SellOffer extends MarketOffer
     {
         this.actorId = actor.id;
     }
+    public getActorId(): number
+    {
+        return this.actorId;
+    }
 
     public async From(dbobject: any)
     {
@@ -89,7 +93,7 @@ export class SellOffer extends MarketOffer
         offer.price = price;
         offer.setActor(actor);
 
-        await Storage.AddGoodTo(actor, good, -amount);
+        await Storage.AddGoodTo(actor.id, good.id, -amount);
 
 
         this.Insert(offer);
@@ -136,6 +140,9 @@ export class SellOffer extends MarketOffer
 
     public static async Delete(id: number): Promise<boolean>
     {
+        const offer = await this.GetById(id);
+        Storage.AddGoodTo(offer.actorId, offer.goodId, offer.amount);
+
         await SellOfferRepository().delete().where("id", id);
 
         return true;
