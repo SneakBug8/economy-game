@@ -6,13 +6,14 @@
 import {Load} from "./moduleloader";
 import { RecipesService } from "services/RecipesService";
 import { Runner } from "Runner";
+import { Logger } from "utility/Logger";
 
 async function bootstrap() {
   // const app = await NestFactory.create(AppModule);
   // app.use(session());
   // await app.listen(3000);
 
-  console.log("Starting game server");
+  Logger.info("Starting game server");
   console.time("Game server started");
 
   await Load();

@@ -61,8 +61,6 @@ export class PriceRecord {
     public static async Count(): Promise<number> {
         const data = await PriceRecordRepository().count("id as c").first() as any;
 
-        console.log(data);
-
         if (data) {
             return data.c;
         }

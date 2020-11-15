@@ -3,6 +3,8 @@ import { Player } from "entity/Player";
 import { Log } from "entity/Log";
 import { EventsList } from "events/EventsList";
 import { Runner } from "Runner";
+import { Factory } from "entity/Factory";
+import { RGO } from "entity/RGO";
 
 export class TurnsService
 {
@@ -49,6 +51,7 @@ export class TurnsService
         this.CurrentTurn.datetime = new Date().toString();
 
         await this.CalculateBalance();
+        await this.CalculateWorkers();
 
         EventsList.onBeforeNewTurn.emit(this.CurrentTurn);
 
@@ -65,6 +68,19 @@ export class TurnsService
 
         this.CurrentTurn.cashperplayer = this.CurrentTurn.totalcash / (await Player.Count());
         this.CurrentTurn.totalcash += this.CurrentTurn.freecash;
+    }
+
+    public static async CalculateWorkers()
+    {
+        this.CurrentTurn.totalworkers = 0;
+
+        for (const pl of (await Factory.All())) {
+            this.CurrentTurn.totalworkers += pl.employeesCount;
+        }
+
+        for (const pl of (await RGO.All())) {
+            this.CurrentTurn.totalworkers += pl.employeesCount;
+        }
     }
 
     public static async CheckBalance(): Promise<boolean>

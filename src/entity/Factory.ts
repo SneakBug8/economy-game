@@ -2,6 +2,7 @@ import { Connection } from "DataBase";
 import { Log } from "./Log";
 import { ProductionQueue } from "./ProductionQueue";
 import { Player } from "./Player";
+import { Logger } from "utility/Logger";
 
 export class Factory
 {
@@ -123,7 +124,7 @@ export class Factory
 
         factory.id = d[0];
 
-        console.log("Created factory " + factory.id);
+        Logger.info("Created factory " + factory.id);
 
         return d[0];
     }

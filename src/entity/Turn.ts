@@ -7,6 +7,7 @@ export class Turn
     public totalcash: number = 0;
     public cashperplayer: number = 0;
     public freecash: number = 0;
+    public totalworkers: number = 0;
 
     public static async From(dbobject: any)
     {
@@ -16,6 +17,7 @@ export class Turn
         res.totalcash = dbobject.totalcash;
         res.cashperplayer = dbobject.cashperplayer;
         res.freecash = dbobject.freecash;
+        res.totalworkers = dbobject.totalworkers;
 
         return res;
     }
@@ -50,6 +52,7 @@ export class Turn
             totalcash: turn.totalcash,
             cashperplayer: turn.cashperplayer,
             freecash: turn.freecash,
+            totalworkers: turn.totalworkers,
         });
 
         turn.id = d[0];
@@ -64,6 +67,7 @@ export class Turn
             totalcash: turn.totalcash,
             cashperplayer: turn.cashperplayer,
             freecash: turn.freecash,
+            totalworkers: turn.totalworkers,
         });
 
         turn.id = d[0];

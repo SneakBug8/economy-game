@@ -105,8 +105,6 @@ export class Storage
     {
         const data = await StorageRepository().count("id as c").first() as any;
 
-        console.log(data);
-
         if (data) {
             return data.c;
         }

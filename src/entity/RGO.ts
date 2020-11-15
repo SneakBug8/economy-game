@@ -3,6 +3,7 @@ import { Log } from "./Log";
 import { ProductionQueue } from "./ProductionQueue";
 import { Player } from "./Player";
 import { RGOType } from "./RGOType";
+import { Logger } from "utility/Logger";
 
 export class RGO
 {
@@ -134,7 +135,7 @@ export class RGO
 
         rgo.id = d[0];
 
-        console.log("Created RGO " + rgo.id);
+        Logger.info("Created RGO " + rgo.id);
 
         return d[0];
     }

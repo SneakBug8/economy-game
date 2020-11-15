@@ -1,3 +1,5 @@
+import { Logger } from "utility/Logger";
+
 export type Listener<T> = (event: T) => any;
 
 export interface Disposable
@@ -45,7 +47,7 @@ export class TypedEvent<T> {
                 }
             }
             catch (e) {
-                console.log(e);
+                Logger.error(e);
             }
         });
     }

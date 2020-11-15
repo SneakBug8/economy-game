@@ -5,6 +5,7 @@ import { State } from "./State";
 import { MainState } from "./states/MainState";
 import { BlankState } from "./states/BlankState";
 import { AdminCommands } from "./AdminCommands";
+import { Logger } from "utility/Logger";
 
 export class TelegramClient
 {
@@ -41,6 +42,8 @@ export class TelegramClient
 
     public async on(msg: TelegramBot.Message)
     {
+        Logger.info(`from ${this.userId}: ${msg.text}`);
+
         if (this.isAdmin) {
             const res = await this.State.on(msg);
             if (res) {
@@ -94,7 +97,7 @@ export class TelegramClient
 
     public async write(msg: string)
     {
-        console.log(msg);
+        Logger.info(`to ${this.userId}: ${msg}`);
 
         await bot.sendMessage(this.chatId, msg, {
             parse_mode: "Markdown",
@@ -105,9 +108,9 @@ export class TelegramClient
     }
 
     public async writeList<T>(array: T[],
-        idselector: (entry: T) => number | string | Promise<string>,
-        formatter: (entry: T) => number | string | Promise<string>,
-        header?: string)
+                              idselector: (entry: T) => number | string | Promise<string>,
+                              formatter: (entry: T) => number | string | Promise<string>,
+                              header?: string)
     {
         let buffer = (header) ? `**${header}**\n---\n` : "";
 

@@ -3,6 +3,7 @@ import { Player } from "./Player";
 import { Turn } from "./Turn";
 import { TurnsService } from "services/TurnsService";
 import * as debug from "debug";
+import { Logger } from "utility/Logger";
 
 const debuglogger = debug("log:");
 
@@ -24,13 +25,12 @@ export class Log
 
     public static async Log(turn: Turn, text: string)
     {
-        /*const record = new Log();
+        const record = new Log();
         record.turnId = turn.id;
         record.text = text;
 
         await this.Insert(record);
-*/
-        console.log(`${turn.id}: ${text}`);
+        Logger.info(`${turn.id}: ${text}`);
         // debuglogger("[%s] %s", turn.id, text);
     }
 
@@ -42,7 +42,8 @@ export class Log
     public static async LogTemp(text: string)
     {
         // debuglogger(`${TurnsService.CurrentTurn.id}: ${text}`);
-        console.log(`${TurnsService.CurrentTurn.id}: ${text}`);
+        //console.log(`${TurnsService.CurrentTurn.id}: ${text}`);
+        Logger.info(`${TurnsService.CurrentTurn.id}: ${text}`);
     }
 
     public static async Insert(record: Log): Promise<number>

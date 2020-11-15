@@ -2,6 +2,7 @@ import { Connection } from "DataBase";
 import { Log } from "./Log";
 import { Player } from "./Player";
 import { Good } from "./Good";
+import { Logger } from "utility/Logger";
 
 export class RGOType
 {
@@ -88,7 +89,7 @@ export class RGOType
 
         type.id = d[0];
 
-        console.log("Created RGOType " + type.id);
+        Logger.info("Created RGOType " + type.id);
 
         return d[0];
     }

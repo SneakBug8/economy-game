@@ -4,6 +4,7 @@ import { Connection } from "DataBase";
 import { Log } from "./Log";
 import { TurnsService } from "services/TurnsService";
 import { RGO, RGORepository } from "./RGO";
+import { Logger } from "utility/Logger";
 
 export class Player
 {
@@ -229,7 +230,7 @@ export class Player
 
         player.id = d[0];
 
-        console.log("Created player " + player.id);
+        Logger.info("Created player " + player.id);
 
         return d[0];
     }

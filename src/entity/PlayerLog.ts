@@ -1,4 +1,5 @@
 import { Connection } from "DataBase";
+import { Logger } from "utility/Logger";
 import { Player } from "./Player";
 import { Turn } from "./Turn";
 
@@ -27,7 +28,7 @@ export class PlayerLog {
 
         await this.Insert(record);
 
-        console.log(`[${player.id}] ${turn.id}: ${text}`);
+        Logger.info(`[${player.id}] ${turn.id}: ${text}`);
     }
 
     public static async GetById(id: number): Promise<PlayerLog>
@@ -60,8 +61,6 @@ export class PlayerLog {
 
     public static async Count(): Promise<number> {
         const data = await LogRecordRepository().count("id as c").first() as any;
-
-        console.log(data);
 
         if (data) {
             return data.c;

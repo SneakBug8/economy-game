@@ -50,8 +50,6 @@ export class GDPRecord {
     public static async Count(): Promise<number> {
         const data = await GDPRecordRepository().count("id as c").first() as any;
 
-        console.log(data);
-
         if (data) {
             return data.c;
         }
