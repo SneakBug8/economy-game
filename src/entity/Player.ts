@@ -3,6 +3,7 @@ import { MarketActor } from "./MarketActor";
 import { Connection } from "DataBase";
 import { Log } from "./Log";
 import { TurnsService } from "services/TurnsService";
+import { RGO, RGORepository } from "./RGO";
 
 export class Player
 {
@@ -135,6 +136,33 @@ export class Player
         if (data) {
             for (const entry of data) {
                 res.push(await Factory.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
+    public async getRGOs(): Promise<RGO[]>
+    {
+        return Player.GetRGOs(this);
+    }
+
+    public static async GetRGOs(player: Player): Promise<RGO[]>
+    {
+        return this.GetRGOsById(player.id);
+    }
+
+    public static async GetRGOsById(playerid: number): Promise<RGO[]>
+    {
+        const data = await RGORepository().select().where("playerId", playerid);
+
+        const res = new Array<RGO>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await RGO.From(entry));
             }
 
             return res;

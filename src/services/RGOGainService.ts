@@ -22,7 +22,7 @@ export class RGOGainService
                 continue;
             }
 
-            const amountproduced = rgo.employeesCount * type.efficiency;
+            const amountproduced = Math.round(rgo.employeesCount * type.efficiency);
 
             await Storage.AddGoodTo(actor.id, type.getGoodId(), amountproduced);
 

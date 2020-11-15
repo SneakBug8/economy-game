@@ -15,6 +15,7 @@ import { FactoriesState } from "./FactoriesState";
 import { MarketState } from "./MarketState";
 import * as TelegramBot from "node-telegram-bot-api";
 import { TelegramUser } from "../TelegramUser";
+import { RGOsState } from "./RGOsState";
 
 export class MainState extends State
 {
@@ -28,6 +29,7 @@ export class MainState extends State
             this.OnRecipes,
             this.OnStorageView,
             this.OnFactory,
+            this.OnRGO,
             this.OnMarket,
             this.OnLogout,
         ];
@@ -40,7 +42,8 @@ export class MainState extends State
     public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]> {
         return [
             [{ text: "📄 /info" }, { text: "📄 /goods" }, { text: "📜 /recipes" }],
-            [{ text: "🏭 /factories" }, { text: "🛒 /market" }, { text: "📦 /storage" }],
+            [{ text: "🏭 /factories" }, { text: "⛏ /rgo" }],
+            [{ text: "📦 /storage" }, { text: "🛒 /market" }],
             [{ text: "🔓 /logout"}]
           ];
     }
@@ -142,13 +145,22 @@ export class MainState extends State
         return false;
     }
 
-
-
     public async OnFactory(message: string): Promise<boolean>
     {
         const logoutregex = new RegExp("\/factories$");
         if (logoutregex.test(message)) {
             this.Client.setState(new FactoriesState());
+            return true;
+        }
+
+        return false;
+    }
+
+    public async OnRGO(message: string): Promise<boolean>
+    {
+        const logoutregex = new RegExp("\/rgo$");
+        if (logoutregex.test(message)) {
+            this.Client.setState(new RGOsState());
             return true;
         }
 
