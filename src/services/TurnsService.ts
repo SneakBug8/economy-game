@@ -2,6 +2,7 @@ import { Turn } from "entity/Turn";
 import { Player } from "entity/Player";
 import { Log } from "entity/Log";
 import { EventsList } from "events/EventsList";
+import { Runner } from "Runner";
 
 export class TurnsService
 {
@@ -33,9 +34,14 @@ export class TurnsService
             this.CurrentTurn.id = 1;
         }
 
+        if (Runner.ApiProvider) {
+            Runner.ApiProvider.broadcast("Now is turn " + this.CurrentTurn.id);
+        }
+
+
         Log.LogText("Now is turn " + this.CurrentTurn.id);
 
-        EventsList.onTurn.emit(this.CurrentTurn);
+        EventsList.onAfterNewTurn.emit(this.CurrentTurn);
     }
 
     public static async EndTurn()
@@ -43,6 +49,8 @@ export class TurnsService
         this.CurrentTurn.datetime = new Date().toString();
 
         await this.CalculateBalance();
+
+        EventsList.onBeforeNewTurn.emit(this.CurrentTurn);
 
         await Turn.Insert(this.CurrentTurn);
     }
@@ -88,5 +96,4 @@ export class TurnsService
         this.CurrentTurn.AddFreeCash(amount);
         console.log(`Current free cash is: ${this.CurrentTurn.freecash} (change: ${amount})`);
     }
-
 }

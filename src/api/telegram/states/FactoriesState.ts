@@ -1,0 +1,111 @@
+import { State } from "../State";
+import { TelegramClient } from "../TelegramClient";
+import { Good } from "entity/Good";
+import { Player } from "entity/Player";
+import { Client } from "knex";
+import { MarketService } from "services/MarketService";
+import { BuyOffer } from "entity/BuyOffer";
+import { SellOffer } from "entity/SellOffer";
+import { Factory } from "entity/Factory";
+import { ProductionQueue, IQueueEntry } from "entity/ProductionQueue";
+import { RecipesService } from "services/RecipesService";
+import { MainState } from "./MainState";
+import * as TelegramBot from "node-telegram-bot-api";
+import { FactoryState } from "./FactoryState";
+
+export class FactoriesState extends State
+{
+    constructor()
+    {
+        super();
+
+        this.functions = [
+            this.OnFactoryId,
+            this.OnInfo,
+            this.OnHelp,
+            this.OnBack,
+        ];
+    }
+
+    public async init() {
+        this.OnInfo("/info");
+    }
+
+    public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]> {
+        const res: TelegramBot.KeyboardButton[][] = [];
+        const factories = await Player.GetFactoriesById(this.Client.playerId);
+
+        for (const factory of factories) {
+            res.push([{text: "🏭 " + factory.id + ""}]);
+        }
+
+        res.push([{text: "📄 /info"}, {text: "📄 /help"}, {text: "❌ /back"}]);
+
+        return res;
+    }
+
+    public async OnFactoryId(message: string): Promise<boolean>
+    {
+        const registerregex = new RegExp("([0-9]+)$");
+        if (registerregex.test(message)) {
+            const matches = registerregex.exec(message);
+
+            const factoryid = Number.parseInt(matches[1], 10);
+
+            const factory = await Factory.GetById(factoryid);
+
+            if (!factory) {
+                this.Client.write("No such factory");
+                return;
+            }
+
+            if (factory.getOwnerId() !== this.Client.playerId) {
+                this.Client.write("That's not your factory");
+                return;
+            }
+
+            this.Client.setState(new FactoryState(factoryid));
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public async OnInfo(message: string): Promise<boolean> {
+        const regex = new RegExp("\/info$");
+        if (regex.test(message)) {
+            const factories = await Player.GetFactoriesById(this.Client.playerId);
+
+            this.Client.writeList<Factory>(factories,
+                (x) => x.id,
+                (x) => `Employees: ${x.employeesCount} / ${x.targetEmployees}, salary: ${x.salary}`,
+                "Your factories");
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public async OnHelp(message: string): Promise<boolean> {
+        const backregex = new RegExp("\/help$");
+        if (backregex.test(message)) {
+            this.Client.write("[WIP]");
+            return true;
+        }
+
+        return false;
+    }
+
+    public async OnBack(message: string): Promise<boolean>
+    {
+        const backregex = new RegExp("\/back$");
+        if (backregex.test(message)) {
+            this.Client.setState(new MainState());
+            return true;
+        }
+
+        return false;
+    }
+}

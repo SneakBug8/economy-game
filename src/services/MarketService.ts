@@ -27,6 +27,8 @@ export class MarketService
         for (const market of await Market.All()) {
             for (const good of await Good.All()) {
 
+                this.getRecord(good);
+
                 const buyoffers = await BuyOffer.GetWithGoodOrdered(good);
                 const selloffers = await SellOffer.GetWithGoodOrdered(good);
 

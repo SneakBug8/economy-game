@@ -13,10 +13,13 @@ async function bootstrap() {
   // await app.listen(3000);
 
   console.log("Starting game server");
+  console.time("Game server started");
 
   await Load();
 
   await Runner.Init();
+
+  console.timeEnd("Game server started");
 
   require("api/console/main");
 

@@ -15,5 +15,6 @@ export class Config {
     public static RegistrationCash = 500;
     // Everyday fixed tax
     public static FixedTax = 100;
+    public static TaxPerFactory = 100;
     public static MarketTaxPercent = 0.04;
 }

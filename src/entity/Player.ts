@@ -12,6 +12,7 @@ export class Player
     public cash: number = 0;
 
     public actorId: number;
+    public isAdmin: number = 0;
     public async getActor(): Promise<MarketActor>
     {
         return MarketActor.GetById(this.actorId);
@@ -29,6 +30,7 @@ export class Player
         res.password = dbobject.password;
         res.cash = dbobject.cash;
         res.actorId = dbobject.actorId;
+        res.isAdmin = dbobject.isAdmin;
 
         return res;
     }
@@ -177,6 +179,7 @@ export class Player
             password: player.password,
             cash: player.getCash(),
             actorId: player.actorId,
+            isAdmin: player.isAdmin,
         });
 
         player.id = d[0];
@@ -193,6 +196,7 @@ export class Player
             password: player.password,
             cash: player.getCash(),
             actorId: player.actorId,
+            isAdmin: player.isAdmin
         });
 
         player.id = d[0];

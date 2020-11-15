@@ -5,6 +5,7 @@ import { TelegramClient } from "./TelegramClient";
 import { TelegramUser } from "./TelegramUser";
 import { Runner } from "Runner";
 import { IApiProvider } from "api/ApiProvider";
+import { Player } from "entity/Player";
 
 // replace the value below with the Telegram token you receive from @BotFather
 const token = "802583168:AAFO15UjYkoksdC2iJIen34PdkXynC-_yvM";
@@ -39,7 +40,10 @@ bot.on("message", async (msg) =>
         MakeNewUser(msg);
     }
 
-    PassMessageToClient(msg);
+    const newres = PassMessageToClient(msg);
+    if (!newres) {
+
+    }
 });
 
 function PassMessageToClient(msg: TelegramBot.Message)
@@ -60,7 +64,9 @@ async function TryTelegramUser(userId: number): Promise<boolean>
     const telegramuser = await TelegramUser.GetByUser(userId);
 
     if (telegramuser) {
-        const client = await TelegramClient.Create(telegramuser.chatId, telegramuser.userId, telegramuser.playerId);
+        const player = await Player.GetById(telegramuser.playerId);
+
+        const client = await TelegramClient.Create(telegramuser.chatId, telegramuser.userId, telegramuser.playerId, player.isAdmin !== 0);
 
         // client.write("Connected and logined.");
 
@@ -79,8 +85,6 @@ async function MakeNewUser(msg: TelegramBot.Message): Promise<boolean>
     client.attach(msg);
     clients.push(client);
 
-    client.write("Now login or register");
-
     return true;
 }
 
@@ -97,6 +101,20 @@ export class TelegramApiProvider implements IApiProvider
         const client = await TelegramClient.Create(user.chatId, user.userId, user.playerId);
 
         client.write(message);
+    }
+    public async broadcast(message: string)
+    {
+        const users = await TelegramUser.All();
+
+        if (!users) {
+            return;
+        }
+
+        for (const user of users) {
+
+            const client = await TelegramClient.Create(user.chatId, user.userId, user.playerId);
+            client.write(message);
+        }
     }
 }
 
