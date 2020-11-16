@@ -60,8 +60,12 @@ export class RGOManagementService
         return (start + percent * (end - start));
     }
 
+    public static async CountOfType(rgotypeid: number) {
+        return await RGO.CountWithType(rgotypeid);
+    }
+
     public static async ConstructNew(playerid: number, rgotypeid: number) {
-        const rgotype = RGOType.GetById(rgotypeid);
+        const rgotype = await RGOType.GetById(rgotypeid);
         if (!rgotype) {
             return "No such RGO type";
         }
@@ -72,6 +76,12 @@ export class RGOManagementService
 
         if (!costs) {
             return "Can't build such RGO";
+        }
+
+        const currcount = await this.CountOfType(rgotypeid);
+
+        if (currcount >= rgotype.maxAmount) {
+            return "No free slots for this RGO";
         }
 
         for (const costentry of costs) {

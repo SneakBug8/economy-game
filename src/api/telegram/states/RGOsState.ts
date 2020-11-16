@@ -6,6 +6,7 @@ import { FactoryState } from "./FactoryState";
 import { RGO } from "entity/RGO";
 import { RGOManagementService } from "services/RGOManagementService";
 import { RGOState } from "./RGOState";
+import { RGOType } from "entity/RGOType";
 
 export class RGOsState extends State
 {
@@ -17,23 +18,26 @@ export class RGOsState extends State
             this.OnRGOId,
             this.OnBuild,
             this.OnDestroy,
+            this.OnTypes,
             this.OnInfo,
             this.OnHelp,
             this.OnBack,
         ];
     }
 
-    public async init() {
+    public async init()
+    {
         this.OnInfo("/info");
     }
 
-    public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]> {
+    public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]>
+    {
         const res: TelegramBot.KeyboardButton[][] = [];
         const rgos = await Player.GetRGOsById(this.Client.playerId);
 
         let subres: TelegramBot.KeyboardButton[] = [];
         for (const rgo of rgos) {
-            subres.push({text: "⛏ " + rgo.id + ""});
+            subres.push({ text: "⛏ " + rgo.id + "" });
             if (subres.length >= 3) {
                 res.push(subres);
                 subres = [];
@@ -45,8 +49,8 @@ export class RGOsState extends State
             subres = [];
         }
 
-        res.push([{text: "⚙️ /build"}, {text: "💣 /destroy"}],
-            [{text: "📄 /info"}, {text: "📄 /help"}, {text: "❌ /back"}]);
+        res.push([{ text: "📄 /types" }, { text: "⚙️ /build" }, { text: "💣 /destroy" }],
+            [{ text: "📄 /info" }, { text: "📄 /help" }, { text: "❌ /back" }]);
 
         return res;
     }
@@ -79,7 +83,8 @@ export class RGOsState extends State
         return false;
     }
 
-    public async OnBuild(message: string): Promise<boolean> {
+    public async OnBuild(message: string): Promise<boolean>
+    {
         const regex = new RegExp("\/build$");
         if (regex.test(message)) {
             this.setWaitingForValue(this.waitingOnBuild);
@@ -91,7 +96,8 @@ export class RGOsState extends State
         return false;
     }
 
-    private async waitingOnBuild(message: string): Promise<boolean> {
+    private async waitingOnBuild(message: string): Promise<boolean>
+    {
         const registerregex = new RegExp("^([0-9]+)$");
         if (registerregex.test(message)) {
             const matches = registerregex.exec(message);
@@ -117,7 +123,8 @@ export class RGOsState extends State
         return false;
     }
 
-    public async OnDestroy(message: string): Promise<boolean> {
+    public async OnDestroy(message: string): Promise<boolean>
+    {
         const regex = new RegExp("\/destroy$");
         if (regex.test(message)) {
             this.setWaitingForValue(this.waitingOnDestroy);
@@ -127,7 +134,8 @@ export class RGOsState extends State
         return false;
     }
 
-    private async waitingOnDestroy(message: string): Promise<boolean> {
+    private async waitingOnDestroy(message: string): Promise<boolean>
+    {
         const registerregex = new RegExp("^([0-9]+)$");
         if (registerregex.test(message)) {
             const matches = registerregex.exec(message);
@@ -153,7 +161,25 @@ export class RGOsState extends State
         return false;
     }
 
-    public async OnInfo(message: string): Promise<boolean> {
+    public async OnTypes(message: string): Promise<boolean>
+    {
+        const regex = new RegExp("\/types$");
+        if (regex.test(message)) {
+            const types = await RGOType.All();
+
+            this.Client.writeList<RGOType>(types,
+                (x) => x.id,
+                async (x) => `${x.name}. Makes ${(await x.getGood()).name}, takes ${1/x.efficiency} workers. ` +
+                `Max: ${x.maxAmount}. Already built: ${await RGOManagementService.CountOfType(x.id)}`);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public async OnInfo(message: string): Promise<boolean>
+    {
         const regex = new RegExp("\/info$");
         if (regex.test(message)) {
             const rgos = await Player.GetRGOsById(this.Client.playerId);
@@ -169,7 +195,8 @@ export class RGOsState extends State
         return false;
     }
 
-    public async OnHelp(message: string): Promise<boolean> {
+    public async OnHelp(message: string): Promise<boolean>
+    {
         const backregex = new RegExp("\/help$");
         if (backregex.test(message)) {
             this.Client.write("[WIP]");

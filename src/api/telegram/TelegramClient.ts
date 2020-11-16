@@ -102,8 +102,20 @@ export class TelegramClient
         await bot.sendMessage(this.chatId, msg, {
             parse_mode: "Markdown",
             reply_markup: {
-                keyboard: await this.State.getKeyboard()
-            }
+                keyboard: await this.State.getKeyboard(),
+            },
+        });
+    }
+
+    public async writeInline(msg: string, keyboard: TelegramBot.InlineKeyboardButton[][])
+    {
+        Logger.info(`to ${this.userId}: ${msg}`);
+
+        await bot.sendMessage(this.chatId, msg, {
+            parse_mode: "Markdown",
+            reply_markup: {
+                inline_keyboard: keyboard,
+            },
         });
     }
 

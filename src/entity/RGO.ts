@@ -94,6 +94,30 @@ export class RGO
         return [];
     }
 
+    public static async GetWithType(typeid: number): Promise<RGO[]>
+    {
+        const data = await RGORepository().select().where("typeId", typeid);
+
+        const res = new Array<RGO>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
+    public static async CountWithType(typeid: number): Promise<number>
+    {
+        const data = await RGORepository().count("id as c").where("typeId", typeid).first() as any;
+
+        return data.c;
+    }
+
     public static async Exists(id: number): Promise<boolean>
     {
         const res = await RGORepository().count("id as c").where("id", id).first() as any;

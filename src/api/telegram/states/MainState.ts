@@ -9,7 +9,7 @@ import { SellOffer } from "entity/SellOffer";
 import { RecipesService, Recipe } from "services/RecipesService";
 import { PriceRecord } from "entity/PriceRecord";
 import { Runner } from "Runner";
-import {Storage} from "entity/Storage";
+import { Storage } from "entity/Storage";
 import { BlankState } from "./BlankState";
 import { FactoriesState } from "./FactoriesState";
 import { MarketState } from "./MarketState";
@@ -30,23 +30,26 @@ export class MainState extends State
             this.OnFactory,
             this.OnRGO,
             this.OnMarket,
+            this.OnDiscord,
             this.OnHelp,
             this.OnLogout,
         ];
     }
 
-    public async init() {
+    public async init()
+    {
         this.OnInfo("/info");
     }
 
-    public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]> {
+    public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]>
+    {
         return [
             [{ text: "📄 /info" }, { text: "💎 /goods" }, { text: "📦 /storage" }],
             [{ text: "🏭 /factories" }, { text: "⛏ /rgo" }, { text: "🛒 /market" }],
             [{ text: "📄 /help" },
-            {text: "Discord", url: "https://discord.gg/9kRzrV4"} as TelegramBot.KeyboardButton,
-            { text: "🔓 /logout"}],
-          ];
+            { text: "/discord" },
+            { text: "🔓 /logout" }],
+        ];
     }
 
     public async OnInfo(message: string): Promise<boolean>
@@ -166,7 +169,24 @@ export class MainState extends State
         return false;
     }
 
-    public async OnHelp(message: string): Promise<boolean> {
+    public async OnDiscord(message: string): Promise<boolean>
+    {
+        const backregex = new RegExp("\/discord$");
+        if (backregex.test(message)) {
+            this.Client.writeInline("Click on the link", [
+                        [{
+                            text: `Discord`,
+                            url: `https://discord.gg/9kRzrV4`
+                        }],
+                    ]);
+            return true;
+        }
+
+        return false;
+    }
+
+    public async OnHelp(message: string): Promise<boolean>
+    {
         const backregex = new RegExp("\/help$");
         if (backregex.test(message)) {
             this.Client.write("[WIP]");

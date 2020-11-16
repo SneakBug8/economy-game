@@ -8,8 +8,10 @@ import { RGO } from "./RGO";
 export class RGOType
 {
     public id: number;
+    public name: string;
     public efficiency: number = 1;
     private goodId: number;
+    public maxAmount: number;
 
     public async getGood(): Promise<Good>
     {
@@ -34,6 +36,8 @@ export class RGOType
         res.id = dbobject.id;
         res.efficiency = dbobject.efficiency;
         res.goodId = dbobject.goodId;
+        res.maxAmount = dbobject.maxAmount;
+        res.name = dbobject.name;
 
         return res;
     }
@@ -78,6 +82,8 @@ export class RGOType
         await RGOTypeRepository().where("id", type.id).update({
             efficiency: type.efficiency,
             goodId: type.goodId,
+            maxAmount: type.maxAmount,
+            name: type.name,
         });
     }
 
@@ -85,7 +91,9 @@ export class RGOType
     {
         const d = await RGOTypeRepository().insert({
             efficiency: type.efficiency,
-            goodId: type.goodId
+            goodId: type.goodId,
+            maxAmount: type.maxAmount,
+            name: type.name,
         });
 
         type.id = d[0];
