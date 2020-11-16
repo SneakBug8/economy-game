@@ -2,6 +2,7 @@ import { Player } from "entity/Player";
 import { Config } from "config";
 import { Factory } from "entity/Factory";
 import { Log } from "entity/Log";
+import { PlayerService } from "./PlayerService";
 
 export class FixedTaxService
 {
@@ -27,13 +28,19 @@ export class FixedTaxService
 
             if (player.cash > perfactorytax) {
                 player.payCashToState(perfactorytax);
+
+                PlayerService.SendOffline(player.id, `Paid ${perfactorytax} in per factory tax.`);
             }
             else {
                 // Take money up to zero insted of 99
                 const amount = player.cash;
                 player.payCashToState(amount);
 
+
                 if (factories[1]) {
+                    PlayerService.SendOffline(player.id, `Paid ${amount} instead of ${perfactorytax} in per factory tax. ` +
+                    `They have taken ${factories[1].id}.`);
+
                     Factory.Delete(factories[1].id);
                 }
                 else {

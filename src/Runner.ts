@@ -14,6 +14,7 @@ import { FixedTaxService } from "services/FixedTaxService";
 import { GrindService } from "services/GrindService";
 import { GDPWatcher } from "watchers/GDPWatcher";
 import { RGOGainService } from "services/RGOGainService";
+import { RGOManagementService } from "services/RGOManagementService";
 
 export class Runner
 {
@@ -47,6 +48,7 @@ export class Runner
 
         // Salaries and employees
         await FactoryManagementService.Run();
+        await RGOManagementService.Run();
 
         // Trade
         await MarketService.Run();

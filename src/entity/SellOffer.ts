@@ -139,8 +139,20 @@ export class SellOffer extends MarketOffer
 
     public static async Delete(id: number): Promise<boolean>
     {
+        await SellOfferRepository().delete().where("id", id);
+
+        return true;
+    }
+
+    public static async Refund(id: number): Promise<boolean>
+    {
         const offer = await this.GetById(id);
-        Storage.AddGoodTo(offer.actorId, offer.goodId, offer.amount);
+
+        if (!offer) {
+            return;
+        }
+
+        await Storage.AddGoodTo(offer.actorId, offer.goodId, offer.amount);
 
         await SellOfferRepository().delete().where("id", id);
 

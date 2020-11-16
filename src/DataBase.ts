@@ -1,4 +1,4 @@
-//import sqlite3 = require('sqlite3').sqlite3.verbose();
+// import sqlite3 = require('sqlite3').sqlite3.verbose();
 import * as knex from "knex";
 
 export const Connection = knex({
@@ -14,7 +14,6 @@ export const Connection = knex({
         },
     },
 });
-
 
 /*export const Connection = new sqlite3.Database("./db.db", (err) =>
 {

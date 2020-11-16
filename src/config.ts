@@ -1,13 +1,20 @@
-export class Config {
-    public static basePath(): string {
-        return __dirname ;
+import { Good } from "entity/Good";
+import { RecipesService } from "services/RecipesService";
+
+export class Config
+{
+    public static basePath(): string
+    {
+        return __dirname;
     }
 
-    public static projectPath(): string {
+    public static projectPath(): string
+    {
         return __dirname + "/..";
     }
 
-    public static dataPath(): string {
+    public static dataPath(): string
+    {
         return __dirname + "/../data";
     }
 
@@ -19,4 +26,17 @@ export class Config {
     public static MarketTaxPercent = 0.04;
 
     public static LoginBonus = 10;
+
+    public static WorkersRecruitmentSpeed = 0.25;
+
+    // Dictionary <RGOType.id, Dictionary <Good.id, amount>>
+    public static RGOCostsDictionary: Map<number, Array<{ goodId: number, Amount: number }> > = new Map(
+        [
+            [1, [
+                {
+                    goodId: 1,
+                    Amount: 300,
+                },
+            ]],
+        ]);
 }

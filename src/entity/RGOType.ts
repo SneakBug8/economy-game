@@ -3,6 +3,7 @@ import { Log } from "./Log";
 import { Player } from "./Player";
 import { Good } from "./Good";
 import { Logger } from "utility/Logger";
+import { RGO } from "./RGO";
 
 export class RGOType
 {

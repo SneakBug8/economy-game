@@ -348,7 +348,7 @@ export class MarketState extends State
                 return;
             }
 
-            await SellOffer.Delete(offer.id);
+            await SellOffer.Refund(offer.id);
 
             this.Client.write("Deleted sell offer id " + offer.id);
 

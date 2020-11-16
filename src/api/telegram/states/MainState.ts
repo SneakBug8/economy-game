@@ -26,11 +26,11 @@ export class MainState extends State
         this.functions = [
             this.OnInfo,
             this.OnGoods,
-            this.OnRecipes,
             this.OnStorageView,
             this.OnFactory,
             this.OnRGO,
             this.OnMarket,
+            this.OnHelp,
             this.OnLogout,
         ];
     }
@@ -41,10 +41,11 @@ export class MainState extends State
 
     public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]> {
         return [
-            [{ text: "📄 /info" }, { text: "📄 /goods" }, { text: "📜 /recipes" }],
-            [{ text: "🏭 /factories" }, { text: "⛏ /rgo" }],
-            [{ text: "📦 /storage" }, { text: "🛒 /market" }],
-            [{ text: "🔓 /logout"}]
+            [{ text: "📄 /info" }, { text: "💎 /goods" }, { text: "📦 /storage" }],
+            [{ text: "🏭 /factories" }, { text: "⛏ /rgo" }, { text: "🛒 /market" }],
+            [{ text: "📄 /help" },
+            {text: "Discord", url: "https://discord.gg/9kRzrV4"} as TelegramBot.KeyboardButton,
+            { text: "🔓 /logout"}],
           ];
     }
 
@@ -68,33 +69,7 @@ export class MainState extends State
         return false;
     }
 
-    public async OnRecipes(message: string): Promise<boolean>
-    {
-        const registerregex = new RegExp("\/recipes$");
-        if (registerregex.test(message)) {
 
-            const recipes = RecipesService.All;
-
-
-            this.Client.writeList<Recipe>(recipes, (x) => x.id, (x) => {
-                let res = `${x.name}: `;
-                for (const input of x.Requisites) {
-                    res += `${input.amount} ${input.Good.name}`;
-                }
-                res += " => ";
-                for (const output of x.Results) {
-                    res += `${output.amount} ${output.Good.name}`;
-                }
-                res += ", workers: " + x.employeesneeded;
-
-                return res;
-            });
-
-            return true;
-        }
-
-        return false;
-    }
 
     public async OnGoods(message: string): Promise<boolean>
     {
@@ -185,6 +160,16 @@ export class MainState extends State
             this.Client.setState(new BlankState());
 
             TelegramUser.Delete(this.Client.userId);
+            return true;
+        }
+
+        return false;
+    }
+
+    public async OnHelp(message: string): Promise<boolean> {
+        const backregex = new RegExp("\/help$");
+        if (backregex.test(message)) {
+            this.Client.write("[WIP]");
             return true;
         }
 

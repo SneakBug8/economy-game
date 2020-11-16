@@ -4,6 +4,10 @@ import { TurnsService } from "./TurnsService";
 import { Log } from "entity/Log";
 import { PlayerService } from "./PlayerService";
 import { RGO } from "entity/RGO";
+import { Config } from "config";
+import {Storage} from "entity/Storage";
+import { Good } from "entity/Good";
+import { RGOType } from "entity/RGOType";
 
 export class RGOManagementService
 {
@@ -14,7 +18,7 @@ export class RGOManagementService
             const player = await rgo.getOwner();
 
             const hastopay = rgo.salary * rgo.employeesCount;
-            const canpay = Math.max(hastopay, player.cash);
+            const canpay = Math.min(hastopay, player.cash);
 
             if (player.cash < 0 || hastopay > canpay) {
                 PlayerService.SendOffline(player.id, `Can pay salaries for RGO ${rgo.id} no more`);
@@ -23,25 +27,28 @@ export class RGOManagementService
 
             await player.payCashToState(canpay);
 
-            Log.LogTemp(`${player.id} paid ${canpay} salary for ${rgo.id}`);
-            PlayerService.SendOffline(player.id, `Paid ${canpay} in salaries`);
+            Log.LogTemp(`RGO ${rgo.id} ${player.id} paid ${canpay} salary for ${rgo.id}`);
+            PlayerService.SendOffline(player.id, `RGO ${rgo.id} paid ${canpay} in salaries`);
 
             // Increase employees count
             if (player.cash > 0 && rgo.targetEmployees > rgo.employeesCount) {
-                let delta = this.Lerp(rgo.employeesCount, rgo.targetEmployees, 0.75) - rgo.employeesCount;
-                if (delta < 0) {
+                let delta = this.Lerp(rgo.employeesCount,
+                    rgo.targetEmployees,
+                    Config.WorkersRecruitmentSpeed) - rgo.employeesCount;
+                if (delta < 1) {
                     delta = 1;
                 }
-                rgo.employeesCount += Math.round(delta);
+                delta = Math.round(delta);
+                rgo.employeesCount += delta;
 
-                PlayerService.SendOffline(player.id, `Hired ${delta} workers`);
+                PlayerService.SendOffline(player.id, `RGO ${rgo.id} hired ${delta} workers`);
             }
 
             if (rgo.targetEmployees < rgo.employeesCount) {
                 const delta = rgo.employeesCount - rgo.targetEmployees;
                 rgo.employeesCount = rgo.targetEmployees;
 
-                PlayerService.SendOffline(player.id, `Fired ${delta} workers`);
+                PlayerService.SendOffline(player.id, `RGO ${rgo.id} fired ${delta} workers`);
             }
 
             await RGO.Update(rgo);
@@ -51,5 +58,56 @@ export class RGOManagementService
     public static Lerp(start: number, end: number, percent: number)
     {
         return (start + percent * (end - start));
+    }
+
+    public static async ConstructNew(playerid: number, rgotypeid: number) {
+        const rgotype = RGOType.GetById(rgotypeid);
+        if (!rgotype) {
+            return "No such RGO type";
+        }
+
+        const costs = Config.RGOCostsDictionary.get(rgotypeid);
+        const player = await Player.GetById(playerid);
+        const actor = await player.getActor();
+
+        if (!costs) {
+            return "Can't build such RGO";
+        }
+
+        for (const costentry of costs) {
+            const good = await Good.GetById(costentry.goodId);
+
+            if (!good) {
+                return "Wrong RGO construction recipe. Contact the admins.";
+            }
+
+            if (!await Storage.Has(actor, good, costentry.Amount)) {
+                return "Not enough resources";
+            }
+        }
+
+        for (const costentry of costs) {
+            const good = await Good.GetById(costentry.goodId);
+
+            await Storage.TakeGoodFrom(actor, good, costentry.Amount);
+        }
+
+        const rgo = await RGO.Create(player, 0, 0, rgotypeid);
+        return rgo;
+    }
+
+    public static async Destroy(playerid: number, rgoid: number) {
+        const rgo = await RGO.GetById(rgoid);
+
+        if (!rgo) {
+            return "No such RGO";
+        }
+
+        if (rgo.getOwnerId() !== playerid) {
+            return "That's not your rgo";
+        }
+
+        await RGO.Delete(rgo.id);
+        return true;
     }
 }

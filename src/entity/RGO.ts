@@ -55,7 +55,8 @@ export class RGO
     {
         const res = new RGO();
         res.id = dbobject.id;
-        res.employeesCount = dbobject.employees_count;
+        res.typeId = dbobject.typeId;
+        res.employeesCount = dbobject.employeesCount;
         res.targetEmployees = dbobject.targetEmployees;
         res.salary = dbobject.salary;
         res.settings = dbobject.settings;
@@ -100,24 +101,37 @@ export class RGO
         return res.c > 0;
     }
 
-    public static async Update(RGO: RGO)
+    public static async GetDescription(id: number) {
+        const rgo = await RGO.GetById(id);
+        if (!rgo) {
+            return;
+        }
+        const type = await rgo.getType();
+        const good = await type.getGood();
+
+        return `Yields ${good.name} for every ${1 / type.efficiency} workers.`;
+    }
+
+    public static async Update(rgo: RGO)
     {
-        await RGORepository().where("id", RGO.id).update({
-            employees_count: RGO.employeesCount,
-            targetEmployees: RGO.targetEmployees,
-            salary: RGO.salary,
-            settings: RGO.settings,
-            playerId: RGO.playerId,
+        await RGORepository().where("id", rgo.id).update({
+            employeesCount: rgo.employeesCount,
+            targetEmployees: rgo.targetEmployees,
+            salary: rgo.salary,
+            settings: rgo.settings,
+            playerId: rgo.playerId,
+            typeId: rgo.typeId,
         });
     }
 
-    public static async Create(owner: Player, employeesCount: number, salary: number): Promise<number>
+    public static async Create(owner: Player, employeesCount: number, salary: number, type: number): Promise<number>
     {
         const rgo = new RGO();
         rgo.setOwner(owner);
         rgo.employeesCount = employeesCount;
         rgo.targetEmployees = employeesCount;
         rgo.salary = salary;
+        rgo.typeId = type;
 
         return this.Insert(rgo);
     }
@@ -127,7 +141,8 @@ export class RGO
         const d = await RGORepository().insert({
             id: rgo.id,
             playerId: rgo.playerId,
-            employees_count: rgo.employeesCount,
+            typeId: rgo.typeId,
+            employeesCount: rgo.employeesCount,
             targetEmployees: rgo.targetEmployees,
             salary: rgo.salary,
             settings: rgo.settings,

@@ -45,16 +45,19 @@ export class RGOState extends State
             const rgo = await RGO.GetById(this.rgoId);
 
             if (!rgo) {
-                this.Client.write("No such factory");
+                this.Client.write("No such RGO");
+                this.OnBack("/back");
                 return;
             }
 
             if (rgo.getOwnerId() !== this.Client.playerId) {
-                this.Client.write("That's not your factory");
+                this.Client.write("That's not your RGO");
                 return;
             }
 
-            this.Client.write(`Factory ${rgo.id}\nEmployees: ${rgo.employeesCount} / ${rgo.targetEmployees}\nSalary: ${rgo.salary}`);
+            const description = await RGO.GetDescription(rgo.id);
+
+            this.Client.write(`RGO ${rgo.id}\n${description}\nEmployees: ${rgo.employeesCount} / ${rgo.targetEmployees}\nSalary: ${rgo.salary}`);
 
             return true;
         }

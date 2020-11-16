@@ -4,6 +4,7 @@ import { ProductionQueue, IQueueEntry } from "entity/ProductionQueue";
 import { RecipesService } from "services/RecipesService";
 import * as TelegramBot from "node-telegram-bot-api";
 import { FactoriesState } from "./FactoriesState";
+import { MainState } from "./MainState";
 
 export class FactoryState extends State
 {
@@ -54,6 +55,7 @@ export class FactoryState extends State
 
             if (!factory) {
                 this.Client.write("No such factory");
+                this.OnBack("/back");
                 return;
             }
 
@@ -261,8 +263,7 @@ export class FactoryState extends State
     {
         const registerregex = new RegExp("\/queue add$");
         if (registerregex.test(message)) {
-            this.waitingForValue = true;
-            this.waitingCallback = this.waitingQueueAddRecipe;
+            this.setWaitingForValue(this.waitingQueueAddRecipe);
 
             this.Client.write("Write recipe id");
 

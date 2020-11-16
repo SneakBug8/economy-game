@@ -63,7 +63,7 @@ export class MarketService
                         buy.amount -= transactionsize;
 
                         // Take taxes for market trading from seller
-                        const taxcost = transactioncost * Config.MarketTaxPercent;
+                        const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
 
                         await this.TransferCash(buyactor, sellactor, transactioncost - taxcost);
                         await buyerplayer.payCashToState(taxcost);
@@ -175,7 +175,7 @@ export class MarketService
                         sell.amount -= transactionsize;
                         consumption.amount -= transactionsize;
 
-                        const taxcost = transactioncost * Config.MarketTaxPercent;
+                        const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
                         await sellerplayer.takeCashFromState(transactioncost - taxcost);
 
                         this.appendToRecords(good, sell.price, transactionsize);

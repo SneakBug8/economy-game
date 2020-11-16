@@ -1,5 +1,6 @@
 import { TelegramClient } from "./TelegramClient";
 import * as TelegramBot from "node-telegram-bot-api";
+import { Logger } from "utility/Logger";
 
 export class State {
     public Client: TelegramClient;
@@ -13,7 +14,7 @@ export class State {
     protected waitingCallback: (message: string) => Promise<boolean> = null;
 
     public async init() {
-
+        Logger.warn("Empty State init block");
     }
 
     protected setWaitingForValue(callback: (message: string) => Promise<boolean>) {

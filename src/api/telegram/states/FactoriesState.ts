@@ -8,7 +8,7 @@ import { BuyOffer } from "entity/BuyOffer";
 import { SellOffer } from "entity/SellOffer";
 import { Factory } from "entity/Factory";
 import { ProductionQueue, IQueueEntry } from "entity/ProductionQueue";
-import { RecipesService } from "services/RecipesService";
+import { Recipe, RecipesService } from "services/RecipesService";
 import { MainState } from "./MainState";
 import * as TelegramBot from "node-telegram-bot-api";
 import { FactoryState } from "./FactoryState";
@@ -22,6 +22,7 @@ export class FactoriesState extends State
         this.functions = [
             this.OnFactoryId,
             this.OnInfo,
+            this.OnRecipes,
             this.OnHelp,
             this.OnBack,
         ];
@@ -35,13 +36,52 @@ export class FactoriesState extends State
         const res: TelegramBot.KeyboardButton[][] = [];
         const factories = await Player.GetFactoriesById(this.Client.playerId);
 
+        let subres: TelegramBot.KeyboardButton[] = [];
         for (const factory of factories) {
-            res.push([{text: "🏭 " + factory.id + ""}]);
+            subres.push({text: "🏭 " + factory.id + ""});
+            if (subres.length >= 3) {
+                res.push(subres);
+                subres = [];
+            }
         }
 
-        res.push([{text: "📄 /info"}, {text: "📄 /help"}, {text: "❌ /back"}]);
+        if (subres.length > 0) {
+            res.push(subres);
+            subres = [];
+        }
+
+        res.push([{ text: "📜 /recipes" }],
+        [{text: "📄 /info"}, {text: "📄 /help"}, {text: "❌ /back"}]);
 
         return res;
+    }
+
+    public async OnRecipes(message: string): Promise<boolean>
+    {
+        const registerregex = new RegExp("\/recipes$");
+        if (registerregex.test(message)) {
+
+            const recipes = RecipesService.All;
+
+
+            this.Client.writeList<Recipe>(recipes, (x) => x.id, (x) => {
+                let res = `${x.name}: `;
+                for (const input of x.Requisites) {
+                    res += `${input.amount} ${input.Good.name}`;
+                }
+                res += " => ";
+                for (const output of x.Results) {
+                    res += `${output.amount} ${output.Good.name}`;
+                }
+                res += ", workers: " + x.employeesneeded;
+
+                return res;
+            });
+
+            return true;
+        }
+
+        return false;
     }
 
     public async OnFactoryId(message: string): Promise<boolean>
