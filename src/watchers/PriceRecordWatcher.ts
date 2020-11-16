@@ -15,8 +15,8 @@ export class PriceRecordWatcher
     public static Init()
     {
         if (!this.Initialized) {
-            EventsList.onTrade.on(() => this.OnTradeListener);
-            EventsList.onBeforeNewTurn.on(() => this.commitRecords);
+            EventsList.onTrade.on((e) => this.OnTradeListener(e));
+            EventsList.onBeforeNewTurn.on((e) => this.commitRecords(e));
             this.Initialized = true;
         }
     }

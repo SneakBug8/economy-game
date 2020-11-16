@@ -9,13 +9,13 @@ export class TransactionWatcher
     public static Init()
     {
         if (!this.Initialized) {
-            EventsList.onTrade.on(() => this.OnTradeListener);
+            EventsList.onTrade.on(this.OnTradeListener);
             this.Initialized = true;
         }
     }
 
     public static async OnTradeListener(event: ITradeEvent)
     {
-        Transaction.Create(event.Good, event.Amount, event.Price, event.Actor, event.Type);
+        await Transaction.Create(event.Good, event.Amount, event.Price, event.Actor, event.Type);
     }
 }
