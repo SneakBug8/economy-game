@@ -23,6 +23,7 @@ export class RGOManagementService
             if (player.cash < 0 || hastopay > canpay) {
                 PlayerService.SendOffline(player.id, `Can pay salaries for RGO ${rgo.id} no more`);
                 rgo.targetEmployees = this.Lerp(rgo.targetEmployees, 0, 0.75);
+                rgo.targetEmployees = Math.round(rgo.targetEmployees);
             }
 
             await player.payCashToState(canpay);
@@ -45,7 +46,8 @@ export class RGOManagementService
             }
 
             if (rgo.targetEmployees < rgo.employeesCount) {
-                const delta = rgo.employeesCount - rgo.targetEmployees;
+                let delta = rgo.employeesCount - rgo.targetEmployees;
+                delta = Math.round(delta);
                 rgo.employeesCount = rgo.targetEmployees;
 
                 PlayerService.SendOffline(player.id, `RGO ${rgo.id} fired ${delta} workers`);

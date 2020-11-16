@@ -21,12 +21,12 @@ export class PlayerLog {
     }
 
     public static async Log(player: Player, turn: Turn, text: string) {
-        const record = new PlayerLog();
+        /*const record = new PlayerLog();
         record.playerId = player.id;
         record.turnId = turn.id;
         record.text = text;
 
-        await this.Insert(record);
+        await this.Insert(record);*/
 
         Logger.info(`[${player.id}] ${turn.id}: ${text}`);
     }

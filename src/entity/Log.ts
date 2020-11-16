@@ -25,11 +25,11 @@ export class Log
 
     public static async Log(turn: Turn, text: string)
     {
-        const record = new Log();
+        /*const record = new Log();
         record.turnId = turn.id;
         record.text = text;
 
-        await this.Insert(record);
+        await this.Insert(record);*/
         Logger.info(`${turn.id}: ${text}`);
         // debuglogger("[%s] %s", turn.id, text);
     }
@@ -42,7 +42,7 @@ export class Log
     public static async LogTemp(text: string)
     {
         // debuglogger(`${TurnsService.CurrentTurn.id}: ${text}`);
-        //console.log(`${TurnsService.CurrentTurn.id}: ${text}`);
+        // console.log(`${TurnsService.CurrentTurn.id}: ${text}`);
         Logger.info(`${TurnsService.CurrentTurn.id}: ${text}`);
     }
 

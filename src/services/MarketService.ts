@@ -27,8 +27,6 @@ export class MarketService
         for (const market of await Market.All()) {
             for (const good of await Good.All()) {
 
-                this.getRecord(good);
-
                 const buyoffers = await BuyOffer.GetWithGoodOrdered(good);
                 const selloffers = await SellOffer.GetWithGoodOrdered(good);
 
@@ -73,8 +71,6 @@ export class MarketService
                             `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyerplayer.username}, tax: ${taxcost}`);
                         PlayerService.SendOffline(buyerplayer.id,
                             `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username}. tax: ${taxcost}`);
-
-                        this.appendToRecords(good, sell.price, transactionsize);
 
                         EventsList.onTrade.emit({
                             Type: TradeEventType.ToPlayer,
@@ -141,8 +137,6 @@ export class MarketService
                         PlayerService.SendOffline(buyerplayer.id,
                             `Bought ${transactionsize} ${good.name} for ${transactioncost} from State`);
 
-                        this.appendToRecords(good, buy.price, transactionsize);
-
                         EventsList.onTrade.emit({
                             Type: TradeEventType.FromGovernment,
                             Actor: buyactor,
@@ -186,8 +180,6 @@ export class MarketService
                         const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
                         await sellerplayer.takeCashFromState(transactioncost - taxcost);
 
-                        this.appendToRecords(good, sell.price, transactionsize);
-
                         PlayerService.SendOffline(sellerplayer.id,
                             `Sold ${transactionsize} ${good.name} for ${transactioncost} to State, tax: ${taxcost}`);
 
@@ -219,8 +211,6 @@ export class MarketService
             }
 
         }
-
-        await this.commitRecords();
     }
 
     /*public static async AddToStorage(actor: MarketActor): Promise<void>
@@ -290,49 +280,5 @@ export class MarketService
         return await SellOffer.Create(good, amount, price, actor);
     }
 
-    private static records: PriceRecord[] = [];
 
-    private static async commitRecords()
-    {
-        for (const record of this.records) {
-            await PriceRecord.Create(TurnsService.CurrentTurn.id, record.goodId, record.minprice, record.maxprice, record.tradeamount);
-        }
-
-        this.records = [];
-    }
-
-    private static appendToRecords(good: Good, price: number, amount: number)
-    {
-        const record = this.getRecord(good);
-        if (price < record.minprice) {
-            record.minprice = price;
-        }
-        if (price > record.maxprice) {
-            record.maxprice = price;
-        }
-
-        if (amount) {
-            record.tradeamount += amount;
-        }
-    }
-
-    private static getRecord(good: Good)
-    {
-        for (const record of this.records) {
-            if (record.goodId === good.id) {
-                return record;
-            }
-        }
-
-        const newrecord = {
-            goodId: good.id,
-            minprice: Number.MAX_SAFE_INTEGER,
-            maxprice: 0,
-            tradeamount: 0,
-        };
-
-        this.records.push(newrecord);
-
-        return newrecord;
-    }
 }

@@ -19,6 +19,7 @@ export class FactoryManagementService
             if (player.cash < 0 || hastopay > canpay) {
                 PlayerService.SendOffline(player.id, `Can pay salaries for factory ${factory.id} no more`);
                 factory.targetEmployees = this.Lerp(factory.targetEmployees, 0, 0.75);
+                factory.targetEmployees = Math.round(factory.targetEmployees);
             }
 
             await player.payCashToState(canpay);
@@ -41,7 +42,8 @@ export class FactoryManagementService
             }
 
             if (factory.targetEmployees < factory.employeesCount) {
-                const delta = factory.employeesCount - factory.targetEmployees;
+                let delta = factory.employeesCount - factory.targetEmployees;
+                delta = Math.round(delta);
                 factory.employeesCount = factory.targetEmployees;
 
                 PlayerService.SendOffline(player.id, `Factory ${factory.id} fired ${delta} workers`);

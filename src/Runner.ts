@@ -11,11 +11,12 @@ import { ProductionWatcher } from "watchers/ProductionWatcher";
 import { FactoryManagementService } from "services/FactoryManagementService";
 import { IApiProvider } from "api/ApiProvider";
 import { FixedTaxService } from "services/FixedTaxService";
-import { GrindService } from "services/GrindService";
 import { GDPWatcher } from "watchers/GDPWatcher";
 import { RGOGainService } from "services/RGOGainService";
 import { RGOManagementService } from "services/RGOManagementService";
 import { sleep } from "utility/sleep";
+import { PriceRecordWatcher } from "watchers/PriceRecordWatcher";
+import { TransactionWatcher } from "watchers/TransactionWatcher";
 
 export class Runner
 {
@@ -31,6 +32,8 @@ export class Runner
         await TradeWatcher.Init();
         await ProductionWatcher.Init();
         await GDPWatcher.Init();
+        await PriceRecordWatcher.Init();
+        await TransactionWatcher.Init();
 
         //require("web/main");
         require("api/telegram/TelegramApi");
