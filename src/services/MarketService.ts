@@ -99,12 +99,17 @@ export class MarketService
                         buyoffers.shift();
                         BuyOffer.Delete(buy.id);
                     }
+                    else {
+                        BuyOffer.Update(buy);
+                    }
 
                     if (sell.amount === 0) {
                         selloffers.shift();
                         SellOffer.Delete(sell.id);
                     }
-
+                    else {
+                        SellOffer.Update(sell);
+                    }
                 }
 
                 // Buyers vs production
@@ -154,6 +159,9 @@ export class MarketService
                         buyoffers.shift();
                         BuyOffer.Delete(buy.id);
                     }
+                    else {
+                        BuyOffer.Update(buy);
+                    }
 
                     if (production.amount === 0) {
                         productions.shift();
@@ -198,6 +206,9 @@ export class MarketService
                     if (sell.amount === 0) {
                         selloffers.shift();
                         SellOffer.Delete(sell.id);
+                    }
+                    else {
+                        SellOffer.Update(sell);
                     }
 
                     if (consumption.amount === 0) {

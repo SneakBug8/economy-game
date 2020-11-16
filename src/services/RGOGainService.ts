@@ -26,6 +26,8 @@ export class RGOGainService
 
             await Storage.AddGoodTo(actor.id, type.getGoodId(), amountproduced);
 
+            PlayerService.SendOffline(player.id, `RGO ${rgo.id} gathered ${amountproduced} ${await (await type.getGood()).name}`);
+
             EventsList.onRGOGain.emit({
                 RGO: rgo,
                 Good: await type.getGood(),

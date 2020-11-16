@@ -15,6 +15,7 @@ import { GrindService } from "services/GrindService";
 import { GDPWatcher } from "watchers/GDPWatcher";
 import { RGOGainService } from "services/RGOGainService";
 import { RGOManagementService } from "services/RGOManagementService";
+import { sleep } from "utility/sleep";
 
 export class Runner
 {
@@ -42,16 +43,28 @@ export class Runner
         await TurnsService.CheckBalance();
 
         await RGOGainService.Run();
+
+        await sleep(3000);
+
         await ProductionService.Run();
 
         await TurnsService.CheckBalance();
 
+        await sleep(3000);
+
         // Salaries and employees
         await FactoryManagementService.Run();
+
+        await sleep(3000);
+
         await RGOManagementService.Run();
+
+        await sleep(3000);
 
         // Trade
         await MarketService.Run();
+
+        await sleep(3000);
 
         await TurnsService.CheckBalance();
 

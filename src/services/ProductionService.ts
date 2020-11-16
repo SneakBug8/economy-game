@@ -23,7 +23,7 @@ export class ProductionService
             let remainingemployees = factory.employeesCount;
             while (queue.Queue && queue.Queue.length && remainingemployees) {
                 const queueentry = queue.Queue.shift();
-                const recipe = RecipesService.GetById(queueentry.RecipeId);
+                const recipe = await RecipesService.GetById(queueentry.RecipeId);
 
                 if (!recipe) {
                     continue;
@@ -76,7 +76,7 @@ export class ProductionService
                 for (const output of recipe.Results) {
                     await Storage.AddGoodTo(actor.id, output.Good.id, reciperepeats * output.amount);
 
-                    PlayerService.SendOffline(player.id, `Manufactured ${reciperepeats * output.amount} ${output.Good.name}`);
+                    PlayerService.SendOffline(player.id, `Factory ${factory.id} manufactured ${reciperepeats * output.amount} ${output.Good.name}`);
 
                     EventsList.onProduction.emit({
                         Factory: factory,

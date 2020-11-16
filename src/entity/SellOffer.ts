@@ -3,10 +3,8 @@ import { Connection } from "DataBase";
 import { Market } from "./Market";
 import { MarketActor } from "./MarketActor";
 import { Good } from "./Good";
-import * as Engine from "services/MarketService";
 import { Storage } from "entity/Storage";
 import { Player } from "./Player";
-import { Factory } from "./Factory";
 import { Turn } from "./Turn";
 
 export class SellOffer extends MarketOffer

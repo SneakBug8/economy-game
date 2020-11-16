@@ -382,7 +382,8 @@ export class MarketState extends State
     {
         const backregex = new RegExp("\/help$");
         if (backregex.test(message)) {
-            this.Client.write("[WIP]");
+            this.Client.write("Here you can buy and sell goods from state or other players. " +
+            "When selling, goods will be taken from your storage and reserved till someone buys them or you delete the offer.");
             return true;
         }
 
