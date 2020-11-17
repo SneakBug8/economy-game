@@ -145,6 +145,30 @@ export class Player
         return [];
     }
 
+    public async getFactoriesWorkers() {
+        const factories = await this.getFactories();
+
+        let res = 0;
+
+        for (const factory of factories) {
+            res += factory.employeesCount;
+        }
+
+        return res;
+    }
+
+    public async getRGOWorkers() {
+        const rgos = await this.getRGOs();
+
+        let res = 0;
+
+        for (const rgo of rgos) {
+            res += rgo.employeesCount;
+        }
+
+        return res;
+    }
+
     public async getRGOs(): Promise<RGO[]>
     {
         return Player.GetRGOs(this);

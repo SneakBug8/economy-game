@@ -1,0 +1,19 @@
+<h2>Рецепты</h2>
+<table class="table">
+    <thead>
+    <th>ID рецепта</th>
+    <th>Сырье</th>
+    <th>Продукты</th>
+    <th>Рабочих для выполнения</th>
+    </thead>
+{{#each data}}
+    <tr>
+<td>{{this.id}}</td>
+<td>{{this.requisites}}</td>
+<td>{{this.results}}</td>
+<td>{{this.workers}}</td>
+    </tr>
+
+{{/each}}
+
+</table>

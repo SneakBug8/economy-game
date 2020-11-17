@@ -2,6 +2,7 @@ import * as express from "express";
 import * as exphbs from "express-handlebars";
 import { WebAPI } from "./WebAPI";
 import * as cookieParser from "cookie-parser";
+import { Logger } from "utility/Logger";
 
 const app = express();
 const port = 3000;
@@ -16,11 +17,11 @@ app.use(cookieParser());
 
 app.listen(port, () =>
 {
-    console.log(`Server listening at http://localhost:${port}`);
+    Logger.info(`Server listening at http://localhost:${port}`);
 });
 
 app.use((req, res, next) => {
-    console.log(req.method + " to " + req.url);
+    Logger.verbose(req.method + " to " + req.url);
     next();
 });
 

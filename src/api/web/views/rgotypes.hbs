@@ -1,0 +1,25 @@
+<h2>Типы добычи</h2>
+<table class="table">
+    <thead>
+    <th>ID</th>
+    <th>Добыча</th>
+    <th>Добывает</th>
+    <th>Рабочих на цикл</th>
+    <th>Максимум в мире</th>
+    <th>Уже построено</th>
+    <th>Ресурсы для постройки</th>
+    </thead>
+{{#each data}}
+    <tr>
+<td>{{this.id}}</td>
+<td>{{this.name}}</td>
+<td>{{this.makes}}</td>
+<td>{{this.workers}}</td>
+<td>{{this.maxamount}}</td>
+<td>{{this.already}}</td>
+<td>{{this.resources}}</td>
+    </tr>
+
+{{/each}}
+
+</table>
