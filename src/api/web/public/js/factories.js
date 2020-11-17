@@ -1,6 +1,6 @@
-function workersButton() {
-        $("#workerspanel").toggleClass("d-none");
+function workersButton(id) {
+        $("#workerspanel-"+id).toggleClass("d-none");
 }
-function salaryButton() {
-    $("#salarypanel").toggleClass("d-none");
+function salaryButton(id) {
+    $("#salarypanel-"+id).toggleClass("d-none");
 }

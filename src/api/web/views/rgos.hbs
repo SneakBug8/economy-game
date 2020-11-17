@@ -1,4 +1,4 @@
-<h2>Добыча</h2>
+<h2>Вашы добывающие предприятия</h2>
 <script src="/js/factories.js"></script>
 {{#each data}}
 <div class="card">
@@ -7,13 +7,13 @@
         <p class="card-text">Сотрудников: {{this.employeesCount}} / {{this.targetEmployees}}. Зарплата: {{this.salary}}
         </p>
         <div class="btn-group" role="group">
-            <a href="javascript:workersButton();" class="btn btn-primary">Изменить число сотрудников</a>
-            <a href="javascript:salaryButton();" class="btn btn-primary">Изменить зарплату</a>
-            <a href="#" class="btn btn-danger">Удалить добычу</a>
+            <a href="javascript:workersButton({{this.id}});" class="btn btn-primary">Изменить число сотрудников</a>
+            <a href="javascript:salaryButton({{this.id}});" class="btn btn-primary">Изменить зарплату</a>
+            <a href="/rgo/{{this.id}}/delete" class="btn btn-danger">Удалить добычу</a>
         </div>
 
-        <div id="workerspanel" class="d-none">
-            <form action="/factory/{{this.id}}/workers" method="POST" enctype="application/x-www-form-urlencoded">
+        <div id="workerspanel-{{this.id}}" class="d-none">
+            <form action="/rgo/{{this.id}}/workers" method="POST" enctype="application/x-www-form-urlencoded">
                 <div class="form-group">
                     <label for="workers">Рабочих</label>
                     <input name="workers" type="text" class="form-control" id="workers" placeholder="Рабочих..."
@@ -22,8 +22,8 @@
                 <button type="submit" class="btn btn-primary">Сохранить</button>
             </form>
         </div>
-        <div id="salarypanel" class="d-none">
-            <form action="/factory/{{this.id}}/salary" method="POST" enctype="application/x-www-form-urlencoded">
+        <div id="salarypanel-{{this.id}}" class="d-none">
+            <form action="/rgo/{{this.id}}/salary" method="POST" enctype="application/x-www-form-urlencoded">
                 <div class="form-group">
                     <label for="salary">Зарплата</label>
                     <input name="salary" type="text" class="form-control" id="salary" placeholder="Зарплата..."
@@ -35,3 +35,12 @@
     </div>
 </div>
 {{/each}}
+
+<h3>Построить новое</h3>
+<form action="/rgo/build" method="POST" enctype="application/x-www-form-urlencoded">
+    <div class="form-group">
+        <label for="typeId">ID типа</label>
+        <input name="typeId" type="text" class="form-control" id="typeId" placeholder="ID типа" required>
+    </div>
+    <button type="submit" class="btn btn-success">Построить</button>
+</form>

@@ -15,6 +15,8 @@ import { Storage } from "entity/Storage";
 import { Factory } from "entity/Factory";
 import { RGO } from "entity/RGO";
 import { ProductionQueue } from "entity/ProductionQueue";
+import { FactoryManagementService } from "services/FactoryManagementService";
+import { PlayerLog } from "entity/PlayerLog";
 
 export class WebAPI
 {
@@ -59,12 +61,16 @@ export class WebAPI
         ], this.factoryWorkersAction);
 
         app.get("/rgos", this.onRGOs);
+        app.get("/rgo/:id([0-9]+)/delete", this.rgoDeleteAction);
         app.post("/rgo/:id([0-9]+)/salary", [
             body("salary").isNumeric(),
         ], this.rgoSalaryAction);
         app.post("/rgo/:id([0-9]+)/workers", [
             body("workers").isNumeric(),
         ], this.rgoWorkersAction);
+        app.post("/rgo/build", [
+            body("typeId").isNumeric(),
+        ], this.rgoBuildAction);
 
         app.get("/factory/:id([0-9]+)/queue", this.onFactoryProductionQueue);
         app.get("/factory/:id([0-9]+)/queue/delete/:order([0-9]+)", this.onFactoryProductionQueueDelete);
@@ -72,6 +78,7 @@ export class WebAPI
             body("recipeId").isNumeric(),
             body("amount").isNumeric(),
         ], this.onFactoryProductionQueueAdd);
+        app.get("/factory/build", this.factoryBuildAction);
 
         app.get("/storage", this.onStorage);
         app.get("/market", this.onMarket);
@@ -109,15 +116,15 @@ export class WebAPI
 
     public static render(req: IMyRequest, res: express.Response, template: string, data?: object)
     {
+        req.client.errorToShow = null;
+        req.client.lastSuccessfulUrl = req.url;
+
         res.render(template, {
             ...res.locals,
             layout: WebAPI.getInfopagesLayout(req),
             ...data,
             error: req.client.errorToShow,
         });
-
-        req.client.errorToShow = null;
-        req.client.lastSuccessfulUrl = req.url;
     }
 
     public static renderLast(req: IMyRequest, res: express.Response)
@@ -166,14 +173,17 @@ export class WebAPI
         return req.client && req.client.playerId && req.client.actorId;
     }
 
-    public static onHome(req: IMyRequest, res: express.Response)
+    public static async onHome(req: IMyRequest, res: express.Response)
     {
         if (!WebAPI.isLogined(req)) {
             WebAPI.render(req, res, "unlogined");
             return;
         }
 
-        WebAPI.render(req, res, "home");
+        const playerId = req.client.playerId;
+        const logs = await PlayerLog.GetWithPlayer(playerId);
+
+        WebAPI.render(req, res, "home", {logs});
     }
 
     public static onRegister(req: IMyRequest, res: express.Response)
@@ -188,9 +198,7 @@ export class WebAPI
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/errors messages.
             // Error messages can be returned in an array using `errors.array()`.
-            WebAPI.render(req, res, "register", {
-                error: errors.array()[0].msg,
-            });
+            WebAPI.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -215,9 +223,7 @@ export class WebAPI
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/errors messages.
             // Error messages can be returned in an array using `errors.array()`.
-            WebAPI.render(req, res, "login", {
-                error: errors.array()[0].msg,
-            });
+            WebAPI.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -324,9 +330,7 @@ export class WebAPI
         const factory = await Factory.GetById(id);
 
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
-            WebAPI.render(req, res, "factories", {
-                error: "That's not your factory",
-            });
+            WebAPI.error(req, res, "That's not your factory");
             return;
         }
 
@@ -439,14 +443,27 @@ export class WebAPI
         WebAPI.render(req, res, "rgos", { data });
     }
 
+    public static async rgoDeleteAction(req: IMyRequest, res: express.Response)
+    {
+        const rgoid = Number.parseInt(req.params.id, 10);
+
+        const rgo = await RGO.GetById(rgoid);
+        if (!rgo || rgo.getOwnerId() !== req.client.playerId) {
+            WebAPI.error(req, res, "That's not your RGO");
+            return;
+        }
+
+        await RGO.Delete(rgoid);
+
+        WebAPI.renderLast(req, res);
+    }
+
     public static async rgoWorkersAction(req: IMyRequest, res: express.Response)
     {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebAPI.render(req, res, "rgos", {
-                error: errors.array()[0].msg,
-            });
+            WebAPI.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -455,9 +472,7 @@ export class WebAPI
 
         const rgo = await RGO.GetById(rgoid);
         if (!rgo || rgo.getOwnerId() !== req.client.playerId) {
-            WebAPI.render(req, res, "rgos", {
-                error: "That's not your RGO",
-            });
+            WebAPI.error(req, res, "That's not your RGO");
             return;
         }
 
@@ -468,14 +483,13 @@ export class WebAPI
         res.redirect("/rgos");
     }
 
+
     public static async rgoSalaryAction(req: IMyRequest, res: express.Response)
     {
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebAPI.render(req, res, "rgos", {
-                error: errors.array()[0].msg,
-            });
+            WebAPI.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -484,9 +498,7 @@ export class WebAPI
 
         const rgo = await RGO.GetById(rgoid);
         if (!rgo || rgo.getOwnerId() !== req.client.playerId) {
-            WebAPI.render(req, res, "rgos", {
-                error: "That's not your RGO",
-            });
+            WebAPI.error(req, res, "That's not your RGO");
             return;
         }
 
@@ -496,6 +508,50 @@ export class WebAPI
 
         res.redirect("/rgos");
     }
+
+    public static async rgoBuildAction(req: IMyRequest, res: express.Response)
+    {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            WebAPI.error(req, res, errors.array()[0].msg);
+            return;
+        }
+
+        const typeId = Number.parseInt(req.body.typeId, 10);
+        const playerId = req.client.playerId;
+
+        const response = await RGOManagementService.ConstructNew(playerId, typeId);
+
+        if (typeof response !== "number") {
+            WebAPI.error(req, res, response as string);
+            return;
+        }
+
+        WebAPI.renderLast(req, res);
+    }
+
+    public static async factoryBuildAction(req: IMyRequest, res: express.Response)
+    {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            WebAPI.error(req, res, errors.array()[0].msg);
+            return;
+        }
+
+        const playerId = req.client.playerId;
+
+        const response = await FactoryManagementService.ConstructNew(playerId);
+
+        if (typeof response !== "number") {
+            WebAPI.error(req, res, response as string);
+            return;
+        }
+
+        WebAPI.renderLast(req, res);
+    }
+
     public static onMarket(req: IMyRequest, res: express.Response) { }
 
     public static async onGoods(req: IMyRequest, res: express.Response)

@@ -4,6 +4,9 @@ import { Factory } from "entity/Factory";
 import { MarketActor } from "entity/MarketActor";
 import { TurnsService } from "./TurnsService";
 import { Runner } from "Runner";
+import { Logger } from "utility/Logger";
+import { PlayerLog } from "entity/PlayerLog";
+import { Turn } from "entity/Turn";
 
 export class PlayerService
 {
@@ -41,6 +44,9 @@ export class PlayerService
     }
 
     public static async SendOffline(playerId: number, message: string) {
+        Logger.info(`to ${playerId}: ${message}`);
+        PlayerLog.Log(playerId, TurnsService.CurrentTurn, message);
+
         if (Runner.ApiProvider) {
             await Runner.ApiProvider.sendOffline(playerId, message);
         }

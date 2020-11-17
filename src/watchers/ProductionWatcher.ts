@@ -7,6 +7,7 @@ import { PlayerLog } from "entity/PlayerLog";
 import { PriceRecord } from "entity/PriceRecord";
 import { Log } from "entity/Log";
 import { TurnsService } from "services/TurnsService";
+import { PlayerService } from "services/PlayerService";
 
 interface GoodProductionStat
 {
@@ -32,7 +33,7 @@ export class ProductionWatcher
     public static async OnProductionListener(event: ProductionEvent)
     {
         const player = await Player.GetWithFactory(event.Factory);
-        PlayerLog.Log(player, TurnsService.CurrentTurn, `Factory ${event.Factory.id} produced ${event.Amount} items`);
+        PlayerService.SendOffline(player.id, `Factory ${event.Factory.id} produced ${event.Amount} items`);
 
         for (const stat of ProductionWatcher.Stats) {
             if (stat.good === event.Good) {

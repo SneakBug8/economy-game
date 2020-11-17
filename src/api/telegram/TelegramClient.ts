@@ -97,8 +97,6 @@ export class TelegramClient
 
     public async write(msg: string)
     {
-        Logger.info(`to ${this.userId}: ${msg}`);
-
         await bot.sendMessage(this.chatId, msg, {
             parse_mode: "Markdown",
             reply_markup: {
@@ -109,8 +107,6 @@ export class TelegramClient
 
     public async writeInline(msg: string, keyboard: TelegramBot.InlineKeyboardButton[][])
     {
-        Logger.info(`to ${this.userId}: ${msg}`);
-
         await bot.sendMessage(this.chatId, msg, {
             parse_mode: "Markdown",
             reply_markup: {

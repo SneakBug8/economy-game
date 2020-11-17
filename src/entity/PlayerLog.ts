@@ -20,15 +20,13 @@ export class PlayerLog {
         return res;
     }
 
-    public static async Log(player: Player, turn: Turn, text: string) {
-        /*const record = new PlayerLog();
-        record.playerId = player.id;
+    public static async Log(playerId: number, turn: Turn, text: string) {
+        const record = new PlayerLog();
+        record.playerId = playerId;
         record.turnId = turn.id;
         record.text = text;
 
-        await this.Insert(record);*/
-
-        Logger.info(`[${player.id}] ${turn.id}: ${text}`);
+        await this.Insert(record);
     }
 
     public static async GetById(id: number): Promise<PlayerLog>
@@ -44,7 +42,7 @@ export class PlayerLog {
 
     public static async GetWithPlayer(id: number): Promise<PlayerLog[]>
     {
-        const data = await LogRecordRepository().select().where("playerId", id);
+        const data = await LogRecordRepository().select().where("playerId", id).orderBy("turnId", "desc").limit(25);
 
         const res = new Array<PlayerLog>();
 
