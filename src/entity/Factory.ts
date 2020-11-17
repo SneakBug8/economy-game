@@ -8,11 +8,28 @@ export class Factory
 {
     public id: number;
     public employeesCount: number = 0;
-    public targetEmployees: number = 0;
+    private targetEmployees: number = 0;
     public salary: number = 1;
     private Settings: IFactorySettings;
     public settings: string;
     private playerId: number;
+
+    public level: number = 1;
+
+    public getTargetEmployees(): number {
+        return this.targetEmployees;
+    }
+
+    public setTargetEmployees(targetEmployees: number) {
+        if (targetEmployees > this.getMaxWorkers()) {
+            targetEmployees = this.getMaxWorkers();
+        }
+        this.targetEmployees = targetEmployees;
+    }
+
+    public getMaxWorkers(): number {
+        return this.level * 100;
+    }
 
     public getOwnerId(): number
     {
@@ -50,6 +67,7 @@ export class Factory
         res.settings = dbobject.settings;
         res.Settings = JSON.parse(res.settings);
         res.playerId = dbobject.playerId;
+        res.level = dbobject.level;
 
         return res;
     }
@@ -97,6 +115,7 @@ export class Factory
             salary: factory.salary,
             settings: factory.settings,
             playerId: factory.playerId,
+            level: factory.level,
         });
     }
 
@@ -107,6 +126,7 @@ export class Factory
         factory.employeesCount = employeesCount;
         factory.targetEmployees = employeesCount;
         factory.salary = salary;
+        factory.level = 1;
 
         return this.Insert(factory);
     }
@@ -120,6 +140,7 @@ export class Factory
             targetEmployees: factory.targetEmployees,
             salary: factory.salary,
             settings: factory.settings,
+            level: factory.level
         });
 
         factory.id = d[0];

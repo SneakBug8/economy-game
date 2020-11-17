@@ -119,7 +119,7 @@ export class FactoriesState extends State
 
             this.Client.writeList<Factory>(factories,
                 (x) => x.id,
-                (x) => `Employees: ${x.employeesCount} / ${x.targetEmployees}, salary: ${x.salary}`,
+                (x) => `Employees: ${x.employeesCount} / ${x.getTargetEmployees()}, salary: ${x.salary}`,
                 "Your factories");
 
             return true;

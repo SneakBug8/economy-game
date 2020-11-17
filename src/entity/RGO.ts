@@ -16,6 +16,12 @@ export class RGO
     private playerId: number;
     private typeId: number;
 
+    public level: number = 1;
+
+    public getMaxWorkers(): number {
+        return this.level * 100;
+    }
+
     public async getType(): Promise<RGOType>
     {
         return RGOType.GetById(this.typeId);
@@ -62,6 +68,7 @@ export class RGO
         res.settings = dbobject.settings;
         res.Settings = JSON.parse(res.settings);
         res.playerId = dbobject.playerId;
+        res.level = dbobject.level;
 
         return res;
     }
@@ -145,6 +152,7 @@ export class RGO
             settings: rgo.settings,
             playerId: rgo.playerId,
             typeId: rgo.typeId,
+            level: rgo.level,
         });
     }
 
@@ -156,6 +164,7 @@ export class RGO
         rgo.targetEmployees = employeesCount;
         rgo.salary = salary;
         rgo.typeId = type;
+        rgo.level = 1;
 
         return this.Insert(rgo);
     }
@@ -170,6 +179,7 @@ export class RGO
             targetEmployees: rgo.targetEmployees,
             salary: rgo.salary,
             settings: rgo.settings,
+            level: rgo.level,
         });
 
         rgo.id = d[0];

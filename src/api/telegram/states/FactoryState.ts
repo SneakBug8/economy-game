@@ -64,7 +64,7 @@ export class FactoryState extends State
                 return;
             }
 
-            this.Client.write(`Factory ${factory.id}\nEmployees: ${factory.employeesCount} / ${factory.targetEmployees}\nSalary: ${factory.salary}`);
+            this.Client.write(`Factory ${factory.id}\nEmployees: ${factory.employeesCount} / ${factory.getTargetEmployees()}\nSalary: ${factory.salary}`);
 
             return true;
         }
@@ -169,7 +169,7 @@ export class FactoryState extends State
                 return;
             }
 
-            factory.targetEmployees = workers;
+            factory.setTargetEmployees(workers);
 
             Factory.Update(factory);
 

@@ -20,8 +20,8 @@ export class FactoryManagementService
 
             if (player.cash < 0 || hastopay > canpay) {
                 PlayerService.SendOffline(player.id, `Can pay salaries for factory ${factory.id} no more`);
-                factory.targetEmployees = this.Lerp(factory.targetEmployees, 0, 0.75);
-                factory.targetEmployees = Math.round(factory.targetEmployees);
+                factory.setTargetEmployees(this.Lerp(factory.getTargetEmployees(), 0, 0.75));
+                factory.setTargetEmployees(Math.round(factory.getTargetEmployees()));
             }
 
             await player.payCashToState(canpay);
@@ -30,9 +30,9 @@ export class FactoryManagementService
             PlayerService.SendOffline(player.id, `Factory ${factory.id} paid ${canpay} in salaries`);
 
             // Increase employees count
-            if (player.cash > 0 && factory.targetEmployees > factory.employeesCount) {
+            if (player.cash > 0 && factory.getTargetEmployees() > factory.employeesCount) {
                 let delta = this.Lerp(factory.employeesCount,
-                    factory.targetEmployees,
+                    factory.getTargetEmployees(),
                     Config.WorkersRecruitmentSpeed) - factory.employeesCount;
                 if (delta < 1) {
                     delta = 1;
@@ -43,10 +43,10 @@ export class FactoryManagementService
                 PlayerService.SendOffline(player.id, `Factory ${factory.id} Hired ${delta} workers`);
             }
 
-            if (factory.targetEmployees < factory.employeesCount) {
-                let delta = factory.employeesCount - factory.targetEmployees;
+            if (factory.getTargetEmployees() < factory.employeesCount) {
+                let delta = factory.employeesCount - factory.getTargetEmployees();
                 delta = Math.round(delta);
-                factory.employeesCount = factory.targetEmployees;
+                factory.employeesCount = factory.getTargetEmployees();
 
                 PlayerService.SendOffline(player.id, `Factory ${factory.id} fired ${delta} workers`);
             }
@@ -95,6 +95,50 @@ export class FactoryManagementService
         }
 
         const factory = await Factory.Create(player, 0, 0);
+        return factory;
+    }
+
+    public static async UpgradeFactory(playerid: number, factoryid: number) {
+        const factory = await Factory.GetById(factoryid);
+
+        if (!factory || factory.getOwnerId() !== playerid ) {
+            return "That's not your factory";
+        }
+
+        const costs = Config.NewFactoryCosts;
+        const player = await Player.GetById(playerid);
+        const actor = await player.getActor();
+
+        if (!costs) {
+            return "Can't upgrade factory";
+        }
+
+        for (const costentry of costs) {
+            const upgradeamount = costentry.Amount * Math.pow(1.5, factory.level);
+
+            const good = await Good.GetById(costentry.goodId);
+
+            if (!good) {
+                return "Wrong RGO construction recipe. Contact the admins.";
+            }
+
+            if (!await Storage.Has(actor, good, upgradeamount)) {
+                return "Not enough resources";
+            }
+        }
+
+        for (const costentry of costs) {
+            const upgradeamount = costentry.Amount * Math.pow(1.5, factory.level);
+
+            const good = await Good.GetById(costentry.goodId);
+
+            await Storage.TakeGoodFrom(actor, good, upgradeamount);
+
+        }
+
+        factory.level += 1;
+        await Factory.Update(factory);
+
         return factory;
     }
 }

@@ -59,9 +59,20 @@ export class WebAPI
         app.post("/factory/:id([0-9]+)/workers", [
             body("workers").isNumeric(),
         ], this.factoryWorkersAction);
+        app.get("/factory/:id([0-9]+)/upgrade", this.onFactoryUpgrade);
+        app.get("/factory/:id([0-9]+)/delete", this.factoryDeleteAction);
+        app.get("/factory/:id([0-9]+)/queue", this.onFactoryProductionQueue);
+        app.get("/factory/:id([0-9]+)/queue/delete/:order([0-9]+)", this.onFactoryProductionQueueDelete);
+        app.post("/factory/:id([0-9]+)/queue/add", [
+            body("recipeId").isNumeric(),
+            body("amount").isNumeric(),
+        ], this.onFactoryProductionQueueAdd);
+        app.get("/factory/build", this.factoryBuildAction);
+
 
         app.get("/rgos", this.onRGOs);
         app.get("/rgo/:id([0-9]+)/delete", this.rgoDeleteAction);
+        app.get("/rgo/:id([0-9]+)/upgrade", this.onRGOUpgrade);
         app.post("/rgo/:id([0-9]+)/salary", [
             body("salary").isNumeric(),
         ], this.rgoSalaryAction);
@@ -72,13 +83,6 @@ export class WebAPI
             body("typeId").isNumeric(),
         ], this.rgoBuildAction);
 
-        app.get("/factory/:id([0-9]+)/queue", this.onFactoryProductionQueue);
-        app.get("/factory/:id([0-9]+)/queue/delete/:order([0-9]+)", this.onFactoryProductionQueueDelete);
-        app.post("/factory/:id([0-9]+)/queue/add", [
-            body("recipeId").isNumeric(),
-            body("amount").isNumeric(),
-        ], this.onFactoryProductionQueueAdd);
-        app.get("/factory/build", this.factoryBuildAction);
 
         app.get("/storage", this.onStorage);
         app.get("/market", this.onMarket);
@@ -266,8 +270,10 @@ export class WebAPI
             data.push({
                 id: factory.id,
                 employeesCount: factory.employeesCount,
-                targetEmployees: factory.targetEmployees,
+                targetEmployees: factory.getTargetEmployees(),
                 salary: factory.salary,
+                level: factory.level,
+                maxWorkers: factory.getMaxWorkers(),
             });
         }
 
@@ -292,7 +298,12 @@ export class WebAPI
             return;
         }
 
-        factory.targetEmployees = workers;
+        if (workers > factory.getMaxWorkers()) {
+            WebAPI.error(req, res, "More workers than max");
+            return;
+        }
+
+        factory.setTargetEmployees(workers);
 
         await Factory.Update(factory);
 
@@ -353,6 +364,48 @@ export class WebAPI
         }
 
         WebAPI.render(req, res, "queue", { data, factoryId: id });
+    }
+
+    public static async onFactoryUpgrade(req: IMyRequest, res: express.Response)
+    {
+        const playerid = req.client.playerId;
+        const id = Number.parseInt(req.params.id, 10);
+        const factory = await Factory.GetById(id);
+
+        if (!factory || factory.getOwnerId() !== req.client.playerId) {
+            WebAPI.error(req, res, "That's not your factory");
+            return;
+        }
+
+        const response = await FactoryManagementService.UpgradeFactory(playerid, factory.id);
+
+        if (typeof response !== "number") {
+            WebAPI.error(req, res, response as string);
+            return;
+        }
+
+        WebAPI.renderLast(req, res);
+    }
+
+    public static async onRGOUpgrade(req: IMyRequest, res: express.Response)
+    {
+        const playerid = req.client.playerId;
+        const id = Number.parseInt(req.params.id, 10);
+        const rgo = await RGO.GetById(id);
+
+        if (!rgo || rgo.getOwnerId() !== req.client.playerId) {
+            WebAPI.error(req, res, "That's not your factory");
+            return;
+        }
+
+        const response = await RGOManagementService.UpgradeRGO(playerid, rgo.id);
+
+        if (typeof response !== "number") {
+            WebAPI.error(req, res, response as string);
+            return;
+        }
+
+        WebAPI.renderLast(req, res);
     }
 
     public static async onFactoryProductionQueueDelete(req: IMyRequest, res: express.Response)
@@ -437,10 +490,27 @@ export class WebAPI
                 employeesCount: rgo.employeesCount,
                 targetEmployees: rgo.targetEmployees,
                 salary: rgo.salary,
+                level: rgo.level,
+                maxWorkers: rgo.getMaxWorkers(),
             });
         }
 
         WebAPI.render(req, res, "rgos", { data });
+    }
+
+    public static async factoryDeleteAction(req: IMyRequest, res: express.Response)
+    {
+        const factoryid = Number.parseInt(req.params.id, 10);
+
+        const factory = await Factory.GetById(factoryid);
+        if (!factory || factory.getOwnerId() !== req.client.playerId) {
+            WebAPI.error(req, res, "That's not your factory");
+            return;
+        }
+
+        await Factory.Delete(factoryid);
+
+        WebAPI.renderLast(req, res);
     }
 
     public static async rgoDeleteAction(req: IMyRequest, res: express.Response)

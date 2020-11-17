@@ -4,12 +4,14 @@
 <div class="card">
     <div class="card-body">
         <h3>{{this.id}}</h3>
-        <p class="card-text">Сотрудников: {{this.employeesCount}} / {{this.targetEmployees}}. Зарплата: {{this.salary}}
+        <p class="card-text">
+            Уровень: {{this.level}}. Сотрудников: {{this.employeesCount}} / {{this.targetEmployees}}. Лимит сотрудников (от уровня): {{this.maxWorkers}}. Зарплата: {{this.salary}}
         </p>
-        <div class="btn-group" role="group">
+        <div>
             <a href="javascript:workersButton({{this.id}});" class="btn btn-primary">Изменить число сотрудников</a>
             <a href="javascript:salaryButton({{this.id}});" class="btn btn-primary">Изменить зарплату</a>
-            <a href="/rgo/{{this.id}}/delete" class="btn btn-danger">Удалить добычу</a>
+            <a href="/rgo/{{this.id}}/upgrade" class="btn btn-success">Улучшить</a>
+            <a href="/rgo/{{this.id}}/delete" class="btn btn-danger">Удалить</a>
         </div>
 
         <div id="workerspanel-{{this.id}}" class="d-none">

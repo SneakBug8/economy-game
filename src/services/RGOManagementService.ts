@@ -108,6 +108,55 @@ export class RGOManagementService
         return rgo;
     }
 
+    public static async UpgradeRGO(playerid: number, rgoid: number) {
+        const rgo = await RGO.GetById(rgoid);
+
+        if (!rgo || rgo.getOwnerId() !== playerid ) {
+            return "That's not your RGO";
+        }
+
+        const rgotype = await rgo.getType();
+        if (!rgotype) {
+            return "No such RGO type";
+        }
+
+        const costs = Config.RGOCostsDictionary.get(rgotype.id);
+        const player = await Player.GetById(playerid);
+        const actor = await player.getActor();
+
+        if (!costs) {
+            return "Can't upgrade RGO";
+        }
+
+        for (const costentry of costs) {
+            const upgradeamount = costentry.Amount * Math.pow(1.5, rgo.level);
+
+            const good = await Good.GetById(costentry.goodId);
+
+            if (!good) {
+                return "Wrong RGO construction recipe. Contact the admins.";
+            }
+
+            if (!await Storage.Has(actor, good, upgradeamount)) {
+                return "Not enough resources";
+            }
+        }
+
+        for (const costentry of costs) {
+            const upgradeamount = costentry.Amount * Math.pow(1.5, rgo.level);
+
+            const good = await Good.GetById(costentry.goodId);
+
+            await Storage.TakeGoodFrom(actor, good, upgradeamount);
+
+        }
+
+        rgo.level += 1;
+        await RGO.Update(rgo);
+
+        return rgo;
+    }
+
     public static async Destroy(playerid: number, rgoid: number) {
         const rgo = await RGO.GetById(rgoid);
 
