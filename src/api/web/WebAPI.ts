@@ -17,6 +17,12 @@ import { RGO } from "entity/RGO";
 import { ProductionQueue } from "entity/ProductionQueue";
 import { FactoryManagementService } from "services/FactoryManagementService";
 import { PlayerLog } from "entity/PlayerLog";
+import { MarketService } from "services/MarketService";
+import { BuyOffer } from "entity/BuyOffer";
+import { SellOffer } from "entity/SellOffer";
+import { MarketActor } from "entity/MarketActor";
+import { Consumption } from "entity/Consumption";
+import { Production } from "entity/Production";
 
 export class WebAPI
 {
@@ -69,7 +75,6 @@ export class WebAPI
         ], this.onFactoryProductionQueueAdd);
         app.get("/factory/build", this.factoryBuildAction);
 
-
         app.get("/rgos", this.onRGOs);
         app.get("/rgo/:id([0-9]+)/delete", this.rgoDeleteAction);
         app.get("/rgo/:id([0-9]+)/upgrade", this.onRGOUpgrade);
@@ -83,9 +88,20 @@ export class WebAPI
             body("typeId").isNumeric(),
         ], this.rgoBuildAction);
 
-
         app.get("/storage", this.onStorage);
-        app.get("/market", this.onMarket);
+
+        app.get("/markets", this.onMarkets);
+        app.get("/market/:id([0-9]+)", this.onMarket);
+        app.post("/market/:id([0-9]+)/buy", [
+            body("price").isNumeric(),
+            body("amount").isNumeric(),
+        ], this.onMarketBuy);
+        app.post("/market/:id([0-9]+)/sell", [
+            body("price").isNumeric(),
+            body("amount").isNumeric(),
+        ], this.onMarketSell);
+        app.get("/market/:id([0-9]+)/redeembuy/:offer([0-9]+)", this.onMarketRedeemBuy);
+        app.get("/market/:id([0-9]+)/redeemsell/:offer([0-9]+)", this.onMarketRedeemSell);
 
         app.get("/logout", this.onLogout);
 
@@ -121,6 +137,7 @@ export class WebAPI
     public static render(req: IMyRequest, res: express.Response, template: string, data?: object)
     {
         req.client.lastSuccessfulUrl = req.url;
+        Logger.info("lastSuccessfulUrl: " + req.url);
 
         res.render(template, {
             ...res.locals,
@@ -188,7 +205,7 @@ export class WebAPI
         const playerId = req.client.playerId;
         const logs = await PlayerLog.GetWithPlayer(playerId);
 
-        WebAPI.render(req, res, "home", {logs});
+        WebAPI.render(req, res, "home", { logs });
     }
 
     public static onRegister(req: IMyRequest, res: express.Response)
@@ -346,11 +363,11 @@ export class WebAPI
             return;
         }
 
-        const dbo = await ProductionQueue.GetWithFactory(factory);
+        let dbo = await ProductionQueue.GetWithFactory(factory);
 
         if (!dbo) {
             await ProductionQueue.Create(factory, []);
-            return;
+            dbo = await ProductionQueue.GetWithFactory(factory);
         }
 
         const queue = dbo.Queue;
@@ -380,7 +397,7 @@ export class WebAPI
 
         const response = await FactoryManagementService.UpgradeFactory(playerid, factory.id);
 
-        if (typeof response !== "number") {
+        if (typeof response === "string") {
             WebAPI.error(req, res, response as string);
             return;
         }
@@ -401,7 +418,7 @@ export class WebAPI
 
         const response = await RGOManagementService.UpgradeRGO(playerid, rgo.id);
 
-        if (typeof response !== "number") {
+        if (typeof response === "string") {
             WebAPI.error(req, res, response as string);
             return;
         }
@@ -450,7 +467,7 @@ export class WebAPI
 
         const id = Number.parseInt(req.params.id, 10);
         const factory = await Factory.GetById(id);
-        const recipeId = req.body.recipeId;
+        const recipeId = Number.parseInt(req.body.recipeId, 10);
         const amount = req.body.amount;
 
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
@@ -458,7 +475,7 @@ export class WebAPI
             return true;
         }
 
-        const recipe = RecipesService.GetById(recipeId);
+        const recipe = await RecipesService.GetById(recipeId);
         if (!recipe) {
             WebAPI.error(req, res, "No such recipe");
             return true;
@@ -623,7 +640,236 @@ export class WebAPI
         WebAPI.renderLast(req, res);
     }
 
-    public static onMarket(req: IMyRequest, res: express.Response) { }
+    public static async onMarkets(req: IMyRequest, res: express.Response)
+    {
+        const goods = await Good.All();
+
+        let data = [];
+
+        for (const good of goods) {
+            const lastrecord = await PriceRecord.GetLatestWithGood(good);
+
+            if (lastrecord && lastrecord.tradeamount) {
+                data.push({
+                    id: good.id,
+                    name: good.name + `(${good.id})`,
+                    prices: `${lastrecord.minprice}-${lastrecord.maxprice}`,
+                    amount: lastrecord.tradeamount,
+                });
+            }
+            else if (lastrecord) {
+                data.push({
+                    id: good.id,
+                    name: good.name + `(${good.id})`,
+                    prices: "",
+                    amount: lastrecord.tradeamount,
+                });
+            }
+            else {
+                data.push({
+                    id: good.id,
+                    name: good.name + `(${good.id})`,
+                    prices: "",
+                    amount: 0,
+                });
+            }
+        }
+
+        WebAPI.render(req, res, "markets", { data });
+    }
+
+    public static async onMarket(req: IMyRequest, res: express.Response)
+    {
+        const goodid = Number.parseInt(req.params.id, 10);
+
+        const good = await Good.GetById(goodid);
+
+        if (!good) {
+            WebAPI.error(req, res, "No such market");
+            return;
+        }
+
+        const demand = await MarketService.CountDemand(good);
+        const supply = await MarketService.CountSupply(good);
+        const bo = await BuyOffer.GetWithGoodOrdered(good);
+        const so = await SellOffer.GetWithGoodOrdered(good);
+        const cons = await Consumption.GetWithGood(good);
+        const prods = await Production.GetWithGood(good);
+        so.reverse();
+
+        const buyoffers = [];
+        const selloffers = [];
+        const consumptions = [];
+        const productions = [];
+
+        for (const prod of prods) {
+            productions.push({
+                amount: prod.amount,
+                price: "От " + prod.minprice,
+                player: {
+                    username: "State",
+                },
+            });
+        }
+        for (const s of so) {
+            const actor = await s.getActor();
+            const player = await Player.GetWithActor(actor);
+            selloffers.push({
+                id: s.id,
+                amount: s.amount,
+                price: s.price,
+                actor,
+                player,
+            });
+        }
+
+        for (const b of bo) {
+            const actor = await b.getActor();
+            const player = await Player.GetWithActor(actor);
+            buyoffers.push({
+                id: b.id,
+                amount: b.amount,
+                price: b.price,
+                actor,
+                player,
+            });
+        }
+        for (const con of cons) {
+            consumptions.push({
+                amount: con.amount,
+                price: "До " + con.maxprice,
+                player: {
+                    username: "State",
+                },
+            });
+        }
+
+        const actor = await MarketActor.GetById(req.client.actorId);
+        const storage = await Storage.Amount(actor, good);
+
+        WebAPI.render(req, res, "market", {
+            good, buyoffers, selloffers, demand, supply, storage,
+            consumptions, productions, helpers: { notequal: ((x, y) => x !== y), equal: ((x, y) => x === y) },
+        });
+    }
+
+    public static async onMarketSell(req: IMyRequest, res: express.Response)
+    {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            // There are errors. Render form again with sanitized values/errors messages.
+            // Error messages can be returned in an array using `errors.array()`.
+            WebAPI.error(req, res, errors.array()[0].msg);
+            return;
+        }
+
+        const goodid = Number.parseInt(req.params.id, 10);
+        const player = await Player.GetById(req.client.clientId);
+        const actor = await MarketActor.GetById(req.client.actorId);
+        const amount = Number.parseInt(req.body.amount, 10);
+        const price = Number.parseInt(req.body.price, 10);
+
+        const good = await Good.GetById(goodid);
+
+        if (!good) {
+            WebAPI.error(req, res, "No such market");
+            return;
+        }
+
+        const data = await MarketService.AddSellOffer(actor, good, amount, price);
+
+        if (typeof data === "string") {
+            WebAPI.error(req, res, data);
+            return;
+        }
+
+        WebAPI.renderLast(req, res);
+    }
+
+    public static async onMarketBuy(req: IMyRequest, res: express.Response)
+    {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            // There are errors. Render form again with sanitized values/errors messages.
+            // Error messages can be returned in an array using `errors.array()`.
+            WebAPI.error(req, res, errors.array()[0].msg);
+            return;
+        }
+
+        const goodid = Number.parseInt(req.params.id, 10);
+        const player = await Player.GetById(req.client.clientId);
+        const actor = await MarketActor.GetById(req.client.actorId);
+        const amount = Number.parseInt(req.body.amount, 10);
+        const price = Number.parseInt(req.body.price, 10);
+
+        const good = await Good.GetById(goodid);
+
+        if (!good) {
+            WebAPI.error(req, res, "No such market");
+            return;
+        }
+
+        const data = await MarketService.AddBuyOffer(actor, good, amount, price);
+
+        if (typeof data === "string") {
+            WebAPI.error(req, res, data);
+            return;
+        }
+
+        WebAPI.renderLast(req, res);
+    }
+
+    public static async onMarketRedeemSell(req: IMyRequest, res: express.Response)
+    {
+        const goodid = Number.parseInt(req.params.id, 10);
+        const player = await Player.GetById(req.client.clientId);
+        const actor = await MarketActor.GetById(req.client.actorId);
+        const offerId = Number.parseInt(req.params.offer, 10);
+        const offer = await SellOffer.GetById(offerId);
+
+        const good = await Good.GetById(goodid);
+
+        if (!good) {
+            WebAPI.error(req, res, "No such market");
+            return;
+        }
+
+        const data = await MarketService.RedeemSellOffer(actor, offer);
+
+        if (typeof data === "string") {
+            WebAPI.error(req, res, data);
+            return;
+        }
+
+        WebAPI.renderLast(req, res);
+    }
+
+    public static async onMarketRedeemBuy(req: IMyRequest, res: express.Response)
+    {
+        const goodid = Number.parseInt(req.params.id, 10);
+        const player = await Player.GetById(req.client.clientId);
+        const actor = await MarketActor.GetById(req.client.actorId);
+        const offerId = Number.parseInt(req.params.offer, 10);
+        const offer = await BuyOffer.GetById(offerId);
+
+        const good = await Good.GetById(goodid);
+
+        if (!good) {
+            WebAPI.error(req, res, "No such market");
+            return;
+        }
+
+        const data = await MarketService.RedeemBuyOffer(actor, offer);
+
+        if (typeof data === "string") {
+            WebAPI.error(req, res, data);
+            return;
+        }
+
+        WebAPI.renderLast(req, res);
+    }
 
     public static async onGoods(req: IMyRequest, res: express.Response)
     {

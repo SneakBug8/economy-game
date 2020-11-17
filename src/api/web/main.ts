@@ -7,7 +7,9 @@ import { Logger } from "utility/Logger";
 const app = express();
 const port = 3000;
 
-app.engine(".hbs", exphbs({extname: ".hbs"}));
+const hbs = exphbs.create({ extname: ".hbs" });
+
+app.engine(".hbs", hbs.engine);
 app.set("view engine", ".hbs");
 
 app.set("views", __dirname + "/views");
@@ -20,7 +22,8 @@ app.listen(port, () =>
     Logger.info(`Server listening at http://localhost:${port}`);
 });
 
-app.use((req, res, next) => {
+app.use((req, res, next) =>
+{
     Logger.verbose(req.method + " to " + req.url);
     next();
 });

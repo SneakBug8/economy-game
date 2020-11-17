@@ -1,0 +1,17 @@
+<h2>Торговля</h2>
+<table class="table">
+    <thead>
+    <th>Товар</th>
+    <th>Цены последнего дня</th>
+    <th>Объем последнего дня</th>
+    </thead>
+{{#each data}}
+    <tr>
+<td><a class="btn btn-primary" href="/market/{{this.id}}">{{this.name}}</a></td>
+<td>{{this.prices}}</td>
+<td>{{this.amount}}</td>
+    </tr>
+
+{{/each}}
+
+</table>

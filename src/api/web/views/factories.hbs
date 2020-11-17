@@ -12,7 +12,7 @@
             <a href="javascript:salaryButton({{this.id}});" class="btn btn-primary">Изменить зарплату</a>
             <a href="/factory/{{this.id}}/queue" class="btn btn-primary">Очередь производства</a>
             <a href="/factory/{{this.id}}/upgrade" class="btn btn-success">Улучшить</a>
-            <a href="/factory/{{this.id}}/delete" class="btn btn-danger">Удалить</a>
+            <a href="javascript:deleteconfirm('/factory/{{this.id}}/delete')" class="btn btn-danger">Удалить</a>
         </div>
 
         <div id="workerspanel-{{this.id}}" class="d-none">

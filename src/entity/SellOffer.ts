@@ -81,7 +81,7 @@ export class SellOffer extends MarketOffer
         const player = await Player.GetWithActor(actor);
 
         if (!await Storage.Has(actor, good, amount)) {
-            return false;
+            return "Not enough resources";
         }
 
         const offer = new SellOffer();

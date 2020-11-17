@@ -270,6 +270,125 @@ export class MarketService
         playerfrom.payCash(playerto, amount);
     }
 
+    public static async RedeemSellOffer(buyactor: MarketActor, sell: SellOffer, size: number = null)
+    {
+        const buyplayer = await Player.GetWithActor(buyactor);
+        const sellactor = await sell.getActor();
+        const sellerplayer = await Player.GetWithActor(sellactor);
+
+        if (buyactor.id === sellactor.id) {
+            return "Can't trade with yourself";
+        }
+
+        let transactionsize = sell.amount;
+        if (size) {
+            transactionsize = Math.min(sell.amount, size);
+        }
+        const transactioncost = transactionsize * sell.price;
+
+        if (buyplayer.cash < transactioncost) {
+            return "Not enough cash";
+        }
+
+        const good = await sell.getGood();
+
+        sell.amount -= transactionsize;
+
+        const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
+        await buyplayer.payCash(sellerplayer, transactioncost - taxcost);
+        await buyplayer.payCashToState(taxcost);
+        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
+
+        PlayerService.SendOffline(sellerplayer.id,
+            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyplayer.username}, tax: ${taxcost}`);
+        PlayerService.SendOffline(buyplayer.id,
+            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username}. tax: ${taxcost}`);
+
+        EventsList.onTrade.emit({
+            Type: TradeEventType.ToPlayer,
+            Actor: sellactor,
+            Good: good,
+            Amount: transactionsize,
+            Price: sell.price,
+        });
+        EventsList.onTrade.emit({
+            Type: TradeEventType.FromPlayer,
+            Actor: buyactor,
+            Good: good,
+            Amount: transactionsize,
+            Price: sell.price,
+        });
+
+        if (sell.amount === 0) {
+            SellOffer.Delete(sell.id);
+        }
+        else {
+            SellOffer.Update(sell);
+        }
+    }
+
+    public static async RedeemBuyOffer(sellactor: MarketActor, buy: SellOffer, size: number = null)
+    {
+        const sellerplayer = await Player.GetWithActor(sellactor);
+        const buyactor = await buy.getActor();
+        const buyplayer = await Player.GetWithActor(buyactor);
+
+        if (buyactor.id === sellactor.id) {
+            return "Can't trade with yourself";
+        }
+
+        let transactionsize = buy.amount;
+        if (size) {
+            transactionsize = Math.min(buy.amount, size);
+        }
+        const transactioncost = transactionsize * buy.price;
+
+        const good = await buy.getGood();
+
+        if (buyplayer.cash < transactioncost) {
+            return "Buyer doesn't have enough cash";
+        }
+
+        if (!Storage.Has(sellactor, good, transactionsize)) {
+            return "Not enough resources";
+        }
+
+        buy.amount -= transactionsize;
+
+        const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
+        await buyplayer.payCash(sellerplayer, transactioncost - taxcost);
+        await buyplayer.payCashToState(taxcost);
+        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
+
+        PlayerService.SendOffline(sellerplayer.id,
+            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyplayer.username}, tax: ${taxcost}`);
+        PlayerService.SendOffline(buyplayer.id,
+            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username}. tax: ${taxcost}`);
+
+        EventsList.onTrade.emit({
+            Type: TradeEventType.ToPlayer,
+            Actor: sellactor,
+            Good: good,
+            Amount: transactionsize,
+            Price: buy.price,
+        });
+        EventsList.onTrade.emit({
+            Type: TradeEventType.FromPlayer,
+            Actor: buyactor,
+            Good: good,
+            Amount: transactionsize,
+            Price: buy.price,
+        });
+
+
+        if (buy.amount === 0) {
+            BuyOffer.Delete(buy.id);
+        }
+        else {
+            BuyOffer.Update(buy);
+        }
+    }
+
     public static async AddBuyOffer(actor: MarketActor, good: Good, amount: number, price: number)
     {
         return await BuyOffer.Create(good, amount, price, actor);
@@ -278,6 +397,42 @@ export class MarketService
     public static async AddSellOffer(actor: MarketActor, good: Good, amount: number, price: number)
     {
         return await SellOffer.Create(good, amount, price, actor);
+    }
+
+    public static async CountDemand(good: Good)
+    {
+        let demand = 0;
+        const offers = await BuyOffer.GetWithGoodOrdered(good);
+
+        for (const entry of offers) {
+            demand += entry.amount;
+        }
+
+        const consumptions = await Consumption.GetWithGood(good);
+
+        for (const entry of consumptions) {
+            demand += entry.amount;
+        }
+
+        return demand;
+    }
+
+    public static async CountSupply(good: Good)
+    {
+        let supply = 0;
+        const offers = await SellOffer.GetWithGoodOrdered(good);
+
+        for (const entry of offers) {
+            supply += entry.amount;
+        }
+
+        const productions = await Production.GetWithGood(good);
+
+        for (const entry of productions) {
+            supply += entry.amount;
+        }
+
+        return supply;
     }
 
 

@@ -1,0 +1,105 @@
+<h2>Рынок: {{good.name}}</h2>
+<b>Спрос: {{demand}}. Предложение: {{supply}}. На складе: {{storage}}</b>
+
+<table class="table">
+    <thead>
+        <th>Автор</th>
+        <th>Покупка</th>
+        <th>Количество</th>
+        <th>Продажа</th>
+        <th>Действия</th>
+    </thead>
+
+    {{#each consumptions}}
+    <tr class="red">
+        <td>{{this.player.username}}</td>
+        <td></td>
+        <td>{{this.amount}}</td>
+        <td>{{this.price}}</td>
+        <td>        </td>
+    </tr>
+    {{/each}}
+
+    {{#each selloffers}}
+    <tr class="red">
+        <td>{{this.player.username}}</td>
+        <td></td>
+        <td>{{this.amount}}</td>
+        <td>{{this.price}}</td>
+        <td>
+            {{!<a href="#" class="btn btn-success">Купить</button>}}
+            {{#if (notequal this.player.username @root.player.username)}}
+            <a href="/market/{{@root.good.id}}/redeemsell/{{this.id}}" class="btn btn-success">Купить все</button>
+            {{/if}}
+        </td>
+    </tr>
+    {{/each}}
+
+    {{#each buyoffers}}
+    <tr class="green">
+        <td>{{this.player.username}}</td>
+        <td>{{this.price}}</td>
+        <td>{{this.amount}}</td>
+        <td></td>
+        <td>
+            {{!<a href="#" class="btn btn-danger">Продать</button>}}
+            {{#if (notequal this.player.username @root.player.username)}}
+            <a href="/market/{{@root.good.id}}/redeembuy/{{this.id}}" class="btn btn-danger">Продать все</button>
+            {{/if}}
+        </td>
+    </tr>
+    {{/each}}
+
+    {{#each productions}}
+    <tr class="green">
+        <td>{{this.player.username}}</td>
+        <td></td>
+        <td>{{this.amount}}</td>
+        <td>{{this.price}}</td>
+        <td></td>
+    </tr>
+    {{/each}}
+</table>
+
+<div class="row">
+    <div class="col-12 col-lg-6">
+        <h3>Купить</h3>
+        <form action="/market/{{good.id}}/buy" method="POST" enctype="application/x-www-form-urlencoded">
+            <div class="form-group">
+                <label for="price">Цена</label>
+                <input name="price" type="text" class="form-control" id="price" placeholder="0" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Количество</label>
+                <input name="amount" type="text" class="form-control" id="amount" placeholder="0" required>
+            </div>
+            <button type="submit" class="btn btn-success">Добавить</button>
+        </form>
+    </div>
+    <div class="col-12 col-lg-6">
+        <h3>Продать</h3>
+        <form action="/market/{{good.id}}/sell" method="POST" enctype="application/x-www-form-urlencoded">
+            <div class="form-group">
+                <label for="price">Цена</label>
+                <input name="price" type="text" class="form-control" id="price" placeholder="0" required>
+            </div>
+            <div class="form-group">
+                <label for="amount">Количество</label>
+                <input name="amount" type="text" class="form-control" id="amount" placeholder="0" required>
+            </div>
+            <button type="submit" class="btn btn-success">Добавить</button>
+        </form>
+    </div>
+</div>
+
+{{!
+ <div id="myOverlay" class="overlay">
+  <span class="closebtn" onclick="closeSearch()" title="Close Overlay">x</span>
+  <div class="overlay-content">
+    <form action="action_page.php">
+      <input type="text" placeholder="Search.." name="search">
+      <button type="submit"><i class="fa fa-search"></i></button>
+    </form>
+  </div>
+</div>
+}}
