@@ -7,6 +7,8 @@ import { RGO } from "entity/RGO";
 import { RGOManagementService } from "services/RGOManagementService";
 import { RGOState } from "./RGOState";
 import { RGOType } from "entity/RGOType";
+import { Config } from "config";
+import { Good } from "entity/Good";
 
 export class RGOsState extends State
 {
@@ -169,13 +171,27 @@ export class RGOsState extends State
 
             this.Client.writeList<RGOType>(types,
                 (x) => x.id,
-                async (x) => `${x.name}. Makes ${(await x.getGood()).name}, takes ${1/x.efficiency} workers. ` +
-                `Max: ${x.maxAmount}. Already built: ${await RGOManagementService.CountOfType(x.id)}`);
+                async (x) => `${x.name}. Makes ${(await x.getGood()).name}, takes ${1 / x.efficiency} workers. ` +
+                `Max in world: ${x.maxAmount}. Already in world: ${await RGOManagementService.CountOfType(x.id)}. ` +
+                `Resources to build: ${await this.formResourcesString(x)}`,
+                "All types of RGO you can build");
 
             return true;
         }
 
         return false;
+    }
+
+    private async formResourcesString(x: RGOType) {
+        let res = "";
+        const costs = Config.RGOCostsDictionary.get(x.id);
+
+        for (const req of costs) {
+            const good = await Good.GetById(req.goodId);
+            res += `${req.Amount} ${good.name}`;
+        }
+
+        return res;
     }
 
     public async OnInfo(message: string): Promise<boolean>

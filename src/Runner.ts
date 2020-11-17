@@ -35,7 +35,7 @@ export class Runner
         await PriceRecordWatcher.Init();
         await TransactionWatcher.Init();
 
-        //require("web/main");
+        require("api/web/main");
         require("api/telegram/TelegramApi");
     }
 

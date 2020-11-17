@@ -113,7 +113,7 @@ export class MainState extends State
             const storages = await Storage.GetWithActor(actor);
 
             this.Client.writeList<Storage>(storages,
-                async (x) => (await x.getGood()).name + ` (${x.id})`,
+                async (x) => (await x.getGood()).id + " " + (await x.getGood()).name,
                 (x) => x.amount + "",
                 "Your storage");
 
