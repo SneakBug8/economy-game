@@ -120,7 +120,6 @@ export class WebAPI
 
     public static render(req: IMyRequest, res: express.Response, template: string, data?: object)
     {
-        req.client.errorToShow = null;
         req.client.lastSuccessfulUrl = req.url;
 
         res.render(template, {
@@ -129,6 +128,8 @@ export class WebAPI
             ...data,
             error: req.client.errorToShow,
         });
+
+        req.client.errorToShow = null;
     }
 
     public static renderLast(req: IMyRequest, res: express.Response)
