@@ -1,0 +1,33 @@
+<h2>Очередь производства {{factoryId}}</h2>
+<table class="table">
+    <thead>
+    <th>Очередь</th>
+    <th>ID рецепта</th>
+    <th>Повторов</th>
+    <th>Действия</th>
+    </thead>
+{{#each data}}
+    <tr>
+<td>{{this.order}}</td>
+<td>{{this.RecipeId}}</td>
+<td>{{this.Amount}}</td>
+<td>
+  <a href="/factory/{{@root.factoryId}}/queue/delete/{{this.order}}" class="btn btn-danger">Удалить</a>
+</td>
+    </tr>
+
+{{/each}}
+
+</table>
+<h3>Добавить в очередь</h3>
+<form action="/factory/{{@root.factoryId}}/queue/add" method="POST" enctype="application/x-www-form-urlencoded">
+    <div class="form-group">
+        <label for="recipeId">ID рецепта</label>
+        <input name="recipeId" type="text" class="form-control" id="recipeId" placeholder="ID рецепта" required>
+    </div>
+    <div class="form-group">
+        <label for="amount">Повторов</label>
+        <input name="amount" type="text" class="form-control" id="amount" placeholder="Повторов" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Добавить</button>
+</form>

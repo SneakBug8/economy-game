@@ -14,6 +14,7 @@ import { Player } from "entity/Player";
 import { Storage } from "entity/Storage";
 import { Factory } from "entity/Factory";
 import { RGO } from "entity/RGO";
+import { ProductionQueue } from "entity/ProductionQueue";
 
 export class WebAPI
 {
@@ -30,9 +31,9 @@ export class WebAPI
 
         app.get("/register", this.onRegister);
         app.post("/register", [
-            body("login", "Empty login").trim().isLength({ min: 1 }).escape(),
-            body("password", "Empty password").trim().isLength({ min: 1 }).escape(),
-            body("passwordconfirm", "Empty passwordconfirmation").trim().isLength({ min: 1 }).escape(),
+            body("login", "Empty login").trim().isLength({ min: 4 }).escape(),
+            body("password", "Empty password").trim().isLength({ min: 6 }).escape(),
+            body("passwordconfirm", "Empty passwordconfirmation").trim().isLength({ min: 6 }).escape(),
             body("passwordconfirm", "Pasword confirm must be same as password").custom((value, { req }) => req.body && req.body.password === value),
         ], this.registerAction);
 
@@ -64,13 +65,20 @@ export class WebAPI
         app.post("/rgo/:id([0-9]+)/workers", [
             body("workers").isNumeric(),
         ], this.rgoWorkersAction);
+
+        app.get("/factory/:id([0-9]+)/queue", this.onFactoryProductionQueue);
+        app.get("/factory/:id([0-9]+)/queue/delete/:order([0-9]+)", this.onFactoryProductionQueueDelete);
+        app.post("/factory/:id([0-9]+)/queue/add", [
+            body("recipeId").isNumeric(),
+            body("amount").isNumeric(),
+        ], this.onFactoryProductionQueueAdd);
+
         app.get("/storage", this.onStorage);
         app.get("/market", this.onMarket);
 
         app.get("/logout", this.onLogout);
 
         app.use(this.on404);
-
     }
 
     public static LoadPlayerData(req: IMyRequest, res: express.Response, next: () => void)
@@ -99,13 +107,28 @@ export class WebAPI
         next();
     }
 
-    public static async render(req: IMyRequest, res: express.Response, template: string, data?: object)
+    public static render(req: IMyRequest, res: express.Response, template: string, data?: object)
     {
         res.render(template, {
             ...res.locals,
             layout: WebAPI.getInfopagesLayout(req),
             ...data,
+            error: req.client.errorToShow,
         });
+
+        req.client.errorToShow = null;
+        req.client.lastSuccessfulUrl = req.url;
+    }
+
+    public static renderLast(req: IMyRequest, res: express.Response)
+    {
+        res.redirect(req.client.lastSuccessfulUrl);
+    }
+
+    public static error(req: IMyRequest, res: express.Response, msg: string)
+    {
+        req.client.errorToShow = msg;
+        res.redirect(req.client.lastSuccessfulUrl);
     }
 
     public static RedirectUnlogined(req: IMyRequest, res: express.Response, next: () => void)
@@ -218,7 +241,7 @@ export class WebAPI
         const data = [];
         for (const x of storages) {
             data.push({
-                name: (await x.getGood()).id + " " + (await x.getGood()).name,
+                name: (await x.getGood()).name + "(" + (await x.getGood()).id + ")",
                 amount: x.amount,
             });
         }
@@ -227,7 +250,8 @@ export class WebAPI
             data,
         });
     }
-    public static async onFactories(req: IMyRequest, res: express.Response) {
+    public static async onFactories(req: IMyRequest, res: express.Response)
+    {
         const factories = await Player.GetFactoriesById(req.client.playerId);
 
         const data = [];
@@ -241,7 +265,7 @@ export class WebAPI
             });
         }
 
-        WebAPI.render(req, res, "factories", {data});
+        WebAPI.render(req, res, "factories", { data });
     }
 
     public static async factoryWorkersAction(req: IMyRequest, res: express.Response)
@@ -249,9 +273,7 @@ export class WebAPI
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebAPI.render(req, res, "factories", {
-                error: errors.array()[0].msg,
-            });
+            WebAPI.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -260,9 +282,7 @@ export class WebAPI
 
         const factory = await Factory.GetById(factoryid);
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
-            WebAPI.render(req, res, "factories", {
-                error: "That's not your factory",
-            });
+            WebAPI.error(req, res, "That's not your factory");
             return;
         }
 
@@ -278,9 +298,7 @@ export class WebAPI
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebAPI.render(req, res, "factories", {
-                error: errors.array()[0].msg,
-            });
+            WebAPI.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -289,9 +307,7 @@ export class WebAPI
 
         const factory = await Factory.GetById(factoryid);
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
-            WebAPI.render(req, res, "factories", {
-                error: "That's not your factory",
-            });
+            WebAPI.error(req, res, "That's not your factory");
             return;
         }
 
@@ -302,7 +318,111 @@ export class WebAPI
         res.redirect("/factories");
     }
 
-    public static async onRGOs(req: IMyRequest, res: express.Response) {
+    public static async onFactoryProductionQueue(req: IMyRequest, res: express.Response)
+    {
+        const id = Number.parseInt(req.params.id, 10);
+        const factory = await Factory.GetById(id);
+
+        if (!factory || factory.getOwnerId() !== req.client.playerId) {
+            WebAPI.render(req, res, "factories", {
+                error: "That's not your factory",
+            });
+            return;
+        }
+
+        const dbo = await ProductionQueue.GetWithFactory(factory);
+
+        if (!dbo) {
+            await ProductionQueue.Create(factory, []);
+            return;
+        }
+
+        const queue = dbo.Queue;
+
+        const data = [];
+        for (const x of queue) {
+            data.push({
+                order: x.Order,
+                RecipeId: x.RecipeId,
+                Amount: x.Amount,
+            });
+        }
+
+        WebAPI.render(req, res, "queue", { data, factoryId: id });
+    }
+
+    public static async onFactoryProductionQueueDelete(req: IMyRequest, res: express.Response)
+    {
+        const id = Number.parseInt(req.params.id, 10);
+        const factory = await Factory.GetById(id);
+        const orderid = Number.parseInt(req.params.order, 10);
+
+        if (!orderid) {
+            WebAPI.error(req, res, "Wrong order id");
+            return true;
+        }
+
+        if (!factory || factory.getOwnerId() !== req.client.playerId) {
+            WebAPI.error(req, res, "That's not your factory");
+            return true;
+        }
+
+        const dbo = await ProductionQueue.GetWithFactory(factory);
+
+        if (!dbo) {
+            await ProductionQueue.Create(factory, []);
+            return;
+        }
+
+        dbo.Queue = dbo.Queue.filter((x) => x.Order !== orderid);
+
+        await ProductionQueue.Update(dbo);
+
+        WebAPI.renderLast(req, res);
+    }
+
+    public static async onFactoryProductionQueueAdd(req: IMyRequest, res: express.Response)
+    {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            WebAPI.error(req, res, errors.array()[0].msg);
+            return;
+        }
+
+        const id = Number.parseInt(req.params.id, 10);
+        const factory = await Factory.GetById(id);
+        const recipeId = req.body.recipeId;
+        const amount = req.body.amount;
+
+        if (!factory || factory.getOwnerId() !== req.client.playerId) {
+            WebAPI.error(req, res, "That's not your factory");
+            return true;
+        }
+
+        const recipe = RecipesService.GetById(recipeId);
+        if (!recipe) {
+            WebAPI.error(req, res, "No such recipe");
+            return true;
+        }
+
+        const dbo = await ProductionQueue.GetWithFactory(factory);
+
+        if (!dbo) {
+            await ProductionQueue.Create(factory, []);
+            return;
+        }
+
+        await ProductionQueue.AddWithFactory(factory, {
+            RecipeId: recipeId,
+            Amount: amount,
+        });
+
+        WebAPI.renderLast(req, res);
+    }
+
+    public static async onRGOs(req: IMyRequest, res: express.Response)
+    {
         const rgos = await Player.GetRGOsById(req.client.playerId);
 
         const data = [];
@@ -316,7 +436,7 @@ export class WebAPI
             });
         }
 
-        WebAPI.render(req, res, "rgos", {data});
+        WebAPI.render(req, res, "rgos", { data });
     }
 
     public static async rgoWorkersAction(req: IMyRequest, res: express.Response)
@@ -389,21 +509,21 @@ export class WebAPI
 
             if (lastrecord && lastrecord.tradeamount) {
                 data.push({
-                    name: good.name,
+                    name: good.name + `(${good.id})`,
                     prices: `${lastrecord.minprice}-${lastrecord.maxprice}`,
                     amount: lastrecord.tradeamount,
                 });
             }
             else if (lastrecord) {
                 data.push({
-                    name: good.name,
+                    name: good.name + `(${good.id})`,
                     prices: "",
                     amount: lastrecord.tradeamount,
                 });
             }
             else {
                 data.push({
-                    name: good.name,
+                    name: good.name + `(${good.id})`,
                     prices: "",
                     amount: 0,
                 });

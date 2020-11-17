@@ -12,6 +12,9 @@ export class WebClient
 
     public isAdmin: boolean;
 
+    public lastSuccessfulUrl = "/";
+    public errorToShow: string = null;
+
     public async attach(playerid: number) {
         this.playerId = playerid;
         await this.LoadActorId();

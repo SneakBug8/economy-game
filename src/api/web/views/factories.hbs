@@ -9,8 +9,8 @@
         <div class="btn-group" role="group">
             <a href="javascript:workersButton();" class="btn btn-primary">Изменить число сотрудников</a>
             <a href="javascript:salaryButton();" class="btn btn-primary">Изменить зарплату</a>
-            <a href="#" class="btn btn-primary">Изменить очередь производства</a>
-            <a href="#" class="btn btn-danger">Удалить фабрику</a>
+            <a href="/factory/{{this.id}}/queue" class="btn btn-primary">Изменить очередь производства</a>
+            {{! <a href="#" class="btn btn-danger">Удалить фабрику</a> }}
         </div>
 
         <div id="workerspanel" class="d-none">
