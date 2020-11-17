@@ -4,6 +4,8 @@ import { TurnsService } from "./TurnsService";
 import { Log } from "entity/Log";
 import { PlayerService } from "./PlayerService";
 import {Config} from "config";
+import { Good } from "entity/Good";
+import {Storage} from "entity/Storage";
 
 export class FactoryManagementService
 {
@@ -56,5 +58,43 @@ export class FactoryManagementService
     public static Lerp(start: number, end: number, percent: number)
     {
         return (start + percent * (end - start));
+    }
+
+    public static async ConstructNew(playerid: number) {
+
+        const costs = Config.NewFactoryCosts;
+        const player = await Player.GetById(playerid);
+        const actor = await player.getActor();
+
+        if (!costs) {
+            return "Can't build factories";
+        }
+
+        const factoriescount = (await player.getFactories()).length;
+
+        if (factoriescount >= Config.MaxFactoriesPerPlayer) {
+            return "You can't build more factories";
+        }
+
+        for (const costentry of costs) {
+            const good = await Good.GetById(costentry.goodId);
+
+            if (!good) {
+                return "Wrong Factory construction recipe. Contact the admins.";
+            }
+
+            if (!await Storage.Has(actor, good, costentry.Amount)) {
+                return "Not enough resources";
+            }
+        }
+
+        for (const costentry of costs) {
+            const good = await Good.GetById(costentry.goodId);
+
+            await Storage.TakeGoodFrom(actor, good, costentry.Amount);
+        }
+
+        const factory = await Factory.Create(player, 0, 0);
+        return factory;
     }
 }
