@@ -35,6 +35,7 @@ export class WebClientRouter
 
         router.use((req, res, next) => this.LoadPlayerData(req, res, next));
         router.use(this.FillPlayercardData);
+        router.use(this.LoadBackLink);
 
         router.get("/", this.onHome);
 
@@ -62,7 +63,6 @@ export class WebClientRouter
         router.get("/leaderboard/factoryworkers", this.onLeaderboardFactoryWorkers);
         router.get("/leaderboard/rgoworkers", this.onLeaderboardRGOWorkers);
 
-
         router.use(this.RedirectUnlogined);
 
         router.get("/factories", this.onFactories);
@@ -74,7 +74,7 @@ export class WebClientRouter
         ], this.factoryWorkersAction);
         router.get("/factory/:id([0-9]+)/upgrade", this.onFactoryUpgrade);
         router.get("/factory/:id([0-9]+)/delete", this.factoryDeleteAction);
-        router.get("/factory/:id([0-9]+)/queue", this.onFactoryProductionQueue);
+        router.get("/factory/:id([0-9]+)/queue", [this.LoadRecipes], this.onFactoryProductionQueue);
         router.get("/factory/:id([0-9]+)/queue/delete/:order([0-9]+)", this.onFactoryProductionQueueDelete);
         router.post("/factory/:id([0-9]+)/queue/add", [
             body("recipeId").isNumeric(),
@@ -82,7 +82,7 @@ export class WebClientRouter
         ], this.onFactoryProductionQueueAdd);
         router.get("/factory/build", this.factoryBuildAction);
 
-        router.get("/rgos", this.onRGOs);
+        router.get("/rgos", [this.LoadRGOTypes], this.onRGOs);
         router.get("/rgo/:id([0-9]+)/delete", this.rgoDeleteAction);
         router.get("/rgo/:id([0-9]+)/upgrade", this.onRGOUpgrade);
         router.post("/rgo/:id([0-9]+)/salary", [
@@ -149,11 +149,42 @@ export class WebClientRouter
         next();
     }
 
+    public static LoadBackLink(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        if (req.url === req.client.getUrl()) {
+            res.locals.backurl = req.client.popUrl();
+        }
+        else {
+            res.locals.backurl = req.client.getUrl();
+        }
+        next();
+    }
+
+    public static LoadRecipes(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        const recipes = RecipesService.All;
+        res.locals.recipes = recipes;
+        next();
+    }
+
+    public static async LoadRGOTypes(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        const rgotypes = await RGOType.All();
+        res.locals.rgotypes = rgotypes;
+        next();
+    }
+
+    public static async LoadGoods(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        const goods = await Good.All();
+        res.locals.goods = goods;
+        next();
+    }
+
     public static render(req: IMyRequest, res: express.Response, template: string, data?: object, remember: boolean = true)
     {
         if (remember) {
-            req.client.lastSuccessfulUrl = req.url;
-            Logger.info("lastSuccessfulUrl: " + req.url);
+            req.client.appendUrl(req.url)
         }
 
         res.render(template, {
@@ -168,8 +199,8 @@ export class WebClientRouter
 
     public static renderLast(req: IMyRequest, res: express.Response)
     {
-        if (req.client.lastSuccessfulUrl) {
-            res.redirect(req.client.lastSuccessfulUrl);
+        if (req.client.getUrl()) {
+            res.redirect(req.client.popUrl());
         }
         else {
             res.redirect("/");
@@ -179,7 +210,7 @@ export class WebClientRouter
     public static error(req: IMyRequest, res: express.Response, msg: string)
     {
         req.client.errorToShow = msg;
-        res.redirect(req.client.lastSuccessfulUrl);
+        res.redirect(req.client.popUrl());
     }
 
     public static RedirectUnlogined(req: IMyRequest, res: express.Response, next: () => void)
@@ -232,7 +263,7 @@ export class WebClientRouter
 
     public static onRegister(req: IMyRequest, res: express.Response)
     {
-        WebClientRouter.render(req, res, "register");
+        WebClientRouter.render(req, res, "register", {}, false);
     }
 
     public static async registerAction(req: IMyRequest, res: express.Response)
@@ -257,7 +288,7 @@ export class WebClientRouter
 
     public static onLogin(req: IMyRequest, res: express.Response)
     {
-        WebClientRouter.render(req, res, "login");
+        WebClientRouter.render(req, res, "login", {}, false);
     }
 
     public static async loginAction(req: IMyRequest, res: express.Response)

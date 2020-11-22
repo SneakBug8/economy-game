@@ -13,13 +13,9 @@
     display: table;
   }
 
-html {
-    font-size: 85%;
-}
-
 @media screen and (min-width: 783px) {
     html {
-        font-size: 100%;
+        font-size: 110%;
     }
 }
 
@@ -33,13 +29,6 @@ body {
     line-height: 1.7;
     word-wrap: break-word;
 }
-
-@media screen and (min-width: 783px) {
-    body {
-        font-size: 14pt;
-    }
-}
-
 
 /* Heading */
 
@@ -581,4 +570,24 @@ footer {
     height: auto;
     margin-top: 5em;
     float: right;
+}
+
+.selector {
+    display: block;
+    margin: 1em 0;
+}
+
+.selector li {
+    display: inline-block;
+    border: 3px solid black;
+    margin: 0 1em;
+    padding: 0.5em;
+}
+
+.selector li:first-child {
+    margin-left: 0;
+}
+
+.selector li.selected {
+    background-color: #a3a3a3;
 }

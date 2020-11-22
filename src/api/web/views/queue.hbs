@@ -21,11 +21,12 @@
 </table>
 <h3>Добавить в очередь</h3>
 <form action="/factory/{{@root.factoryId}}/queue/add" method="POST" enctype="application/x-www-form-urlencoded">
-    <div class="form-group">
+    <div class="form-group clearfix">
         <label for="recipeId">ID рецепта</label>
-        <input name="recipeId" type="text" class="form-control" id="recipeId" placeholder="ID рецепта" required>
+        <input disabled name="recipeId" type="text" class="form-control" id="recipeId" placeholder="ID рецепта" required>
     </div>
-    <div class="form-group">
+    {{> recipeselector}}
+    <div class="form-group clearfix">
         <label for="amount">Повторов</label>
         <input name="amount" type="text" class="form-control" id="amount" placeholder="Повторов" required>
     </div>

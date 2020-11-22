@@ -17,7 +17,7 @@ import { RGOManagementService } from "services/RGOManagementService";
 import { sleep } from "utility/sleep";
 import { PriceRecordWatcher } from "watchers/PriceRecordWatcher";
 import { TransactionWatcher } from "watchers/TransactionWatcher";
-import { LeaderboardService } from "services/LeaderboardService";
+import { PlayerProfitPerGoodWatcher } from "watchers/PlayerProfitPerGoodWatcher";
 
 export class Runner
 {
@@ -35,6 +35,7 @@ export class Runner
         await GDPWatcher.Init();
         await PriceRecordWatcher.Init();
         await TransactionWatcher.Init();
+        await PlayerProfitPerGoodWatcher.Init();
 
         require("api/web/main");
         require("api/telegram/TelegramApi");

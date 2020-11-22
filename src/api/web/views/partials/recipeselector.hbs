@@ -1,0 +1,23 @@
+<script>
+    $(document).ready(function () {
+        var id = null;
+        $("#recipeselector li").each(function (i, elem) {
+            $(elem).click(onClick);
+        })
+
+        function onClick() {
+            id = $(this).attr("id");
+            $("#recipeId").val(id);
+            console.log($(this));
+            $("#recipeselector li").each(function (i, elem) {
+                $(elem).removeClass("selected");
+            });
+            $(this).addClass("selected");
+        }
+    });
+</script>
+<ul class="selector" id="recipeselector">
+    {{#each recipes}}
+    <li id="{{this.id}}">{{this.name}}</li>
+    {{/each}}
+</ul>

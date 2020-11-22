@@ -42,7 +42,9 @@
 <form action="/rgo/build" method="POST" enctype="application/x-www-form-urlencoded">
     <div class="form-group clearfix">
         <label for="typeId">ID типа</label>
-        <input name="typeId" type="text" class="form-control" id="typeId" placeholder="ID типа" required>
+        <input name="typeId" disabled type="text" class="form-control" id="typeId" placeholder="ID типа" required>
     </div>
+    {{> rgoselector}}
+
     <button type="submit" class="btn btn-success">Построить</button>
 </form>

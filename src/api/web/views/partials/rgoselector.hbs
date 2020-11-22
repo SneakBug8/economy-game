@@ -1,0 +1,23 @@
+<script>
+    $(document).ready(function () {
+        var id = null;
+        $("#rgoselector li").each(function (i, elem) {
+            $(elem).click(onClick);
+        })
+
+        function onClick() {
+            id = $(this).attr("id");
+            $("#typeId").val(id);
+            console.log($(this));
+            $("#rgoselector li").each(function (i, elem) {
+                $(elem).removeClass("selected");
+            });
+            $(this).addClass("selected");
+        }
+    });
+</script>
+<ul class="selector" id="rgoselector">
+    {{#each rgotypes}}
+    <li id="{{this.id}}">{{this.name}}</li>
+    {{/each}}
+</ul>

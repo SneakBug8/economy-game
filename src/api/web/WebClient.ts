@@ -12,8 +12,24 @@ export class WebClient
 
     public isAdmin: boolean;
 
-    public lastSuccessfulUrl = "/";
+    private lastSuccessfulUrl = "/";
+    private backUrls: string[] = [];
     public errorToShow: string = null;
+
+    public getUrl() {
+        return this.lastSuccessfulUrl;
+    }
+    // Allows to traverse requests history with "Back" link
+    public popUrl() {
+        const res = this.lastSuccessfulUrl;
+        this.lastSuccessfulUrl = this.backUrls.pop();
+        return res;
+    }
+
+    public appendUrl(url: string) {
+        this.lastSuccessfulUrl = url;
+        this.backUrls.push(url);
+    }
 
     public async attach(playerid: number) {
         this.playerId = playerid;
