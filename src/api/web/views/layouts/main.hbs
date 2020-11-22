@@ -7,16 +7,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{title}}</title>
   <!-- Bootstrap -->
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"> -->
     <link rel="stylesheet" href="/css/style.css">
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    <link rel="stylesheet" href="/css/bootstrap-grid.min.css">
+  {{!<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-    crossorigin="anonymous"></script>
+    crossorigin="anonymous"></script>}}
+    {{!<!-- production version, optimized for size and speed -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2"></script>}}
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  {{!<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="/">Economy</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
       aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,16 +37,14 @@
         </li>
       </ul>
     </div>
-  </nav>
-  <section>
-    <div class="container">
+  </nav>}}
+  <main class="container">
       <div class="row">
-        <div class="col-12 col-lg-4">
+        <div class="col-12 col-lg-4 sidebar">
           {{> playercard}}
-          <hr>
           {{> gamemenu}}
         </div>
-        <article class="col-12 col-lg-8">
+        <article class="col-12 col-lg-8 mainbox">
           {{#if error}}
         <div class="alert alert-danger" role="alert">
           {{error}}
@@ -58,21 +60,14 @@
           {{info}}
         </div>
         {{/if}}
-          <h1>{{title}}</h1>
           {{{body}}}
+          <img class="voc clearfix" src="/images/voc.gif">
         </article>
       </div>
-    </div>
-  </section>
-  <hr>
-  <footer class="text-center">
-    <div class="container">
-      <div class="row">
-        <div class="col-12">
+  <footer class="row text-center">
+    <div class="col-12">
           <p>Made with ❤ by <a href="https://sneakbug8.com">Nakonechnyy Paul</a></p>
-        </div>
-      </div>
-    </div>
+          </div>
   </footer>
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="/js/jquery-3.2.1.min.js"></script>

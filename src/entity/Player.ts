@@ -283,9 +283,7 @@ export class Player
         return true;
     }
 
-    public static async All(): Promise<Player[]>
-    {
-        const data = await PlayerRepository().select();
+    public static async UseQuery(data: Player[]) {
         const res = new Array<Player>();
 
         if (data) {
@@ -297,6 +295,12 @@ export class Player
         }
 
         return [];
+    }
+
+    public static async All(): Promise<Player[]>
+    {
+        const data = await PlayerRepository().select();
+        return this.UseQuery(data);
     }
 
     public static async HasCash(id: number, amount: number): Promise<boolean>

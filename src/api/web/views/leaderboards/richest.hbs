@@ -1,0 +1,17 @@
+<h2>Богатейшие игроки</h2>
+<table class="table">
+    <thead>
+        <th>№</th>
+        <th>Игрок</th>
+        <th>Состояние</th>
+    </thead>
+    {{#each data}}
+    <tr>
+        <td>{{this.order}}</td>
+        <td>{{this.username}}</td>
+        <td>{{this.cash}}</td>
+    </tr>
+
+    {{/each}}
+
+</table>

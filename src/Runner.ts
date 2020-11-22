@@ -17,6 +17,7 @@ import { RGOManagementService } from "services/RGOManagementService";
 import { sleep } from "utility/sleep";
 import { PriceRecordWatcher } from "watchers/PriceRecordWatcher";
 import { TransactionWatcher } from "watchers/TransactionWatcher";
+import { LeaderboardService } from "services/LeaderboardService";
 
 export class Runner
 {

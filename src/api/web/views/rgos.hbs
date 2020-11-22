@@ -1,4 +1,4 @@
-<h2>Вашы добывающие предприятия</h2>
+<h2>Ваши добывающие предприятия</h2>
 <script src="/js/factories.js"></script>
 {{#each data}}
 <div class="card">
@@ -16,7 +16,7 @@
 
         <div id="workerspanel-{{this.id}}" class="d-none">
             <form action="/rgo/{{this.id}}/workers" method="POST" enctype="application/x-www-form-urlencoded">
-                <div class="form-group">
+                <div class="form-group clearfix">
                     <label for="workers">Рабочих</label>
                     <input name="workers" type="text" class="form-control" id="workers" placeholder="Рабочих..."
                         value="{{this.targetEmployees}}" required>
@@ -26,7 +26,7 @@
         </div>
         <div id="salarypanel-{{this.id}}" class="d-none">
             <form action="/rgo/{{this.id}}/salary" method="POST" enctype="application/x-www-form-urlencoded">
-                <div class="form-group">
+                <div class="form-group clearfix">
                     <label for="salary">Зарплата</label>
                     <input name="salary" type="text" class="form-control" id="salary" placeholder="Зарплата..."
                         value="{{this.salary}}" required>
@@ -40,7 +40,7 @@
 
 <h3>Построить новое</h3>
 <form action="/rgo/build" method="POST" enctype="application/x-www-form-urlencoded">
-    <div class="form-group">
+    <div class="form-group clearfix">
         <label for="typeId">ID типа</label>
         <input name="typeId" type="text" class="form-control" id="typeId" placeholder="ID типа" required>
     </div>

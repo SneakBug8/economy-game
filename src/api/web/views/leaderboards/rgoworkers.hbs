@@ -1,0 +1,16 @@
+<h2>Больше всего рабочих на добыче</h2>
+<table class="table">
+    <thead>
+        <th>№</th>
+        <th>Игрок</th>
+        <th>Рабочих</th>
+    </thead>
+    {{#each data}}
+    <tr>
+        <td>{{this.order}}</td>
+        <td>{{this.player.username}}</td>
+        <td>{{this.workers}}</td>
+    </tr>
+    {{/each}}
+
+</table>

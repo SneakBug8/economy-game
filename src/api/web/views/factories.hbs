@@ -17,7 +17,7 @@
 
         <div id="workerspanel-{{this.id}}" class="d-none">
             <form action="/factory/{{this.id}}/workers" method="POST" enctype="application/x-www-form-urlencoded">
-                <div class="form-group">
+                <div class="form-group clearfix">
                     <label for="workers">Рабочих</label>
                     <input name="workers" type="text" class="form-control" id="workers" placeholder="Рабочих..."
                         value="{{this.targetEmployees}}" required>
@@ -27,7 +27,7 @@
         </div>
         <div id="salarypanel-{{this.id}}" class="d-none">
             <form action="/factory/{{this.id}}/salary" method="POST" enctype="application/x-www-form-urlencoded">
-                <div class="form-group">
+                <div class="form-group clearfix">
                     <label for="salary">Зарплата</label>
                     <input name="salary" type="text" class="form-control" id="salary" placeholder="Зарплата..."
                         value="{{this.salary}}" required>
