@@ -7,6 +7,7 @@ import { Runner } from "Runner";
 import { Logger } from "utility/Logger";
 import { PlayerLog } from "entity/PlayerLog";
 import { Turn } from "entity/Turn";
+import { StateActivityService } from "./StateActivityService";
 
 export class PlayerService
 {
@@ -15,7 +16,7 @@ export class PlayerService
         const player = new Player();
 
         player.cash = Config.RegistrationCash;
-        TurnsService.AddFreeCash(-Config.RegistrationCash);
+        StateActivityService.AddCash(-Config.RegistrationCash);
 
         player.username = username;
         player.password = passwd;

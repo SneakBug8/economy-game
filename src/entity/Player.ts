@@ -5,6 +5,7 @@ import { Log } from "./Log";
 import { TurnsService } from "services/TurnsService";
 import { RGO, RGORepository } from "./RGO";
 import { Logger } from "utility/Logger";
+import { StateActivityService } from "services/StateActivityService";
 
 export class Player
 {
@@ -72,7 +73,7 @@ export class Player
         }
 
         await this.ModifyCash(-amount);
-        TurnsService.AddFreeCash(amount);
+        StateActivityService.AddCash(amount);
 
         return true;
     }
@@ -80,7 +81,7 @@ export class Player
     public async takeCashFromState(amount: number): Promise<boolean>
     {
         await this.ModifyCash(amount);
-        TurnsService.AddFreeCash(-amount);
+        StateActivityService.AddCash(-amount);
 
         return true;
     }
@@ -199,6 +200,17 @@ export class Player
     public static async GetWithActor(actor: MarketActor): Promise<Player>
     {
         const data = await PlayerRepository().select().where("actorId", actor.id).first();
+
+        if (data) {
+            return this.From(data);
+        }
+
+        return null;
+    }
+
+    public static async GetWithActorId(actorId: number): Promise<Player>
+    {
+        const data = await PlayerRepository().select().where("actorId", actorId).first();
 
         if (data) {
             return this.From(data);

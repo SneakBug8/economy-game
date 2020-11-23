@@ -6,7 +6,6 @@ export class Turn
     public datetime: string;
     public totalcash: number = 0;
     public cashperplayer: number = 0;
-    public freecash: number = 0;
     public totalworkers: number = 0;
 
     public static async From(dbobject: any)
@@ -16,15 +15,9 @@ export class Turn
         res.datetime = dbobject.datetime;
         res.totalcash = dbobject.totalcash;
         res.cashperplayer = dbobject.cashperplayer;
-        res.freecash = dbobject.freecash;
         res.totalworkers = dbobject.totalworkers;
 
         return res;
-    }
-
-    public AddFreeCash(amount: number)
-    {
-        this.freecash += amount;
     }
 
     public static async GetById(id: number): Promise<Turn>
@@ -51,7 +44,6 @@ export class Turn
             datetime: turn.datetime,
             totalcash: turn.totalcash,
             cashperplayer: turn.cashperplayer,
-            freecash: turn.freecash,
             totalworkers: turn.totalworkers,
         });
 
@@ -66,7 +58,6 @@ export class Turn
             datetime: turn.datetime,
             totalcash: turn.totalcash,
             cashperplayer: turn.cashperplayer,
-            freecash: turn.freecash,
             totalworkers: turn.totalworkers,
         });
 

@@ -107,7 +107,7 @@ export class MarketService
                         SellOffer.Update(sell);
                     }
                 }
-
+                /*
                 // Buyers vs production
                 while (buyoffers.length && productions.length) {
                     const buy = buyoffers[0];
@@ -207,6 +207,7 @@ export class MarketService
                         consumptions.shift();
                     }
                 }
+                */
 
             }
 
@@ -349,7 +350,7 @@ export class MarketService
             return "Buyer doesn't have enough cash";
         }
 
-        if (!Storage.Has(sellactor, good, transactionsize)) {
+        if (!Storage.Has(sellactor.id, good.id, transactionsize)) {
             return "Not enough resources";
         }
 
@@ -391,12 +392,12 @@ export class MarketService
 
     public static async AddBuyOffer(actor: MarketActor, good: Good, amount: number, price: number)
     {
-        return await BuyOffer.Create(good, amount, price, actor);
+        return await BuyOffer.Create(good.id, amount, price, actor.id);
     }
 
     public static async AddSellOffer(actor: MarketActor, good: Good, amount: number, price: number)
     {
-        return await SellOffer.Create(good, amount, price, actor);
+        return await SellOffer.Create(good.id, amount, price, actor.id);
     }
 
     public static async CountDemand(good: Good)

@@ -93,7 +93,7 @@ export class RGOManagementService
                 return "Wrong RGO construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(actor, good, costentry.Amount)) {
+            if (!await Storage.Has(actor.id, good.id, costentry.Amount)) {
                 return "Not enough resources";
             }
         }
@@ -137,7 +137,7 @@ export class RGOManagementService
                 return "Wrong RGO construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(actor, good, upgradeamount)) {
+            if (!await Storage.Has(actor.id, good.id, upgradeamount)) {
                 return "Not enough resources";
             }
         }

@@ -12,16 +12,6 @@
         <th>Действия</th>
     </thead>
 
-    {{#each consumptions}}
-    <tr class="red">
-        <td>{{this.player.username}}</td>
-        <td></td>
-        <td>{{this.amount}}</td>
-        <td>{{this.price}}</td>
-        <td>        </td>
-    </tr>
-    {{/each}}
-
     {{#each selloffers}}
     <tr class="red">
         <td>{{this.player.username}}</td>
@@ -47,16 +37,6 @@
             <a href="javascript:onBuyButton('buy', {{this.id}})" class="btn btn-danger">Продать</button>
             {{/if}}
         </td>
-    </tr>
-    {{/each}}
-
-    {{#each productions}}
-    <tr class="green">
-        <td>{{this.player.username}}</td>
-        <td></td>
-        <td>{{this.amount}}</td>
-        <td>{{this.price}}</td>
-        <td></td>
     </tr>
     {{/each}}
 </table>

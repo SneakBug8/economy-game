@@ -17,6 +17,10 @@ export class SellOffer extends MarketOffer
     {
         this.goodId = good.id;
     }
+    public setGoodId(goodId: number)
+    {
+        this.goodId = goodId;
+    }
     public getMarket(): Promise<Market>
     {
         return Market.GetById(this.marketId);
@@ -40,6 +44,10 @@ export class SellOffer extends MarketOffer
     public setActor(actor: MarketActor)
     {
         this.actorId = actor.id;
+    }
+    public setActorId(actorId: number)
+    {
+        this.actorId = actorId;
     }
     public getActorId(): number
     {
@@ -76,22 +84,22 @@ export class SellOffer extends MarketOffer
         return null;
     }
 
-    public static async Create(good: Good, amount: number, price: number, actor: MarketActor)
+    public static async Create(goodId: number, amount: number, price: number, actorId: number)
     {
-        const player = await Player.GetWithActor(actor);
+        const player = await Player.GetWithActorId(actorId);
 
-        if (!await Storage.Has(actor, good, amount)) {
+        if (!await Storage.Has(actorId, goodId, amount)) {
             return "Not enough resources";
         }
 
         const offer = new SellOffer();
         offer.marketId = Market.DefaultMarket.id;
-        offer.setGood(good);
+        offer.setGoodId(goodId);
         offer.amount = amount;
         offer.price = price;
-        offer.setActor(actor);
+        offer.setActorId(actorId);
 
-        await Storage.AddGoodTo(actor.id, good.id, -amount);
+        await Storage.AddGoodTo(actorId, goodId, -amount);
 
         return await this.Insert(offer);
     }

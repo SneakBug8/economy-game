@@ -24,18 +24,17 @@ import { MarketActor } from "entity/MarketActor";
 import { Consumption } from "entity/Consumption";
 import { Production } from "entity/Production";
 import { LeaderboardService } from "services/LeaderboardService";
+import { IMyRequest, WebClientUtil } from "../WebClientUtil";
 
 export class WebClientRouter
 {
-    public static clients = new Array<WebClient>();
-
     public static GetRouter()
     {
         const router = express.Router();
 
-        router.use((req, res, next) => this.LoadPlayerData(req, res, next));
+        router.use(WebClientUtil.LoadPlayerData);
         router.use(this.FillPlayercardData);
-        router.use(this.LoadBackLink);
+        // router.use(this.LoadBackLink);
 
         router.get("/", this.onHome);
 
@@ -58,10 +57,6 @@ export class WebClientRouter
         router.get("/goods", this.onGoods);
         router.get("/recipes", this.onRecipes);
         router.get("/rgotypes", this.onRGOTypes);
-        router.get("/leaderboard", this.onLeaderboard);
-        router.get("/leaderboard/cash", this.onLeaderboardRichest);
-        router.get("/leaderboard/factoryworkers", this.onLeaderboardFactoryWorkers);
-        router.get("/leaderboard/rgoworkers", this.onLeaderboardRGOWorkers);
 
         router.use(this.RedirectUnlogined);
 
@@ -74,7 +69,7 @@ export class WebClientRouter
         ], this.factoryWorkersAction);
         router.get("/factory/:id([0-9]+)/upgrade", this.onFactoryUpgrade);
         router.get("/factory/:id([0-9]+)/delete", this.factoryDeleteAction);
-        router.get("/factory/:id([0-9]+)/queue", [this.LoadRecipes], this.onFactoryProductionQueue);
+        router.get("/factory/:id([0-9]+)/queue", [WebClientUtil.LoadRecipes], this.onFactoryProductionQueue);
         router.get("/factory/:id([0-9]+)/queue/delete/:order([0-9]+)", this.onFactoryProductionQueueDelete);
         router.post("/factory/:id([0-9]+)/queue/add", [
             body("recipeId").isNumeric(),
@@ -82,7 +77,7 @@ export class WebClientRouter
         ], this.onFactoryProductionQueueAdd);
         router.get("/factory/build", this.factoryBuildAction);
 
-        router.get("/rgos", [this.LoadRGOTypes], this.onRGOs);
+        router.get("/rgos", [WebClientUtil.LoadRGOTypes], this.onRGOs);
         router.get("/rgo/:id([0-9]+)/delete", this.rgoDeleteAction);
         router.get("/rgo/:id([0-9]+)/upgrade", this.onRGOUpgrade);
         router.post("/rgo/:id([0-9]+)/salary", [
@@ -118,104 +113,30 @@ export class WebClientRouter
 
         router.get("/logout", this.onLogout);
 
-        router.use(this.on404);
-
         return router;
     }
 
-    public static LoadPlayerData(req: IMyRequest, res: express.Response, next: () => void)
+    /*public static LoadBackLink(req: IMyRequest, res: express.Response, next: () => void)
     {
-        for (const client of this.clients) {
-            if (req.cookies.id && req.cookies.id === client.clientId) {
-                req.client = client;
-                next();
-                return;
-            }
+        if (!req.client || !req.client.getUrl()) {
+            res.locals.backurl = "/";
+            next();
+            return;
         }
 
-        let id = req.cookies.id || Number.parseInt(req.cookies.id, 10) || 0;
-        if (!id) {
-            id = Math.round(Math.random() * 100000);
-        }
-
-        Logger.info("New client id " + id);
-
-        res.cookie("id", id);
-
-        const client = new WebClient(id);
-        this.clients.push(client);
-
-        req.client = client;
-        next();
-    }
-
-    public static LoadBackLink(req: IMyRequest, res: express.Response, next: () => void)
-    {
         if (req.url === req.client.getUrl()) {
-            res.locals.backurl = req.client.popUrl();
+            console.log("pop");
+            req.client.popUrl();
+            console.log(req.client.getUrl());
         }
-        else {
-            res.locals.backurl = req.client.getUrl();
-        }
+
+        res.locals.backurl = req.client.getUrl();
         next();
-    }
-
-    public static LoadRecipes(req: IMyRequest, res: express.Response, next: () => void)
-    {
-        const recipes = RecipesService.All;
-        res.locals.recipes = recipes;
-        next();
-    }
-
-    public static async LoadRGOTypes(req: IMyRequest, res: express.Response, next: () => void)
-    {
-        const rgotypes = await RGOType.All();
-        res.locals.rgotypes = rgotypes;
-        next();
-    }
-
-    public static async LoadGoods(req: IMyRequest, res: express.Response, next: () => void)
-    {
-        const goods = await Good.All();
-        res.locals.goods = goods;
-        next();
-    }
-
-    public static render(req: IMyRequest, res: express.Response, template: string, data?: object, remember: boolean = true)
-    {
-        if (remember) {
-            req.client.appendUrl(req.url)
-        }
-
-        res.render(template, {
-            ...res.locals,
-            layout: WebClientRouter.getInfopagesLayout(req),
-            ...data,
-            error: req.client.errorToShow,
-        });
-
-        req.client.errorToShow = null;
-    }
-
-    public static renderLast(req: IMyRequest, res: express.Response)
-    {
-        if (req.client.getUrl()) {
-            res.redirect(req.client.popUrl());
-        }
-        else {
-            res.redirect("/");
-        }
-    }
-
-    public static error(req: IMyRequest, res: express.Response, msg: string)
-    {
-        req.client.errorToShow = msg;
-        res.redirect(req.client.popUrl());
-    }
+    }*/
 
     public static RedirectUnlogined(req: IMyRequest, res: express.Response, next: () => void)
     {
-        if (!WebClientRouter.isLogined(req)) {
+        if (!WebClientUtil.isLogined(req)) {
             res.redirect("/");
             return;
         }
@@ -225,7 +146,7 @@ export class WebClientRouter
 
     public static async FillPlayercardData(req: IMyRequest, res: express.Response, next: () => void)
     {
-        if (WebClientRouter.isLogined(req)) {
+        if (WebClientUtil.isLogined(req)) {
             const player = await Player.GetById(req.client.playerId);
             res.locals.player = player;
             res.locals.playerfactoryworkers = await player.getFactoriesWorkers();
@@ -234,36 +155,22 @@ export class WebClientRouter
         next();
     }
 
-    public static getInfopagesLayout(req: IMyRequest)
-    {
-        if (!WebClientRouter.isLogined(req)) {
-            return "logout";
-        }
-
-        return "main";
-    }
-
-    public static isLogined(req: IMyRequest)
-    {
-        return req.client && req.client.playerId && req.client.actorId;
-    }
-
     public static async onHome(req: IMyRequest, res: express.Response)
     {
-        if (!WebClientRouter.isLogined(req)) {
-            WebClientRouter.render(req, res, "unlogined");
+        if (!WebClientUtil.isLogined(req)) {
+            WebClientUtil.render(req, res, "unlogined");
             return;
         }
 
         const playerId = req.client.playerId;
         const logs = await PlayerLog.GetWithPlayer(playerId);
 
-        WebClientRouter.render(req, res, "home", { logs });
+        WebClientUtil.render(req, res, "home", { logs });
     }
 
     public static onRegister(req: IMyRequest, res: express.Response)
     {
-        WebClientRouter.render(req, res, "register", {}, false);
+        WebClientUtil.render(req, res, "register", {}, false);
     }
 
     public static async registerAction(req: IMyRequest, res: express.Response)
@@ -273,7 +180,7 @@ export class WebClientRouter
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/errors messages.
             // Error messages can be returned in an array using `errors.array()`.
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -288,7 +195,7 @@ export class WebClientRouter
 
     public static onLogin(req: IMyRequest, res: express.Response)
     {
-        WebClientRouter.render(req, res, "login", {}, false);
+        WebClientUtil.render(req, res, "login", {}, false);
     }
 
     public static async loginAction(req: IMyRequest, res: express.Response)
@@ -298,7 +205,7 @@ export class WebClientRouter
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/errors messages.
             // Error messages can be returned in an array using `errors.array()`.
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -306,7 +213,10 @@ export class WebClientRouter
         const password = req.body.password;
 
         const user = await PlayerService.Login(login, password);
-        await req.client.attach(user.id);
+
+        if (user) {
+            await req.client.attach(user.id);
+        }
 
         res.redirect("/");
     }
@@ -327,7 +237,7 @@ export class WebClientRouter
             });
         }
 
-        WebClientRouter.render(req, res, "storage", {
+        WebClientUtil.render(req, res, "storage", {
             data,
         });
     }
@@ -348,7 +258,7 @@ export class WebClientRouter
             });
         }
 
-        WebClientRouter.render(req, res, "factories", { data });
+        WebClientUtil.render(req, res, "factories", { data });
     }
 
     public static async factoryWorkersAction(req: IMyRequest, res: express.Response)
@@ -356,7 +266,7 @@ export class WebClientRouter
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -365,12 +275,12 @@ export class WebClientRouter
 
         const factory = await Factory.GetById(factoryid);
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your factory");
+            WebClientUtil.error(req, res, "That's not your factory");
             return;
         }
 
         if (workers > factory.getMaxWorkers()) {
-            WebClientRouter.error(req, res, "More workers than max");
+            WebClientUtil.error(req, res, "More workers than max");
             return;
         }
 
@@ -386,7 +296,7 @@ export class WebClientRouter
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -395,7 +305,7 @@ export class WebClientRouter
 
         const factory = await Factory.GetById(factoryid);
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your factory");
+            WebClientUtil.error(req, res, "That's not your factory");
             return;
         }
 
@@ -412,7 +322,7 @@ export class WebClientRouter
         const factory = await Factory.GetById(id);
 
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your factory");
+            WebClientUtil.error(req, res, "That's not your factory");
             return;
         }
 
@@ -434,7 +344,7 @@ export class WebClientRouter
             });
         }
 
-        WebClientRouter.render(req, res, "queue", { data, factoryId: id });
+        WebClientUtil.render(req, res, "queue", { data, factoryId: id });
     }
 
     public static async onFactoryUpgrade(req: IMyRequest, res: express.Response)
@@ -444,18 +354,18 @@ export class WebClientRouter
         const factory = await Factory.GetById(id);
 
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your factory");
+            WebClientUtil.error(req, res, "That's not your factory");
             return;
         }
 
         const response = await FactoryManagementService.UpgradeFactory(playerid, factory.id);
 
         if (typeof response === "string") {
-            WebClientRouter.error(req, res, response as string);
+            WebClientUtil.error(req, res, response as string);
             return;
         }
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async onRGOUpgrade(req: IMyRequest, res: express.Response)
@@ -465,18 +375,18 @@ export class WebClientRouter
         const rgo = await RGO.GetById(id);
 
         if (!rgo || rgo.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your factory");
+            WebClientUtil.error(req, res, "That's not your factory");
             return;
         }
 
         const response = await RGOManagementService.UpgradeRGO(playerid, rgo.id);
 
         if (typeof response === "string") {
-            WebClientRouter.error(req, res, response as string);
+            WebClientUtil.error(req, res, response as string);
             return;
         }
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async onFactoryProductionQueueDelete(req: IMyRequest, res: express.Response)
@@ -486,12 +396,12 @@ export class WebClientRouter
         const orderid = Number.parseInt(req.params.order, 10);
 
         if (!orderid) {
-            WebClientRouter.error(req, res, "Wrong order id");
+            WebClientUtil.error(req, res, "Wrong order id");
             return true;
         }
 
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your factory");
+            WebClientUtil.error(req, res, "That's not your factory");
             return true;
         }
 
@@ -506,7 +416,7 @@ export class WebClientRouter
 
         await ProductionQueue.Update(dbo);
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async onFactoryProductionQueueAdd(req: IMyRequest, res: express.Response)
@@ -514,7 +424,7 @@ export class WebClientRouter
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -524,13 +434,13 @@ export class WebClientRouter
         const amount = req.body.amount;
 
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your factory");
+            WebClientUtil.error(req, res, "That's not your factory");
             return true;
         }
 
         const recipe = await RecipesService.GetById(recipeId);
         if (!recipe) {
-            WebClientRouter.error(req, res, "No such recipe");
+            WebClientUtil.error(req, res, "No such recipe");
             return true;
         }
 
@@ -546,7 +456,7 @@ export class WebClientRouter
             Amount: amount,
         });
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async onRGOs(req: IMyRequest, res: express.Response)
@@ -566,7 +476,7 @@ export class WebClientRouter
             });
         }
 
-        WebClientRouter.render(req, res, "rgos", { data });
+        WebClientUtil.render(req, res, "rgos", { data });
     }
 
     public static async factoryDeleteAction(req: IMyRequest, res: express.Response)
@@ -575,13 +485,13 @@ export class WebClientRouter
 
         const factory = await Factory.GetById(factoryid);
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your factory");
+            WebClientUtil.error(req, res, "That's not your factory");
             return;
         }
 
         await Factory.Delete(factoryid);
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async rgoDeleteAction(req: IMyRequest, res: express.Response)
@@ -590,13 +500,13 @@ export class WebClientRouter
 
         const rgo = await RGO.GetById(rgoid);
         if (!rgo || rgo.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your RGO");
+            WebClientUtil.error(req, res, "That's not your RGO");
             return;
         }
 
         await RGO.Delete(rgoid);
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async rgoWorkersAction(req: IMyRequest, res: express.Response)
@@ -604,7 +514,7 @@ export class WebClientRouter
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -613,7 +523,7 @@ export class WebClientRouter
 
         const rgo = await RGO.GetById(rgoid);
         if (!rgo || rgo.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your RGO");
+            WebClientUtil.error(req, res, "That's not your RGO");
             return;
         }
 
@@ -630,7 +540,7 @@ export class WebClientRouter
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -639,7 +549,7 @@ export class WebClientRouter
 
         const rgo = await RGO.GetById(rgoid);
         if (!rgo || rgo.getOwnerId() !== req.client.playerId) {
-            WebClientRouter.error(req, res, "That's not your RGO");
+            WebClientUtil.error(req, res, "That's not your RGO");
             return;
         }
 
@@ -655,7 +565,7 @@ export class WebClientRouter
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -665,11 +575,11 @@ export class WebClientRouter
         const response = await RGOManagementService.ConstructNew(playerId, typeId);
 
         if (typeof response !== "number") {
-            WebClientRouter.error(req, res, response as string);
+            WebClientUtil.error(req, res, response as string);
             return;
         }
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async factoryBuildAction(req: IMyRequest, res: express.Response)
@@ -677,7 +587,7 @@ export class WebClientRouter
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -686,11 +596,11 @@ export class WebClientRouter
         const response = await FactoryManagementService.ConstructNew(playerId);
 
         if (typeof response !== "number") {
-            WebClientRouter.error(req, res, response as string);
+            WebClientUtil.error(req, res, response as string);
             return;
         }
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async onMarkets(req: IMyRequest, res: express.Response)
@@ -728,7 +638,7 @@ export class WebClientRouter
             }
         }
 
-        WebClientRouter.render(req, res, "markets", { data });
+        WebClientUtil.render(req, res, "markets", { data });
     }
 
     public static async onMarket(req: IMyRequest, res: express.Response)
@@ -738,7 +648,7 @@ export class WebClientRouter
         const good = await Good.GetById(goodid);
 
         if (!good) {
-            WebClientRouter.error(req, res, "No such market");
+            WebClientUtil.error(req, res, "No such market");
             return;
         }
 
@@ -746,24 +656,10 @@ export class WebClientRouter
         const supply = await MarketService.CountSupply(good);
         const bo = await BuyOffer.GetWithGoodOrdered(good);
         const so = await SellOffer.GetWithGoodOrdered(good);
-        const cons = await Consumption.GetWithGood(good);
-        const prods = await Production.GetWithGood(good);
         so.reverse();
 
         const buyoffers = [];
         const selloffers = [];
-        const consumptions = [];
-        const productions = [];
-
-        for (const prod of prods) {
-            productions.push({
-                amount: prod.amount,
-                price: "От " + prod.minprice,
-                player: {
-                    username: "State",
-                },
-            });
-        }
         for (const s of so) {
             const actor = await s.getActor();
             const player = await Player.GetWithActor(actor);
@@ -787,22 +683,12 @@ export class WebClientRouter
                 player,
             });
         }
-        for (const con of cons) {
-            consumptions.push({
-                amount: con.amount,
-                price: "До " + con.maxprice,
-                player: {
-                    username: "State",
-                },
-            });
-        }
 
         const actor = await MarketActor.GetById(req.client.actorId);
         const storage = await Storage.Amount(actor, good);
 
-        WebClientRouter.render(req, res, "market", {
-            good, buyoffers, selloffers, demand, supply, storage,
-            consumptions, productions, helpers: { notequal: ((x, y) => x !== y), equal: ((x, y) => x === y) },
+        WebClientUtil.render(req, res, "market", {
+            good, buyoffers, selloffers, demand, supply, storage, helpers: { notequal: ((x, y) => x !== y), equal: ((x, y) => x === y) },
         });
     }
 
@@ -817,7 +703,7 @@ export class WebClientRouter
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/errors messages.
             // Error messages can be returned in an array using `errors.array()`.
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -830,18 +716,18 @@ export class WebClientRouter
         const good = await Good.GetById(goodid);
 
         if (!good) {
-            WebClientRouter.error(req, res, "No such market");
+            WebClientUtil.error(req, res, "No such market");
             return;
         }
 
         const data = await MarketService.AddSellOffer(actor, good, amount, price);
 
         if (typeof data === "string") {
-            WebClientRouter.error(req, res, data);
+            WebClientUtil.error(req, res, data);
             return;
         }
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async onMarketBuy(req: IMyRequest, res: express.Response)
@@ -851,7 +737,7 @@ export class WebClientRouter
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/errors messages.
             // Error messages can be returned in an array using `errors.array()`.
-            WebClientRouter.error(req, res, errors.array()[0].msg);
+            WebClientUtil.error(req, res, errors.array()[0].msg);
             return;
         }
 
@@ -864,18 +750,18 @@ export class WebClientRouter
         const good = await Good.GetById(goodid);
 
         if (!good) {
-            WebClientRouter.error(req, res, "No such market");
+            WebClientUtil.error(req, res, "No such market");
             return;
         }
 
         const data = await MarketService.AddBuyOffer(actor, good, amount, price);
 
         if (typeof data === "string") {
-            WebClientRouter.error(req, res, data);
+            WebClientUtil.error(req, res, data);
             return;
         }
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async onMarketRedeemSell(req: IMyRequest, res: express.Response)
@@ -887,7 +773,7 @@ export class WebClientRouter
         const offer = await SellOffer.GetById(offerId);
 
         if (!offer) {
-            WebClientRouter.error(req, res, "No such offer");
+            WebClientUtil.error(req, res, "No such offer");
         }
 
         const amount = Number.parseInt(req.params.amount, 10) || offer.amount;
@@ -895,18 +781,18 @@ export class WebClientRouter
         const good = await Good.GetById(goodid);
 
         if (!good) {
-            WebClientRouter.error(req, res, "No such market");
+            WebClientUtil.error(req, res, "No such market");
             return;
         }
 
         const data = await MarketService.RedeemSellOffer(actor, offer, amount);
 
         if (typeof data === "string") {
-            WebClientRouter.error(req, res, data);
+            WebClientUtil.error(req, res, data);
             return;
         }
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async onMarketRedeemBuy(req: IMyRequest, res: express.Response)
@@ -918,7 +804,7 @@ export class WebClientRouter
         const offer = await BuyOffer.GetById(offerId);
 
         if (!offer) {
-            WebClientRouter.error(req, res, "No such offer");
+            WebClientUtil.error(req, res, "No such offer");
         }
 
         const amount = Number.parseInt(req.params.amount, 10) || offer.amount;
@@ -926,18 +812,18 @@ export class WebClientRouter
         const good = await Good.GetById(goodid);
 
         if (!good) {
-            WebClientRouter.error(req, res, "No such market");
+            WebClientUtil.error(req, res, "No such market");
             return;
         }
 
         const data = await MarketService.RedeemBuyOffer(actor, offer, amount);
 
         if (typeof data === "string") {
-            WebClientRouter.error(req, res, data);
+            WebClientUtil.error(req, res, data);
             return;
         }
 
-        WebClientRouter.renderLast(req, res);
+        WebClientUtil.renderLast(req, res);
     }
 
     public static async onGoods(req: IMyRequest, res: express.Response)
@@ -972,7 +858,7 @@ export class WebClientRouter
             }
         }
 
-        WebClientRouter.render(req, res, "goods", { data });
+        WebClientUtil.render(req, res, "goods", { data });
     }
     public static onRecipes(req: IMyRequest, res: express.Response)
     {
@@ -997,7 +883,7 @@ export class WebClientRouter
             data.push(entry);
         }
 
-        WebClientRouter.render(req, res, "recipes", { data });
+        WebClientUtil.render(req, res, "recipes", { data });
     }
     public static async onRGOTypes(req: IMyRequest, res: express.Response)
     {
@@ -1017,7 +903,7 @@ export class WebClientRouter
             });
         }
 
-        WebClientRouter.render(req, res, "rgotypes", { data });
+        WebClientUtil.render(req, res, "rgotypes", { data });
     }
 
     private static async formResourcesString(x: RGOType)
@@ -1033,88 +919,13 @@ export class WebClientRouter
         return res;
     }
 
-    public static async onLeaderboard(req: IMyRequest, res: express.Response)
-    {
-        WebClientRouter.render(req, res, "leaderboards/home");
-    }
-
-    public static async onLeaderboardRichest(req: IMyRequest, res: express.Response)
-    {
-        const data = await LeaderboardService.GetRichestPlayers();
-
-        let i = 0;
-        const props = [];
-        for (const entry of data) {
-            i++;
-            props.push({
-                order: i,
-                ...entry,
-            });
-        }
-
-        WebClientRouter.render(req, res, "leaderboards/richest", {
-            data: props,
-        });
-    }
-
-    public static async onLeaderboardRGOWorkers(req: IMyRequest, res: express.Response)
-    {
-        const data = await LeaderboardService.GetMostRGOWorkers();
-
-        const props = [];
-        let i = 0;
-        for (const entry of data) {
-            i++;
-            const player = await Player.GetById(entry.playerId);
-            props.push({
-                order: i,
-                player,
-                workers: entry.c,
-            });
-        }
-
-        WebClientRouter.render(req, res, "leaderboards/rgoworkers", {
-            data: props,
-        });
-    }
-
-    public static async onLeaderboardFactoryWorkers(req: IMyRequest, res: express.Response)
-    {
-        const data = await LeaderboardService.GetMostFactoryWorkers();
-
-        let i = 0;
-        const props = [];
-        for (const entry of data) {
-            i++;
-            const player = await Player.GetById(entry.playerId);
-            props.push({
-                order: i,
-                player,
-                workers: entry.c,
-            });
-        }
-
-        WebClientRouter.render(req, res, "leaderboards/factoryworkers", {
-            data: props,
-        });
-    }
-
     public static onLogout(req: IMyRequest, res: express.Response)
     {
-        if (WebClientRouter.isLogined(req)) {
-            WebClientRouter.clients.splice(WebClientRouter.clients.indexOf(req.client), 1);
+        if (WebClientUtil.isLogined(req)) {
+            WebClientUtil.clients.splice(WebClientUtil.clients.indexOf(req.client), 1);
             res.redirect("/");
         }
     }
 
-    public static on404(req: IMyRequest, res: express.Response)
-    {
-        WebClientRouter.render(req, res, "404", {}, false);
-    }
 
-}
-
-interface IMyRequest extends express.Request
-{
-    client?: WebClient;
 }

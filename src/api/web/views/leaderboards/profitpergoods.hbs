@@ -1,3 +1,4 @@
-{{#each good}}
-<a class="btn" href="/leaderboard/ppg/{{good.id}}">{{good.name}}</a>
+<h1>ТОП прибыли по товарам</h1>
+{{#each goods}}
+<a class="btn" href="/leaderboard/ppg/{{this.id}}">{{this.name}}</a>
 {{/each}}

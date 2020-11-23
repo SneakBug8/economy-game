@@ -18,6 +18,8 @@ import { sleep } from "utility/sleep";
 import { PriceRecordWatcher } from "watchers/PriceRecordWatcher";
 import { TransactionWatcher } from "watchers/TransactionWatcher";
 import { PlayerProfitPerGoodWatcher } from "watchers/PlayerProfitPerGoodWatcher";
+import { PopulationActivityService } from "services/PopulationActivityService";
+import { StateActivityService } from "services/StateActivityService";
 
 export class Runner
 {
@@ -28,6 +30,9 @@ export class Runner
         await TurnsService.Init();
         await RecipesService.Init();
         await MarketService.Init();
+
+        await PopulationActivityService.Init();
+        await StateActivityService.Init();
 
         // Watchers
         await TradeWatcher.Init();

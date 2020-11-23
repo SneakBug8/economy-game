@@ -6,6 +6,7 @@ import { PlayerService } from "./PlayerService";
 import {Config} from "config";
 import { Good } from "entity/Good";
 import {Storage} from "entity/Storage";
+import { PopulationActivityService } from "./PopulationActivityService";
 
 export class FactoryManagementService
 {
@@ -24,7 +25,7 @@ export class FactoryManagementService
                 factory.setTargetEmployees(Math.round(factory.getTargetEmployees()));
             }
 
-            await player.payCashToState(canpay);
+            await player.payCash(PopulationActivityService.Player, canpay);
 
             Log.LogTemp(`Factory ${factory.id} ${player.id} paid ${canpay} salary for ${factory.id}`);
             PlayerService.SendOffline(player.id, `Factory ${factory.id} paid ${canpay} in salaries`);
@@ -83,7 +84,7 @@ export class FactoryManagementService
                 return "Wrong Factory construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(actor, good, costentry.Amount)) {
+            if (!await Storage.Has(actor.id, good.id, costentry.Amount)) {
                 return "Not enough resources";
             }
         }
@@ -122,7 +123,7 @@ export class FactoryManagementService
                 return "Wrong RGO construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(actor, good, upgradeamount)) {
+            if (!await Storage.Has(actor.id, good.id, upgradeamount)) {
                 return "Not enough resources";
             }
         }

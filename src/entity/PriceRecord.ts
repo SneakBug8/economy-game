@@ -58,6 +58,17 @@ export class PriceRecord {
         return null;
     }
 
+    public static async GetLatestWithGoodId(goodId: number): Promise<PriceRecord>
+    {
+        const data = await PriceRecordRepository().select().where("goodId", goodId).orderBy("turnId", "desc").first();
+
+        if (data) {
+            return this.From(data);
+        }
+
+        return null;
+    }
+
     public static async Count(): Promise<number> {
         const data = await PriceRecordRepository().count("id as c").first() as any;
 

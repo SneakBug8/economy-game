@@ -50,6 +50,49 @@ export class PlayerProfitPerGood
         return null;
     }
 
+
+    public static async GetProfits(): Promise<PlayerProfitPerGood[]>
+    {
+        const data = await PlayerProfitPerGoodRepository()
+            .groupBy("playerId")
+            .select("playerId")
+            .sum("profit as profit")
+            .orderBy("profit", "desc");
+
+        console.log(PlayerProfitPerGoodRepository()
+            .groupBy("playerId")
+            .select("playerId")
+            .sum("profit as profit")
+            .orderBy("profit", "desc").toSQL());
+
+        const res = new Array<PlayerProfitPerGood>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+        }
+
+        return res;
+    }
+
+    public static async GetWithGood(goodId: number): Promise<PlayerProfitPerGood[]>
+    {
+        const data = await PlayerProfitPerGoodRepository().select()
+            .where("goodId", goodId)
+            .orderBy("profit", "desc");
+
+        const res = new Array<PlayerProfitPerGood>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+        }
+
+        return res;
+    }
+
     public static async Count(): Promise<number>
     {
         const data = await PlayerProfitPerGoodRepository().count("id as c").first() as any;

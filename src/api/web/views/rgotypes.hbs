@@ -4,9 +4,8 @@
     <th>ID</th>
     <th>Добыча</th>
     <th>Добывает</th>
-    <th>Рабочих на цикл</th>
-    <th>Максимум в мире</th>
-    <th>Уже построено</th>
+    <th>Рабочих</th>
+    <th>Построено в мире</th>
     <th>Ресурсы для постройки</th>
     </thead>
 {{#each data}}
@@ -15,8 +14,7 @@
 <td>{{this.name}}</td>
 <td>{{this.makes}}</td>
 <td>{{this.workers}}</td>
-<td>{{this.maxamount}}</td>
-<td>{{this.already}}</td>
+<td>{{this.already}} / {{this.maxamount}}</td>
 <td>{{this.resources}}</td>
     </tr>
 

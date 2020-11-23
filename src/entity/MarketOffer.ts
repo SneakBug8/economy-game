@@ -7,8 +7,8 @@ import { Turn } from "./Turn";
 export abstract class MarketOffer
 {
     public id: number;
-    amount: number;
-    price: number;
+    public amount: number;
+    public price: number;
     public turn_id: number;
     protected marketId: number;
     protected actorId: number;

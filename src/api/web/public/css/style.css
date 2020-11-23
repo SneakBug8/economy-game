@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap');
 
+* {
+    box-sizing: border-box;
+}
+
 :root {
     --link-color: #0067b8;
     --link-color-hover: #f41224;
@@ -210,10 +214,13 @@ dd {
 table {
     border-collapse: collapse;
     border-spacing: 0;
-    border-top: solid 1px #e6e6e6;
+    border: solid 3px black;
     font-size: 93.8%;
     margin: 0 0 1.6em;
-    width: 100%;
+    /*width: 100%;*/
+    min-width: 100%;
+    overflow-x:scroll;
+    /*max-width: 100%;*/
 }
 
 caption {
@@ -222,8 +229,8 @@ caption {
 
 table th,
 table td {
-    border-bottom: solid 1px #e6e6e6;
-    padding: 0.8em 1.3em 0.8em 0;
+    /*padding: 0.8em 1.3em 0.8em 0;*/
+    padding: 0.1em;
 }
 
 th {

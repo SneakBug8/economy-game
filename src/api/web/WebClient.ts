@@ -21,9 +21,9 @@ export class WebClient
     }
     // Allows to traverse requests history with "Back" link
     public popUrl() {
-        const res = this.lastSuccessfulUrl;
-        this.lastSuccessfulUrl = this.backUrls.pop();
-        return res;
+        this.backUrls.pop();
+        this.lastSuccessfulUrl = this.backUrls[this.backUrls.length - 1];
+        return this.lastSuccessfulUrl;
     }
 
     public appendUrl(url: string) {

@@ -67,7 +67,6 @@ export class TurnsService
         }
 
         this.CurrentTurn.cashperplayer = this.CurrentTurn.totalcash / (await Player.Count());
-        this.CurrentTurn.totalcash += this.CurrentTurn.freecash;
     }
 
     public static async CalculateWorkers()
@@ -105,11 +104,5 @@ export class TurnsService
         console.log(this.CurrentTurn);
 
         return true;
-    }
-
-    public static AddFreeCash(amount: number)
-    {
-        this.CurrentTurn.AddFreeCash(amount);
-        console.log(`Current free cash is: ${this.CurrentTurn.freecash} (change: ${amount})`);
     }
 }

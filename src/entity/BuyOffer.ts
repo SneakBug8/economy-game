@@ -16,6 +16,10 @@ export class BuyOffer extends MarketOffer
     {
         this.goodId = good.id;
     }
+    public setGoodId(goodId: number)
+    {
+        this.goodId = goodId;
+    }
     public getMarket(): Promise<Market>
     {
         return Market.GetById(this.marketId);
@@ -39,6 +43,10 @@ export class BuyOffer extends MarketOffer
     public setActor(actor: MarketActor)
     {
         this.actorId = actor.id;
+    }
+    public setActorId(actorId: number)
+    {
+        this.actorId = actorId;
     }
     public getActorId(): number
     {
@@ -64,9 +72,9 @@ export class BuyOffer extends MarketOffer
         return res.From(dbobject);
     }
 
-    public static async Create(good: Good, amount: number, price: number, actor: MarketActor)
+    public static async Create(goodId: number, amount: number, price: number, actorId: number)
     {
-        const player = await Player.GetWithActor(actor);
+        const player = await Player.GetWithActorId(actorId);
 
         if (!await Player.HasCash(player.id, amount * price)) {
             return false;
@@ -74,10 +82,10 @@ export class BuyOffer extends MarketOffer
 
         const offer = new BuyOffer();
         offer.marketId = Market.DefaultMarket.id;
-        offer.setGood(good);
+        offer.setGoodId(goodId);
         offer.amount = amount;
         offer.price = price;
-        offer.setActor(actor);
+        offer.setActorId(actorId);
 
         return await this.Insert(offer);
     }

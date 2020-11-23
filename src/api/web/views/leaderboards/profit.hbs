@@ -1,17 +1,13 @@
-<h2>ТОП по прибыли с товара {{good.name}}</h2>
+<h2>ТОП по прибыли</h2>
 <table class="table">
     <thead>
     <th>Игрок</th>
     <th>Прибыль</th>
-    <th>Куплено</th>
-    <th>Продано</th>
     </thead>
 {{#each data}}
     <tr>
 <td>{{this.player.username}}</td>
 <td>{{this.profit}}</td>
-<td>{{this.bought}}</td>
-<td>{{this.sold}}</td>
     </tr>
 {{/each}}
 </table>
