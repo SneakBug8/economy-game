@@ -1,19 +1,20 @@
-<h1>Статистика по общему денежному обращению</h1>
+<h1>Статистика денег</h1>
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js" type="text/javascript"></script>
 
 <canvas id="myChart" width="400" height="200"></canvas>
 <script>
-var ctx = document.getElementById('myChart');
-var myChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: {{{labels}}},
-        datasets: [
+    var ctx = document.getElementById('myChart');
+    var myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{{ labels }}},
+    datasets: [
         {
-            label: "Total cash",
-            data: {{data}}
-        }]
+            label: "Your cash",
+            data: {{{ cash }}},
+        },
+    ]
     }
 });
 </script>

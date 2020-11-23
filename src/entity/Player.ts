@@ -43,14 +43,15 @@ export class Player
         return this.cash;
     }
 
-    public payCash(to: Player, amount: number): boolean
+    public async payCash(to: Player, amount: number): Promise<boolean>
     {
         if (this.cash < amount) {
+            Logger.warn(`[${this.username} Not enough money to make transfer to ${to.username}`);
             return false;
         }
 
-        this.ModifyCash(-amount);
-        to.ModifyCash(amount);
+        await this.ModifyCash(-amount);
+        await to.ModifyCash(amount);
 
         return true;
     }
@@ -69,11 +70,12 @@ export class Player
     public async payCashToState(amount: number): Promise<boolean>
     {
         if (this.cash < amount) {
+            Logger.warn(`[${this.username} Not enough money to make transfer to state`);
             return false;
         }
 
         await this.ModifyCash(-amount);
-        StateActivityService.AddCash(amount);
+        await StateActivityService.AddCash(amount);
 
         return true;
     }
@@ -81,7 +83,7 @@ export class Player
     public async takeCashFromState(amount: number): Promise<boolean>
     {
         await this.ModifyCash(amount);
-        StateActivityService.AddCash(-amount);
+        await StateActivityService.AddCash(-amount);
 
         return true;
     }
@@ -319,7 +321,7 @@ export class Player
     {
         const player = await Player.GetById(id);
 
-        if (player.cash >= amount) {
+        if (player.getCash() >= amount) {
             return true;
         }
 

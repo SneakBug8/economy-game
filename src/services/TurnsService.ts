@@ -5,6 +5,8 @@ import { EventsList } from "events/EventsList";
 import { Runner } from "Runner";
 import { Factory } from "entity/Factory";
 import { RGO } from "entity/RGO";
+import { Logger } from "utility/Logger";
+import { IMedianCashRecord, IPlayerStatisticsRecord, Statistics, StatisticsTypes } from "entity/Statistics";
 
 export class TurnsService
 {
@@ -52,6 +54,7 @@ export class TurnsService
         this.CurrentTurn.datetime = new Date().toString();
 
         await this.CalculateBalance();
+        await this.CalculateMedian();
         await this.CalculateWorkers();
 
         EventsList.onBeforeNewTurn.emit(this.CurrentTurn);
@@ -70,6 +73,24 @@ export class TurnsService
         this.CurrentTurn.totalcash -= this.CurrentTurn.freecash;
 
         this.CurrentTurn.cashperplayer = this.CurrentTurn.totalcash / (await Player.Count());
+    }
+
+    public static async CalculateMedian()
+    {
+        const data = [];
+
+        for (const pl of (await Player.All())) {
+            Statistics.Create<IPlayerStatisticsRecord>(pl.id, this.CurrentTurn.id, StatisticsTypes.PlayerRecord, {
+                cash: pl.cash,
+            });
+
+            data.push(pl.cash);
+        }
+
+        const mediancash = this.Median(data);
+        Statistics.Create<IMedianCashRecord>(null, this.CurrentTurn.id, StatisticsTypes.MedianCashRecord, {
+            cash: mediancash,
+        });
     }
 
     public static async CalculateWorkers()
@@ -103,22 +124,23 @@ export class TurnsService
         }
 
         if (this.CurrentTurn.totalcash !== this.LastTurn.totalcash) {
-            console.log("===");
-            console.log("Wrong balance");
-            console.log(this.LastTurn);
-            console.log(this.CurrentTurn);
-            console.log("===");
+            Logger.warn("===" +
+                "Wrong balance\n" +
+                JSON.stringify(this.LastTurn) + "\n" +
+                JSON.stringify(this.CurrentTurn) + "\n" +
+                "===");
 
             this.LastTurn.totalcash = this.CurrentTurn.totalcash;
             return false;
         }
 
-        console.log(this.CurrentTurn);
+        Logger.verbose("Balance fine");
 
         return true;
     }
 
-    public static async RegisterNewCash(amount: number) {
+    public static RegisterNewCash(amount: number)
+    {
         this.CurrentTurn.freecash += amount;
     }
 

@@ -59,12 +59,6 @@ export class PlayerProfitPerGood
             .sum("profit as profit")
             .orderBy("profit", "desc");
 
-        console.log(PlayerProfitPerGoodRepository()
-            .groupBy("playerId")
-            .select("playerId")
-            .sum("profit as profit")
-            .orderBy("profit", "desc").toSQL());
-
         const res = new Array<PlayerProfitPerGood>();
 
         if (data) {

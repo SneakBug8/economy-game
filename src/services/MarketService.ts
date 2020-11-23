@@ -6,11 +6,9 @@ import { Player } from "entity/Player";
 import { Storage } from "entity/Storage";
 import { Consumption } from "entity/Consumption";
 import { Production } from "entity/Production";
-import { TurnsService } from "./TurnsService";
 import { Market } from "entity/Market";
-import { PriceRecord } from "entity/PriceRecord";
 import { EventsList } from "events/EventsList";
-import { ITradeEvent, TradeEventType } from "events/types/TradeEvent";
+import { TradeEventType } from "events/types/TradeEvent";
 import { PlayerService } from "./PlayerService";
 import { Config } from "config";
 
@@ -23,6 +21,7 @@ export class MarketService
 
     public static async Run(): Promise<void>
     {
+        await EventsList.beforeMarket.emit();
 
         for (const market of await Market.All()) {
             for (const good of await Good.All()) {
@@ -30,13 +29,35 @@ export class MarketService
                 const buyoffers = await BuyOffer.GetWithGoodOrdered(good);
                 const selloffers = await SellOffer.GetWithGoodOrdered(good);
 
-                const consumptions = await Consumption.GetWithGood(good);
-                const productions = await Production.GetWithGood(good);
+                let b = 0;
+                let s = 0;
+
+                let i = 0;
 
                 // Offers vs offers
-                while (buyoffers.length && selloffers.length) {
-                    const buy = buyoffers[0];
-                    const sell = selloffers[0];
+                while (buyoffers.length && selloffers.length && i < 1000) {
+                    i++;
+
+                    const buy = buyoffers[b];
+                    const sell = selloffers[s];
+
+                    if (buy.getActorId() === sell.getActorId()) {
+                        if (b < buyoffers.length - 1) {
+                            b++;
+                        }
+                        else if (s < selloffers.length - 1) {
+                            s++;
+                        }
+                        else {
+                            buyoffers.shift();
+                            BuyOffer.Delete(buy.id);
+                        }
+
+                        continue;
+                    }
+
+                    b = 0;
+                    s = 0;
 
                     if (buy.price >= sell.price) {
                         const buyactor = await buy.getActor();
@@ -212,6 +233,8 @@ export class MarketService
             }
 
         }
+
+        await EventsList.afterMarket.emit();
     }
 
     /*public static async AddToStorage(actor: MarketActor): Promise<void>
@@ -268,7 +291,7 @@ export class MarketService
         const playerfrom = await Player.GetWithActor(from);
         const playerto = await Player.GetWithActor(to);
 
-        playerfrom.payCash(playerto, amount);
+        await playerfrom.payCash(playerto, amount);
     }
 
     public static async RedeemSellOffer(buyactor: MarketActor, sell: SellOffer, size: number = null)
@@ -408,12 +431,12 @@ export class MarketService
         for (const entry of offers) {
             demand += entry.amount;
         }
-
+        /*
         const consumptions = await Consumption.GetWithGood(good);
 
         for (const entry of consumptions) {
             demand += entry.amount;
-        }
+        }*/
 
         return demand;
     }
@@ -427,11 +450,11 @@ export class MarketService
             supply += entry.amount;
         }
 
-        const productions = await Production.GetWithGood(good);
+        /*const productions = await Production.GetWithGood(good);
 
         for (const entry of productions) {
             supply += entry.amount;
-        }
+        }*/
 
         return supply;
     }

@@ -1,8 +1,17 @@
 <h1>Статистика</h1>
+{{#if isLogined}}
+<h2>Ваши данные</h2>
 <div class="btn-group-vertical w-100">
-<a class="btn" href="/statistics/cashperplayer">Денег на игрока</a>
-<a class="btn" href="/statistics/inflation">Инфляция</a>
-<a class="btn" href="/statistics/totalcash">Денег в обращении</a>
-<a class="btn" href="/statistics/workers">Рабочих</a>
+    <a class="btn" href="/statistics/cash">Денежные средства</a>
+</div>
+<hr>
+<h2>Общая статистика</h2>
+{{/if}}
+
+<div class="btn-group-vertical w-100">
+    <a class="btn" href="/statistics/cashglobal">Денежные средства</a>
+    <a class="btn" href="/statistics/inflation">Инфляция</a>
+    <a class="btn" href="/statistics/workers">Рабочих</a>
+    <a class="btn" href="/statistics/country">Страна</a>
 
 </div>

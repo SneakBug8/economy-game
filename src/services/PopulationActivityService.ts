@@ -2,22 +2,29 @@ import { BuyOffer } from "entity/BuyOffer";
 import { CalculatedPrice, CalculatedPriceType } from "entity/CalculatedPrice";
 import { Player } from "entity/Player";
 import { SellOffer } from "entity/SellOffer";
+import { IPlayerStatisticsRecord, Statistics, StatisticsTypes } from "entity/Statistics";
 import { Storage } from "entity/Storage";
+import { Turn } from "entity/Turn";
 import { EventsList } from "events/EventsList";
+import { Logger } from "utility/Logger";
 import { TurnsService } from "./TurnsService";
 
 export class PopulationActivityService
 {
-    public static readonly StatePlayerId = 2;
+    public static readonly PlayerId = 2;
 
     public static Initialized = false;
 
     public static Init()
     {
         if (!this.Initialized) {
-            EventsList.onAfterNewTurn.on(() => this.BeforeMarketGeneration);
-            EventsList.onAfterNewTurn.on(() => this.PublishOrders);
-            EventsList.onBeforeNewTurn.on(() => this.AfterMarketCleanup);
+            EventsList.beforeMarket.on(async () => await this.BeforeMarketGeneration);
+            EventsList.beforeMarket.on(async () => await this.PublishOrders);
+            EventsList.afterMarket.on(async () => await this.AfterMarketCleanup);
+            EventsList.onBeforeNewTurn.on(async (t) => await this.MakeStatistics(t));
+
+            this.GetPlayer();
+
             this.Initialized = true;
         }
     }
@@ -27,7 +34,8 @@ export class PopulationActivityService
         if (this.Player) {
             await Player.Update(this.Player);
         }
-        this.Player = await Player.GetById(this.StatePlayerId);
+        this.Player = await Player.GetById(this.PlayerId);
+        Logger.verbose(`Loaded player ${this.Player.username}`);
         return this.Player;
     }
 
@@ -36,6 +44,15 @@ export class PopulationActivityService
         if (this.Player) {
             await Player.Update(this.Player);
         }
+    }
+
+    public static async MakeStatistics(t: Turn)
+    {
+        await this.GetPlayer();
+
+        Statistics.Create<IPlayerStatisticsRecord>(this.Player.id, t.id, StatisticsTypes.PlayerRecord, {
+            cash: this.Player.cash,
+        });
     }
 
     public static Player: Player;
@@ -70,7 +87,7 @@ export class PopulationActivityService
             await BuyOffer.Delete(o.id);
         }
 
-        const sorders = await BuyOffer.GetWithActor(this.Player.actorId);
+        const sorders = await SellOffer.GetWithActor(this.Player.actorId);
         for (const o of sorders) {
             await SellOffer.Delete(o.id);
         }
@@ -80,13 +97,17 @@ export class PopulationActivityService
         for (const p of calculatedprices) {
             if (p.type === CalculatedPriceType.Buy) {
                 await BuyOffer.Create(p.goodId, p.amount, p.price, this.Player.actorId);
+                console.log("Created buy order");
                 continue;
             }
             else if (p.type === CalculatedPriceType.Sell) {
                 await SellOffer.Create(p.goodId, p.amount, p.price, this.Player.actorId);
+                console.log("Created sell order");
+
                 continue;
             }
         }
+
     }
 
     public static async AfterMarketCleanup()
@@ -125,16 +146,16 @@ export class PopulationActivityService
         }
     }
 
-    public static AddCash(amount: number)
+    public static async AddCash(amount: number)
     {
         this.Player.cash += amount;
-        this.GetPlayer();
+        await this.GetPlayer();
     }
 
-    public static CreateCash(amount: number)
+    public static async CreateCash(amount: number)
     {
         this.Player.cash += amount;
         TurnsService.RegisterNewCash(amount);
-        this.GetPlayer();
+        await this.GetPlayer();
     }
 }

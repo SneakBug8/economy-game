@@ -32,13 +32,13 @@ describe("MarketEngine", () =>
 
         await Storage.AddGoodTo(actorfirst.id, RecipesService.firstgood.id, 10);
 
-        await SellOffer.Create(RecipesService.firstgood, 10, 1, actorfirst);
-        await BuyOffer.Create(RecipesService.firstgood, 10, 1, actorsecond);
+        await SellOffer.Create(RecipesService.firstgood.id, 10, 1, actorfirst.id);
+        await BuyOffer.Create(RecipesService.firstgood.id, 10, 1, actorsecond.id);
 
         await MarketService.Run();
 
-        assert.ok(await Storage.Amount(actorsecond, RecipesService.firstgood) > 0, "Traded goods")
-        assert.ok(await Storage.Has(actorsecond, RecipesService.firstgood, 10), "Traded 10 goods");
+        assert.ok(await Storage.Amount(actorsecond.id, RecipesService.firstgood.id) > 0, "Traded goods")
+        assert.ok(await Storage.Has(actorsecond.id, RecipesService.firstgood.id, 10), "Traded 10 goods");
 
         await Player.Delete(newplayerid);
         await Player.Delete(anotherlayerid);
@@ -57,12 +57,12 @@ describe("MarketEngine", () =>
 
         const actor = await player.getActor();
 
-        await BuyOffer.Create(RecipesService.firstgood, 10, 1, actor);
+        await BuyOffer.Create(RecipesService.firstgood.id, 10, 1, actor.id);
 
         await MarketService.Run();
 
-        assert.ok(await Storage.Amount(actor, RecipesService.firstgood) > 0, "Bought goods")
-        assert.ok(await Storage.Has(actor, RecipesService.firstgood, 10), "Bought 10 goods");
+        assert.ok(await Storage.Amount(actor.id, RecipesService.firstgood.id) > 0, "Bought goods")
+        assert.ok(await Storage.Has(actor.id, RecipesService.firstgood.id, 10), "Bought 10 goods");
     });
 
     it("SellToServer", async () =>
@@ -74,11 +74,11 @@ describe("MarketEngine", () =>
 
         const actor = await player.getActor();
 
-        await SellOffer.Create(RecipesService.firstgood, 10, 1, actor);
+        await SellOffer.Create(RecipesService.firstgood.id, 10, 1, actor.id);
 
         await MarketService.Run();
 
-        assert.ok(await Storage.Amount(actor, RecipesService.firstgood) === 0, "Sold goods")
+        assert.ok(await Storage.Amount(actor.id, RecipesService.firstgood.id) === 0, "Sold goods");
 
         await Player.Delete(playerid);
     });

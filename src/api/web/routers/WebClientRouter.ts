@@ -32,8 +32,6 @@ export class WebClientRouter
     {
         const router = express.Router();
 
-        router.use(WebClientUtil.LoadPlayerData);
-        router.use(this.FillPlayercardData);
         // router.use(this.LoadBackLink);
 
         router.get("/", this.onHome);
@@ -141,17 +139,6 @@ export class WebClientRouter
             return;
         }
 
-        next();
-    }
-
-    public static async FillPlayercardData(req: IMyRequest, res: express.Response, next: () => void)
-    {
-        if (WebClientUtil.isLogined(req)) {
-            const player = await Player.GetById(req.client.playerId);
-            res.locals.player = player;
-            res.locals.playerfactoryworkers = await player.getFactoriesWorkers();
-            res.locals.playerrgoworkers = await player.getRGOWorkers();
-        }
         next();
     }
 
@@ -610,7 +597,7 @@ export class WebClientRouter
         let data = [];
 
         for (const good of goods) {
-            const lastrecord = await PriceRecord.GetLatestWithGood(good);
+            const lastrecord = await PriceRecord.GetLastWithGood(good.id);
 
             if (lastrecord && lastrecord.tradeamount) {
                 data.push({
@@ -833,7 +820,7 @@ export class WebClientRouter
         let data = [];
 
         for (const good of goods) {
-            const lastrecord = await PriceRecord.GetLatestWithGood(good);
+            const lastrecord = await PriceRecord.GetLastWithGood(good.id);
 
             if (lastrecord && lastrecord.tradeamount) {
                 data.push({

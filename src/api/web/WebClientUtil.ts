@@ -4,6 +4,7 @@ import { Logger } from "utility/Logger";
 import { RecipesService } from "services/RecipesService";
 import { Good } from "entity/Good";
 import { RGOType } from "entity/RGOType";
+import { Player } from "entity/Player";
 
 export class WebClientUtil {
     public static clients = new Array<WebClient>();
@@ -34,6 +35,16 @@ export class WebClientUtil {
         next();
     }
 
+    public static RedirectUnlogined(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        if (!WebClientUtil.isLogined(req)) {
+            res.redirect("/");
+            return;
+        }
+
+        next();
+    }
+
     public static render(req: IMyRequest, res: express.Response, template: string, data?: object, remember: boolean = true)
     {
         if (remember) {
@@ -46,6 +57,7 @@ export class WebClientUtil {
             ...data,
             error: req.client.errorToShow,
             title: req.url,
+            isLogined: this.isLogined(req),
         });
 
         req.client.errorToShow = null;
@@ -99,6 +111,17 @@ export class WebClientUtil {
     {
         const goods = await Good.All();
         res.locals.goods = goods;
+        next();
+    }
+
+    public static async FillPlayercardData(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        if (WebClientUtil.isLogined(req)) {
+            const player = await Player.GetById(req.client.playerId);
+            res.locals.player = player;
+            res.locals.playerfactoryworkers = await player.getFactoriesWorkers();
+            res.locals.playerrgoworkers = await player.getRGOWorkers();
+        }
         next();
     }
 

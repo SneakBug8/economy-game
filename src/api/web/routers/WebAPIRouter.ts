@@ -766,7 +766,7 @@ export class WebAPIRouter
         }
 
         const actor = await MarketActor.GetById(req.client.actorId);
-        const storage = await Storage.Amount(actor, good);
+        const storage = await Storage.Amount(actor.id, good.id);
 
         WebAPIRouter.render(req, res, "market", {
             good, buyoffers, selloffers, demand, supply, storage,

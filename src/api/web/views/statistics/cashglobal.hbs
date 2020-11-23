@@ -1,0 +1,43 @@
+<h1>Статистика по деньгам</h1>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js" type="text/javascript"></script>
+
+<h2>Денег на игрока</h2>
+<canvas id="myChart" width="400" height="200"></canvas>
+<script>
+var ctx = document.getElementById('myChart');
+var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{{labels}}},
+        datasets: [
+        {
+            label: "Cash per player",
+            data: {{cashperplayer}},
+            borderColor: "red",
+        },
+        {
+            label: "Median cash",
+            data: {{mediancash}},
+            borderColor: "blue",
+        }]
+    }
+});
+</script>
+
+<h2>Всего денег в обращении</h2>
+<canvas id="myChart1" width="400" height="200"></canvas>
+<script>
+var ctx = document.getElementById('myChart1');
+var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{{labels}}},
+        datasets: [
+        {
+            label: "Total cash",
+            data: {{totalcash}}
+        }]
+    }
+});
+</script>

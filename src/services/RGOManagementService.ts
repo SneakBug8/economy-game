@@ -28,7 +28,7 @@ export class RGOManagementService
 
             await player.payCashToState(canpay);
 
-            Log.LogTemp(`RGO ${rgo.id} ${player.id} paid ${canpay} salary for ${rgo.id}`);
+            Log.LogTemp(`[RGO] ${player.username} paid ${canpay} salary for ${rgo.id}`);
             PlayerService.SendOffline(player.id, `RGO ${rgo.id} paid ${canpay} in salaries`);
 
             // Increase employees count

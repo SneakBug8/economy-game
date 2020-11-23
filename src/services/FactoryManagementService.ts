@@ -25,9 +25,9 @@ export class FactoryManagementService
                 factory.setTargetEmployees(Math.round(factory.getTargetEmployees()));
             }
 
-            await player.payCash(PopulationActivityService.Player, canpay);
+            await player.payCash(await PopulationActivityService.GetPlayer(), canpay);
 
-            Log.LogTemp(`Factory ${factory.id} ${player.id} paid ${canpay} salary for ${factory.id}`);
+            Log.LogTemp(`[Factory] ${player.username} paid ${canpay} salary for ${factory.id}`);
             PlayerService.SendOffline(player.id, `Factory ${factory.id} paid ${canpay} in salaries`);
 
             // Increase employees count

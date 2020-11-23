@@ -3,11 +3,12 @@ import * as exphbs from "express-handlebars";
 import { WebAPI } from "./WebAPI";
 import * as cookieParser from "cookie-parser";
 import { Logger } from "utility/Logger";
+import { WebClientUtil } from "./WebClientUtil";
 
 const app = express();
 const port = 3000;
 
-const hbs = exphbs.create({ extname: ".hbs" });
+const hbs = exphbs.create({ extname: ".hbs"});
 
 app.engine(".hbs", hbs.engine);
 app.set("view engine", ".hbs");

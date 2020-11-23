@@ -17,7 +17,7 @@ export class GDPWatcher
     public static Init()
     {
         if (!this.Initialized) {
-            EventsList.onTrade.on(this.OnTradeListener);
+            EventsList.onTrade.on(async () => await this.OnTradeListener);
             EventsList.onBeforeNewTurn.on(this.Reset);
             this.Initialized = true;
         }

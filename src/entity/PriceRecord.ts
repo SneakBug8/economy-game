@@ -1,4 +1,5 @@
 import { Connection } from "DataBase";
+import { TurnsService } from "services/TurnsService";
 import { Good } from "./Good";
 import { Turn } from "./Turn";
 
@@ -47,9 +48,12 @@ export class PriceRecord {
         return null;
     }
 
-    public static async GetLatestWithGood(good: Good): Promise<PriceRecord>
+    public static async GetLastWithGood(goodId: number): Promise<PriceRecord>
     {
-        const data = await PriceRecordRepository().select().where("goodId", good.id).orderBy("turnId", "desc").first();
+        const data = await PriceRecordRepository().select()
+        .where("goodId", goodId)
+        .andWhere("turnId", TurnsService.CurrentTurn.id - 1)
+        .first();
 
         if (data) {
             return this.From(data);
@@ -58,9 +62,9 @@ export class PriceRecord {
         return null;
     }
 
-    public static async GetLatestWithGoodId(goodId: number): Promise<PriceRecord>
+    public static async GetWithGood(turnId: number, goodId: number): Promise<PriceRecord>
     {
-        const data = await PriceRecordRepository().select().where("goodId", goodId).orderBy("turnId", "desc").first();
+        const data = await PriceRecordRepository().select().where("goodId", goodId).andWhere("turnId", turnId).first();
 
         if (data) {
             return this.From(data);

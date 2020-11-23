@@ -52,7 +52,8 @@ export class Turn
             cashperplayer: turn.cashperplayer,
             totalworkers: turn.totalworkers,
             freecash: turn.freecash,
-
+            medianworkers: turn.medianworkers,
+            averageworkers: turn.averageworkers,
         });
 
         turn.id = d[0];

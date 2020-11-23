@@ -83,7 +83,7 @@ export class MainState extends State
 
             this.Client.writeList<Good>(goods, (x) => x.id, async (x) =>
             {
-                const lastrecord = await PriceRecord.GetLatestWithGood(x);
+                const lastrecord = await PriceRecord.GetLastWithGood(x.id);
 
                 if (lastrecord && lastrecord.tradeamount) {
                     return `${x.name}, price: ${lastrecord.minprice}-${lastrecord.maxprice}, traded ${lastrecord.tradeamount}`;

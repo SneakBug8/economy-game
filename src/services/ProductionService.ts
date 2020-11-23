@@ -76,8 +76,6 @@ export class ProductionService
                 for (const output of recipe.Results) {
                     await Storage.AddGoodTo(actor.id, output.Good.id, reciperepeats * output.amount);
 
-                    PlayerService.SendOffline(player.id, `Factory ${factory.id} manufactured ${reciperepeats * output.amount} ${output.Good.name}`);
-
                     EventsList.onProduction.emit({
                         Factory: factory,
                         Good: output.Good,

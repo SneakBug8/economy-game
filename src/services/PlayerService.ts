@@ -16,7 +16,7 @@ export class PlayerService
         const player = new Player();
 
         player.cash = Config.RegistrationCash;
-        StateActivityService.AddCash(-Config.RegistrationCash);
+        await StateActivityService.AddCash(-Config.RegistrationCash);
 
         player.username = username;
         player.password = passwd;

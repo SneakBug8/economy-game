@@ -12,12 +12,12 @@ export class FixedTaxService
 
         for (const player of players) {
             if (player.cash > Config.FixedTax) {
-                player.payCashToState(Config.FixedTax);
+                await player.payCashToState(Config.FixedTax);
             }
             else {
                 // Take money up to zero insted of 99
                 const amount = player.cash;
-                player.payCashToState(amount);
+                await player.payCashToState(amount);
             }
 
             const factories = await player.getFactories();
@@ -27,14 +27,14 @@ export class FixedTaxService
             const perfactorytax = Config.TaxPerFactory * factories.length;
 
             if (player.cash > perfactorytax) {
-                player.payCashToState(perfactorytax);
+                await player.payCashToState(perfactorytax);
 
                 PlayerService.SendOffline(player.id, `Paid ${perfactorytax} in per factory tax.`);
             }
             else {
                 // Take money up to zero insted of 99
                 const amount = player.cash;
-                player.payCashToState(amount);
+                await player.payCashToState(amount);
 
 
                 if (factories[1]) {
