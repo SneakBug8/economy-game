@@ -5,8 +5,11 @@ export class Turn
     public id: number;
     public datetime: string;
     public totalcash: number = 0;
+    public freecash: number = 0;
     public cashperplayer: number = 0;
     public totalworkers: number = 0;
+    public averageworkers: number = 0;
+    public medianworkers: number = 0;
 
     public static async From(dbobject: any)
     {
@@ -16,6 +19,9 @@ export class Turn
         res.totalcash = dbobject.totalcash;
         res.cashperplayer = dbobject.cashperplayer;
         res.totalworkers = dbobject.totalworkers;
+        res.freecash = dbobject.freecash;
+        res.averageworkers = dbobject.averageworkers;
+        res.medianworkers = dbobject.medianworkers;
 
         return res;
     }
@@ -45,6 +51,8 @@ export class Turn
             totalcash: turn.totalcash,
             cashperplayer: turn.cashperplayer,
             totalworkers: turn.totalworkers,
+            freecash: turn.freecash,
+
         });
 
         turn.id = d[0];
@@ -59,6 +67,9 @@ export class Turn
             totalcash: turn.totalcash,
             cashperplayer: turn.cashperplayer,
             totalworkers: turn.totalworkers,
+            freecash: turn.freecash,
+            medianworkers: turn.medianworkers,
+            averageworkers: turn.averageworkers,
         });
 
         turn.id = d[0];
@@ -75,6 +86,22 @@ export class Turn
         }
 
         return null;
+    }
+
+    public static async All(limit: number = 180): Promise<Turn[]>
+    {
+        const data = await TurnRepository().select().limit(limit);
+        const res = new Array<Turn>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
     }
 }
 

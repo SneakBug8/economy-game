@@ -1,6 +1,7 @@
 import * as express from "express";
 import { IMyRequest, WebClientUtil } from "../WebClientUtil";
 import { LeaderboardsRouter } from "./LeaderboardsRouter";
+import { StatisticsRouter } from "./StatisticsRouter";
 import { WebAPIRouter } from "./WebAPIRouter";
 import { WebClientRouter } from "./WebClientRouter";
 
@@ -9,6 +10,8 @@ export class WebRouters
     public static Init(app: express.Express)
     {
         app.use("/leaderboard", LeaderboardsRouter.GetRouter());
+        app.use("/statistics", StatisticsRouter.GetRouter());
+
         app.use(WebClientRouter.GetRouter());
         app.use(this.on404);
 

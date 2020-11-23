@@ -4,7 +4,7 @@ import { Player } from "entity/Player";
 import { SellOffer } from "entity/SellOffer";
 import { EventsList } from "events/EventsList";
 import { Storage } from "entity/Storage";
-
+import { TurnsService } from "./TurnsService";
 
 export class StateActivityService
 {
@@ -42,6 +42,8 @@ export class StateActivityService
 
     public static async BeforeMarketGeneration()
     {
+        await this.GetPlayer();
+
         const calculatedprices = await CalculatedPrice.GetWithPlayer(this.Player.id);
 
         for (const p of calculatedprices) {
@@ -57,6 +59,12 @@ export class StateActivityService
 
     public static async PublishOrders()
     {
+        await this.GetPlayer();
+
+        if (this.Player.cash <= 10000) {
+            await this.CreateCash(10000);
+        }
+
         const calculatedprices = await CalculatedPrice.GetWithPlayer(this.Player.id);
 
         for (const p of calculatedprices) {
@@ -73,6 +81,8 @@ export class StateActivityService
 
     public static async AfterMarketCleanup()
     {
+        await this.GetPlayer();
+
         const calculatedprices = await CalculatedPrice.GetWithPlayer(this.Player.id);
 
         for (const p of calculatedprices) {
@@ -106,7 +116,13 @@ export class StateActivityService
     public static AddCash(amount: number)
     {
         this.Player.cash += amount;
-        console.log(`Current free cash is: ${this.Player.cash} (change: ${amount})`);
+        this.GetPlayer();
+    }
+
+    public static CreateCash(amount: number)
+    {
+        this.Player.cash += amount;
+        TurnsService.RegisterNewCash(amount);
         this.GetPlayer();
     }
 }

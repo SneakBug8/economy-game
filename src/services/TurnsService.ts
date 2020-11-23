@@ -36,10 +36,11 @@ export class TurnsService
             this.CurrentTurn.id = 1;
         }
 
+        this.CurrentTurn.freecash = 0;
+
         if (Runner.ApiProvider) {
             Runner.ApiProvider.broadcast("Now is turn " + this.CurrentTurn.id);
         }
-
 
         Log.LogText("Now is turn " + this.CurrentTurn.id);
 
@@ -66,20 +67,31 @@ export class TurnsService
             this.CurrentTurn.totalcash += pl.cash;
         }
 
+        this.CurrentTurn.totalcash -= this.CurrentTurn.freecash;
+
         this.CurrentTurn.cashperplayer = this.CurrentTurn.totalcash / (await Player.Count());
     }
 
     public static async CalculateWorkers()
     {
         this.CurrentTurn.totalworkers = 0;
+        let factoryorrgocount = 0;
+        const data = [];
 
         for (const pl of (await Factory.All())) {
+            data.push(pl.employeesCount);
+            factoryorrgocount++;
             this.CurrentTurn.totalworkers += pl.employeesCount;
         }
 
         for (const pl of (await RGO.All())) {
+            data.push(pl.employeesCount);
+            factoryorrgocount++;
             this.CurrentTurn.totalworkers += pl.employeesCount;
         }
+
+        this.CurrentTurn.averageworkers = this.CurrentTurn.totalworkers / factoryorrgocount;
+        this.CurrentTurn.medianworkers = this.Median(data);
     }
 
     public static async CheckBalance(): Promise<boolean>
@@ -104,5 +116,27 @@ export class TurnsService
         console.log(this.CurrentTurn);
 
         return true;
+    }
+
+    public static async RegisterNewCash(amount: number) {
+        this.CurrentTurn.freecash += amount;
+    }
+
+    public static Median(values: number[])
+    {
+        if (values.length === 0) { return 0; }
+
+        values.sort((a, b) =>
+        {
+            return a - b;
+        });
+
+        const half = Math.floor(values.length / 2);
+
+        if (values.length % 2) {
+            return values[half];
+        }
+
+        return (values[half - 1] + values[half]) / 2.0;
     }
 }

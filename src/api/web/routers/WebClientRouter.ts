@@ -685,7 +685,7 @@ export class WebClientRouter
         }
 
         const actor = await MarketActor.GetById(req.client.actorId);
-        const storage = await Storage.Amount(actor, good);
+        const storage = await Storage.Amount(actor.id, good.id);
 
         WebClientUtil.render(req, res, "market", {
             good, buyoffers, selloffers, demand, supply, storage, helpers: { notequal: ((x, y) => x !== y), equal: ((x, y) => x === y) },

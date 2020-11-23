@@ -1,13 +1,10 @@
 import { BuyOffer } from "entity/BuyOffer";
 import { CalculatedPrice, CalculatedPriceType } from "entity/CalculatedPrice";
-import { Consumption } from "entity/Consumption";
-import { MarketActor } from "entity/MarketActor";
 import { Player } from "entity/Player";
-import { PriceRecord } from "entity/PriceRecord";
-import { Production } from "entity/Production";
 import { SellOffer } from "entity/SellOffer";
 import { Storage } from "entity/Storage";
 import { EventsList } from "events/EventsList";
+import { TurnsService } from "./TurnsService";
 
 export class PopulationActivityService
 {
@@ -18,9 +15,9 @@ export class PopulationActivityService
     public static Init()
     {
         if (!this.Initialized) {
-            EventsList.onAfterNewTurn.on((t) => this.BeforeMarketGeneration);
-            EventsList.onAfterNewTurn.on((t) => this.PublishOrders);
-            EventsList.onBeforeNewTurn.on((t) => this.AfterMarketCleanup);
+            EventsList.onAfterNewTurn.on(() => this.BeforeMarketGeneration);
+            EventsList.onAfterNewTurn.on(() => this.PublishOrders);
+            EventsList.onBeforeNewTurn.on(() => this.AfterMarketCleanup);
             this.Initialized = true;
         }
     }
@@ -45,6 +42,8 @@ export class PopulationActivityService
 
     public static async BeforeMarketGeneration()
     {
+        await this.GetPlayer();
+
         const calculatedprices = await CalculatedPrice.GetWithPlayer(this.Player.id);
 
         for (const p of calculatedprices) {
@@ -60,15 +59,31 @@ export class PopulationActivityService
 
     public static async PublishOrders()
     {
+        await this.GetPlayer();
+
+        if (this.Player.cash <= 10000) {
+            await this.CreateCash(10000);
+        }
+
+        const borders = await BuyOffer.GetWithActor(this.Player.actorId);
+        for (const o of borders) {
+            await BuyOffer.Delete(o.id);
+        }
+
+        const sorders = await BuyOffer.GetWithActor(this.Player.actorId);
+        for (const o of sorders) {
+            await SellOffer.Delete(o.id);
+        }
+
         const calculatedprices = await CalculatedPrice.GetWithPlayer(this.Player.id);
 
         for (const p of calculatedprices) {
             if (p.type === CalculatedPriceType.Buy) {
-                BuyOffer.Create(p.goodId, p.amount, p.price, this.Player.actorId);
+                await BuyOffer.Create(p.goodId, p.amount, p.price, this.Player.actorId);
                 continue;
             }
             else if (p.type === CalculatedPriceType.Sell) {
-                SellOffer.Create(p.goodId, p.amount, p.price, this.Player.actorId);
+                await SellOffer.Create(p.goodId, p.amount, p.price, this.Player.actorId);
                 continue;
             }
         }
@@ -76,11 +91,13 @@ export class PopulationActivityService
 
     public static async AfterMarketCleanup()
     {
+        await this.GetPlayer();
+
         const calculatedprices = await CalculatedPrice.GetWithPlayer(this.Player.id);
 
         for (const p of calculatedprices) {
             if (p.type === CalculatedPriceType.Buy &&
-                Storage.Has(this.Player.actorId, p.goodId, p.amount)) {
+                await Storage.Has(this.Player.actorId, p.goodId, p.amount)) {
                 p.price = Math.floor(p.price * 0.99);
                 CalculatedPrice.Update(p);
                 continue;
@@ -88,6 +105,7 @@ export class PopulationActivityService
             else if (p.type === CalculatedPriceType.Buy &&
                 (await Storage.Amount(this.Player.actorId, p.goodId)) === 0) {
                 p.price = Math.ceil(p.price * 1.01);
+                p.amount = Math.ceil(p.amount * 1.01);
                 CalculatedPrice.Update(p);
                 continue;
             }
@@ -100,6 +118,7 @@ export class PopulationActivityService
             else if (p.type === CalculatedPriceType.Sell &&
                 (await Storage.Amount(this.Player.actorId, p.goodId)) === 0) {
                 p.price = Math.ceil(p.price * 1.01);
+                p.amount = Math.ceil(p.amount * 1.01);
                 CalculatedPrice.Update(p);
                 continue;
             }
@@ -109,7 +128,13 @@ export class PopulationActivityService
     public static AddCash(amount: number)
     {
         this.Player.cash += amount;
-        console.log(`Current free cash is: ${this.Player.cash} (change: ${amount})`);
-        this.CommitPlayer();
+        this.GetPlayer();
+    }
+
+    public static CreateCash(amount: number)
+    {
+        this.Player.cash += amount;
+        TurnsService.RegisterNewCash(amount);
+        this.GetPlayer();
     }
 }
