@@ -230,7 +230,10 @@ export class WebClientRouter
     }
     public static async onFactories(req: IMyRequest, res: express.Response)
     {
-        const factories = await Player.GetFactoriesById(req.client.playerId);
+        const factories = await Player.GetFactoriesById(
+            await Player.GetCurrentMarketId(req.client.playerId),
+            req.client.playerId,
+            );
 
         const data = [];
 

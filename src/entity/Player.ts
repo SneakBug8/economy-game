@@ -131,12 +131,22 @@ export class Player
 
     public static async GetFactories(player: Player): Promise<Factory[]>
     {
-        return this.GetFactoriesById(player.id);
+        return this.GetFactoriesById(player.CurrentMarketId, player.id);
     }
 
-    public static async GetFactoriesById(playerid: number): Promise<Factory[]>
+    public static async GetCurrentMarketId(playerId: number){
+        const player = await Player.GetById(playerId);
+        if (player) {
+            return player.CurrentMarketId;
+        }
+
+        return null;
+    }
+
+    public static async GetFactoriesById(marketId: number, playerid: number): Promise<Factory[]>
     {
-        const data = await FactoryRepository().select().where("playerId", playerid);
+        const data = await FactoryRepository().select().where("playerId", playerid)
+        .andWhere("marketId", marketId);
 
         const res = new Array<Factory>();
 
@@ -152,7 +162,7 @@ export class Player
     }
 
     public async getFactoriesWorkers() {
-        const factories = await this.getFactories();
+        const factories = await Player.GetFactoriesById(this.CurrentMarketId, this.id);
 
         let res = 0;
 
@@ -291,7 +301,7 @@ export class Player
             MarketActor.Delete(player.actorId);
         }
 
-        for (const factory of await player.getFactories()) {
+        for (const factory of await Player.GetFactoriesById(player.CurrentMarketId, player.id)) {
             Factory.Delete(factory.id);
         }
 

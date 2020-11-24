@@ -24,6 +24,8 @@ export class MarketsRouter
 
     public static async onMove(req: IMyRequest, res: express.Response)
     {
+        console.log(req.url);
+
         const markets = await Market.All();
         WebClientUtil.render(req, res, "markets/list", { markets });
     }
@@ -32,13 +34,14 @@ export class MarketsRouter
     {
         const marketid = Number.parseInt(req.params.id, 10);
 
-        const answ = await PlayerService.MoveBetweenMarkets(req.client.clientId, marketid);
+        const answ = await PlayerService.MoveBetweenMarkets(req.client.playerId, marketid);
 
-        if (typeof answ !== "number") {
+        if (typeof answ !== "boolean") {
             WebClientUtil.error(req, res, answ as string);
             return true;
         }
 
-        res.redirect("/move");
+        req.client.infoToShow = "Moved successfully";
+        res.redirect(req.baseUrl + "/move");
     }
 }

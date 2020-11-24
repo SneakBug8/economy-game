@@ -15,6 +15,7 @@ export class WebClient
     private lastSuccessfulUrl = "/";
     private backUrls: string[] = [];
     public errorToShow: string = null;
+    public infoToShow: string = null;
 
     public getUrl() {
         return this.lastSuccessfulUrl;

@@ -57,11 +57,14 @@ export class WebClientUtil {
             layout: this.getInfopagesLayout(req),
             ...data,
             error: req.client.errorToShow,
+            info: req.client.infoToShow,
             title: req.url,
             isLogined: this.isLogined(req),
+            baseUrl: req.baseUrl,
         });
 
         req.client.errorToShow = null;
+        req.client.infoToShow = null;
     }
 
     public static renderLast(req: IMyRequest, res: express.Response)
