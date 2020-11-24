@@ -11,7 +11,6 @@ export class CalculatedPrice
     public price: number;
     public amount: number;
 
-
     public static async From(dbobject: any)
     {
         const res = new CalculatedPrice();

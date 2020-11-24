@@ -8,6 +8,7 @@ import { Config } from "config";
 import {Storage} from "entity/Storage";
 import { Good } from "entity/Good";
 import { RGOType } from "entity/RGOType";
+import { Logger } from "utility/Logger";
 
 export class RGOManagementService
 {
@@ -55,6 +56,8 @@ export class RGOManagementService
 
             await RGO.Update(rgo);
         }
+
+        Logger.info("Ran RGO Management service");
     }
 
     public static Lerp(start: number, end: number, percent: number)

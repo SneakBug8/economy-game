@@ -31,6 +31,8 @@ export class Config
 
     public static MaxFactoriesPerPlayer = 10;
 
+    public static EverydayInflation = 0.01;
+
     public static NewFactoryCosts: Array<{ goodId: number, Amount: number }> =
     [
         {

@@ -35,22 +35,22 @@ export class TypedEvent<T> {
     {
         try {
             /** Update any general listeners */
-            for (const listener of this.listeners) {
-                await listener(event);
-            }
+            this.listeners.forEach(async function (x) {
+                await x(event);
+            });
 
             /** Clear the `once` queue */
             if (this.listenersOncer.length > 0) {
                 const toCall = this.listenersOncer;
                 this.listenersOncer = [];
 
-                for (const listener of toCall) {
-                    await listener(event);
-                }
+                toCall.forEach(async function (x) {
+                    await x(event);
+                });
             }
         }
         catch (e) {
-            Logger.error(e);
+            Logger.error(e || "Error from TypedEvent");
         }
     }
 

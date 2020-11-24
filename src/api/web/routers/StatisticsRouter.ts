@@ -110,19 +110,19 @@ export class StatisticsRouter
         const labels = [];
 
         const statestats = await Statistics.GetWithPlayerAndType<IPlayerStatisticsRecord>
-            (StateActivityService.Player.id,
+            (StateActivityService.PlayerId,
                 StatisticsTypes.PlayerRecord);
 
         const popstats = await Statistics.GetWithPlayerAndType<IPlayerStatisticsRecord>
-            (PopulationActivityService.Player.id,
+            (PopulationActivityService.PlayerId,
                 StatisticsTypes.PlayerRecord);
 
         let i = 0;
         for (const states of statestats) {
             labels.push(states.turnId + "");
 
-            state.push(popstats[i].Value.cash);
-            population.push(states.Value.cash);
+            state.push(states.Value.cash);
+            population.push(popstats[i].Value.cash);
             i++;
         }
 

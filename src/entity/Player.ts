@@ -45,13 +45,24 @@ export class Player
 
     public async payCash(to: Player, amount: number): Promise<boolean>
     {
-        if (this.cash < amount) {
+        if (this.id === to.id || this.actorId === to.actorId) {
+            return true;
+        }
+        else if (this.cash < amount) {
             Logger.warn(`[${this.username} Not enough money to make transfer to ${to.username}`);
             return false;
         }
+        else if (amount < 0 && to.cash < amount) {
+            Logger.warn(`[${this.username} Not enough money to make transfer to ${this.username}`);
+            return false;
+        }
+
+        Logger.verbose(`${this.username} paid ${amount} to ${to.username}. Old balance: ${this.cash}`);
 
         await this.ModifyCash(-amount);
         await to.ModifyCash(amount);
+
+        Logger.verbose(`New balance: ${to.cash}`);
 
         return true;
     }
@@ -69,23 +80,12 @@ export class Player
 
     public async payCashToState(amount: number): Promise<boolean>
     {
-        if (this.cash < amount) {
-            Logger.warn(`[${this.username} Not enough money to make transfer to state`);
-            return false;
-        }
-
-        await this.ModifyCash(-amount);
-        await StateActivityService.AddCash(amount);
-
-        return true;
+        return await this.payCash(await StateActivityService.GetPlayer(), amount);
     }
 
     public async takeCashFromState(amount: number): Promise<boolean>
     {
-        await this.ModifyCash(amount);
-        await StateActivityService.AddCash(-amount);
-
-        return true;
+        return await this.payCash(await StateActivityService.GetPlayer(), -amount);
     }
 
     public Verbose(): void

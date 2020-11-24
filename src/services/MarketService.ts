@@ -11,6 +11,7 @@ import { EventsList } from "events/EventsList";
 import { TradeEventType } from "events/types/TradeEvent";
 import { PlayerService } from "./PlayerService";
 import { Config } from "config";
+import { Logger } from "utility/Logger";
 
 export class MarketService
 {
@@ -233,6 +234,7 @@ export class MarketService
             }
 
         }
+        Logger.info("Ran market service");
 
         await EventsList.afterMarket.emit();
     }

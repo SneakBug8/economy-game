@@ -7,6 +7,7 @@ import {Config} from "config";
 import { Good } from "entity/Good";
 import {Storage} from "entity/Storage";
 import { PopulationActivityService } from "./PopulationActivityService";
+import { Logger } from "utility/Logger";
 
 export class FactoryManagementService
 {
@@ -54,6 +55,8 @@ export class FactoryManagementService
 
             await Factory.Update(factory);
         }
+
+        Logger.info("Ran Factory management service");
     }
 
     public static Lerp(start: number, end: number, percent: number)

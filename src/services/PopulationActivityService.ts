@@ -6,7 +6,9 @@ import { IPlayerStatisticsRecord, Statistics, StatisticsTypes } from "entity/Sta
 import { Storage } from "entity/Storage";
 import { Turn } from "entity/Turn";
 import { EventsList } from "events/EventsList";
+import { Runner } from "Runner";
 import { Logger } from "utility/Logger";
+import { PlayerService } from "./PlayerService";
 import { TurnsService } from "./TurnsService";
 
 export class PopulationActivityService
@@ -15,93 +17,110 @@ export class PopulationActivityService
 
     public static Initialized = false;
 
-    public static Init()
+    public static async Init()
     {
-        if (!this.Initialized) {
-            EventsList.beforeMarket.on(async () => await this.BeforeMarketGeneration);
-            EventsList.beforeMarket.on(async () => await this.PublishOrders);
-            EventsList.afterMarket.on(async () => await this.AfterMarketCleanup);
-            EventsList.onBeforeNewTurn.on(async (t) => await this.MakeStatistics(t));
+        if (!PopulationActivityService.Initialized) {
+            EventsList.beforeMarket.on(PopulationActivityService.BeforeMarketGeneration);
+            EventsList.beforeMarket.on(PopulationActivityService.PublishOrders);
+            EventsList.afterMarket.on(PopulationActivityService.AfterMarketCleanup);
+            // EventsList.onBeforeNewTurn.on(async (t) => await PopulationActivityService.MakeStatistics(t));
 
-            this.GetPlayer();
+            await PopulationActivityService.GetPlayer();
 
-            this.Initialized = true;
+            PopulationActivityService.Initialized = true;
         }
     }
 
     public static async GetPlayer()
     {
-        if (this.Player) {
-            await Player.Update(this.Player);
+        const res = await Player.GetById(PopulationActivityService.PlayerId);
+        if (!res) {
+            const id = await PlayerService.Register("Population", "1122");
+            const player = await Player.GetById(id);
+            player.id = PopulationActivityService.PlayerId;
+            await Player.Insert(player);
+            return player;
         }
-        this.Player = await Player.GetById(this.PlayerId);
-        Logger.verbose(`Loaded player ${this.Player.username}`);
-        return this.Player;
-    }
-
-    public static async CommitPlayer()
-    {
-        if (this.Player) {
-            await Player.Update(this.Player);
-        }
+        return res;
     }
 
     public static async MakeStatistics(t: Turn)
     {
-        await this.GetPlayer();
+        /*await PopulationActivityService.GetPlayer();
 
-        Statistics.Create<IPlayerStatisticsRecord>(this.Player.id, t.id, StatisticsTypes.PlayerRecord, {
-            cash: this.Player.cash,
-        });
+        Statistics.Create<IPlayerStatisticsRecord>(PopulationActivityService.Player.id, t.id, StatisticsTypes.PlayerRecord, {
+            cash: PopulationActivityService.Player.cash,
+        });*/
     }
-
-    public static Player: Player;
 
     public static async BeforeMarketGeneration()
     {
-        await this.GetPlayer();
+        const player = await PopulationActivityService.GetPlayer();
 
-        const calculatedprices = await CalculatedPrice.GetWithPlayer(this.Player.id);
+        if (!player) {
+            return;
+        }
+
+        const calculatedprices = await CalculatedPrice.GetWithPlayer(player.id);
 
         for (const p of calculatedprices) {
             if (p.type === CalculatedPriceType.Sell) {
-                Storage.AddGoodTo(this.Player.actorId, p.goodId, p.amount);
+                Storage.AddGoodTo(player.actorId, p.goodId, p.amount);
             }
             if (p.type === CalculatedPriceType.Buy) {
-                Storage.AddGoodTo(this.Player.actorId, p.goodId,
-                    await Storage.Amount(this.Player.actorId, p.goodId));
+                Storage.AddGoodTo(player.actorId, p.goodId,
+                    await Storage.Amount(player.actorId, p.goodId));
             }
         }
     }
 
     public static async PublishOrders()
     {
-        await this.GetPlayer();
+        const player = await PopulationActivityService.GetPlayer();
 
-        if (this.Player.cash <= 10000) {
-            await this.CreateCash(10000);
+        if (!player) {
+            return;
         }
 
-        const borders = await BuyOffer.GetWithActor(this.Player.actorId);
+        const calculatedprices = await CalculatedPrice.GetWithPlayer(player.id);
+
+        if (player.cash <= 10000) {
+            for (const c of calculatedprices) {
+                c.amount = Math.floor(0.99 * c.amount);
+                await CalculatedPrice.Update(c);
+                if (Runner.ApiProvider) {
+                    Runner.ApiProvider.broadcast("Population starves! Increase salaries or whole economy will collapse!");
+                }
+            }
+        }
+        else if (player.cash >= 20000) {
+            for (const c of calculatedprices) {
+                c.amount = Math.ceil(1.01 * c.amount);
+                await CalculatedPrice.Update(c);
+                if (Runner.ApiProvider) {
+                    Runner.ApiProvider.broadcast("Population grows and so does it's consumption! Good work with those salaries!");
+                }
+            }
+        }
+
+        const borders = await BuyOffer.GetWithActor(player.actorId);
         for (const o of borders) {
             await BuyOffer.Delete(o.id);
         }
 
-        const sorders = await SellOffer.GetWithActor(this.Player.actorId);
+        const sorders = await SellOffer.GetWithActor(player.actorId);
         for (const o of sorders) {
             await SellOffer.Delete(o.id);
         }
 
-        const calculatedprices = await CalculatedPrice.GetWithPlayer(this.Player.id);
-
         for (const p of calculatedprices) {
             if (p.type === CalculatedPriceType.Buy) {
-                await BuyOffer.Create(p.goodId, p.amount, p.price, this.Player.actorId);
+                await BuyOffer.Create(p.goodId, p.amount, p.price, player.actorId);
                 console.log("Created buy order");
                 continue;
             }
             else if (p.type === CalculatedPriceType.Sell) {
-                await SellOffer.Create(p.goodId, p.amount, p.price, this.Player.actorId);
+                await SellOffer.Create(p.goodId, p.amount, p.price, player.actorId);
                 console.log("Created sell order");
 
                 continue;
@@ -112,32 +131,36 @@ export class PopulationActivityService
 
     public static async AfterMarketCleanup()
     {
-        await this.GetPlayer();
+        const player = await PopulationActivityService.GetPlayer();
 
-        const calculatedprices = await CalculatedPrice.GetWithPlayer(this.Player.id);
+        if (!player) {
+            return;
+        }
+
+        const calculatedprices = await CalculatedPrice.GetWithPlayer(player.id);
 
         for (const p of calculatedprices) {
             if (p.type === CalculatedPriceType.Buy &&
-                await Storage.Has(this.Player.actorId, p.goodId, p.amount)) {
+                await Storage.Has(player.actorId, p.goodId, p.amount)) {
                 p.price = Math.floor(p.price * 0.99);
                 CalculatedPrice.Update(p);
                 continue;
             }
             else if (p.type === CalculatedPriceType.Buy &&
-                (await Storage.Amount(this.Player.actorId, p.goodId)) === 0) {
+                (await Storage.Amount(player.actorId, p.goodId)) === 0) {
                 p.price = Math.ceil(p.price * 1.01);
                 p.amount = Math.ceil(p.amount * 1.01);
                 CalculatedPrice.Update(p);
                 continue;
             }
             else if (p.type === CalculatedPriceType.Sell &&
-                (await Storage.Amount(this.Player.actorId, p.goodId)) > 0) {
+                (await Storage.Amount(player.actorId, p.goodId)) > 0) {
                 p.price = Math.floor(p.price * 0.99);
                 CalculatedPrice.Update(p);
                 continue;
             }
             else if (p.type === CalculatedPriceType.Sell &&
-                (await Storage.Amount(this.Player.actorId, p.goodId)) === 0) {
+                (await Storage.Amount(player.actorId, p.goodId)) === 0) {
                 p.price = Math.ceil(p.price * 1.01);
                 p.amount = Math.ceil(p.amount * 1.01);
                 CalculatedPrice.Update(p);
@@ -148,14 +171,15 @@ export class PopulationActivityService
 
     public static async AddCash(amount: number)
     {
-        this.Player.cash += amount;
-        await this.GetPlayer();
+        const player = await this.GetPlayer();
+        player.cash += amount;
+        await Player.Update(player);
     }
 
-    public static async CreateCash(amount: number)
+    public static async CreateCash(player: Player, amount: number)
     {
-        this.Player.cash += amount;
+        player.cash += amount;
         TurnsService.RegisterNewCash(amount);
-        await this.GetPlayer();
+        await Player.Update(player);
     }
 }

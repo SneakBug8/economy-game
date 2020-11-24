@@ -6,6 +6,7 @@ import { EventsList } from "events/EventsList";
 import { ProductionQueue } from "entity/ProductionQueue";
 import { PlayerService } from "./PlayerService";
 import { RGO } from "entity/RGO";
+import { Logger } from "utility/Logger";
 
 export class RGOGainService
 {
@@ -34,5 +35,7 @@ export class RGOGainService
                 Amount: amountproduced,
             });
         }
+
+        Logger.info("Ran RGO Gain service");
     }
 }

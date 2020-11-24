@@ -5,6 +5,7 @@ import { Player } from "entity/Player";
 import { EventsList } from "events/EventsList";
 import { ProductionQueue } from "entity/ProductionQueue";
 import { PlayerService } from "./PlayerService";
+import { Logger } from "utility/Logger";
 
 export class ProductionService
 {
@@ -85,6 +86,8 @@ export class ProductionService
                 }
             }
         }
+
+        Logger.info("Ran Production service");
     }
     /*
     Old. With one production recipe.

@@ -82,6 +82,8 @@ export class Runner
 
         await TurnsService.CheckBalance();
 
+        await TurnsService.CheckBalance();
+
         await TurnsService.EndTurn();
         await TurnsService.StartTurn();
     }
