@@ -13,13 +13,13 @@ export class FixedTaxService
 
         for (const player of players) {
             if (player.cash > Config.FixedTax) {
-                await player.payCashToState(Config.FixedTax);
+                await player.payCashToState(player.CurrentMarketId, Config.FixedTax);
                 PlayerService.SendOffline(player.id, `Paid ${Config.FixedTax} fixed tax.`);
             }
             else {
                 // Take money up to zero instead of 99
                 const amount = player.cash;
-                await player.payCashToState(amount);
+                await player.payCashToState(player.CurrentMarketId, amount);
                 PlayerService.SendOffline(player.id, `Paid ${amount} only in fixed tax as can't pay in full.`);
             }
 
@@ -29,26 +29,29 @@ export class FixedTaxService
             if (factories.length <= 1) {
                 continue;
             }
-            const perfactorytax = Config.TaxPerFactory * factories.length;
 
-            if (player.cash > perfactorytax) {
-                await player.payCashToState(perfactorytax);
+            for (const factory of await Factory.All()) {
+                const perfactorytax = Config.TaxPerFactory;
 
-                PlayerService.SendOffline(player.id, `Paid ${perfactorytax} in per factory tax.`);
-            }
-            else {
-                // Take money up to zero insted of 99
-                const amount = player.cash;
-                await player.payCashToState(amount);
+                if (player.cash > perfactorytax) {
+                    await player.payCashToState(factory.marketId, perfactorytax);
 
-                if (factories[1]) {
-                    PlayerService.SendOffline(player.id, `Paid ${amount} instead of ${perfactorytax} in per factory tax. ` +
-                    `Factory ${factories[1].id} has been seized.`);
-
-                    Factory.Delete(factories[1].id);
+                    PlayerService.SendOffline(player.id, `Paid ${perfactorytax} in per factory tax for ${factory.id}.`);
                 }
                 else {
-                    Log.LogText("For whatever reason no factory[1] for fixedtaxservice");
+                    // Take money up to zero insted of 99
+                    const amount = player.cash;
+                    await player.payCashToState(factory.marketId, amount);
+
+                    if (factories[1]) {
+                        PlayerService.SendOffline(player.id, `Paid ${amount} instead of ${perfactorytax} in per factory tax. ` +
+                            `Factory ${factories[1].id} has been seized.`);
+
+                        Factory.Delete(factories[1].id);
+                    }
+                    else {
+                        Log.LogText("For whatever reason no factory[1] for fixedtaxservice");
+                    }
                 }
             }
         }

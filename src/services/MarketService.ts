@@ -86,7 +86,7 @@ export class MarketService
                         const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
 
                         await this.TransferCash(buyactor, sellactor, transactioncost - taxcost);
-                        await buyerplayer.payCashToState(taxcost);
+                        await buyerplayer.payCashToState(buy.marketId, taxcost);
                         await Storage.AddGoodTo(buy.marketId, buyactor.id, good.id, transactionsize);
 
                         PlayerService.SendOffline(sellerplayer.id,
@@ -322,7 +322,7 @@ export class MarketService
 
         const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
         await buyplayer.payCash(sellerplayer, transactioncost - taxcost);
-        await buyplayer.payCashToState(taxcost);
+        await buyplayer.payCashToState(sell.marketId, taxcost);
         await Storage.AddGoodTo(sell.marketId, buyactor.id, good.id, transactionsize);
 
         PlayerService.SendOffline(sellerplayer.id,
@@ -383,7 +383,7 @@ export class MarketService
 
         const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
         await buyplayer.payCash(sellerplayer, transactioncost - taxcost);
-        await buyplayer.payCashToState(taxcost);
+        await buyplayer.payCashToState(buy.marketId, taxcost);
         await Storage.AddGoodTo(buy.marketId, buyactor.id, good.id, transactionsize);
 
         PlayerService.SendOffline(sellerplayer.id,

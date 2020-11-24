@@ -45,8 +45,7 @@ export class MarketActor
 
     public static async Delete(id: number): Promise<boolean>
     {
-        const actor = await this.GetById(id);
-        const storages = await Storage.GetWithActor(actor);
+        const storages = await Storage.___GetWithActor(id);
         for (const storage of storages) {
             await Storage.Delete(storage.id);
         }

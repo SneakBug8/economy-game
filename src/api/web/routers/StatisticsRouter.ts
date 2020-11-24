@@ -1,10 +1,13 @@
 import { Factory } from "entity/Factory";
+import { Market } from "entity/Market";
+import { Player } from "entity/Player";
 import { IMedianCashRecord, IPlayerStatisticsRecord, Statistics, StatisticsTypes } from "entity/Statistics";
 import { Turn } from "entity/Turn";
 import * as express from "express";
 import { toUnicode } from "punycode";
 import { PopulationActivityService } from "services/PopulationActivityService";
 import { StateActivityService } from "services/StateActivityService";
+import { TurnsService } from "services/TurnsService";
 import { IMyRequest, WebClientUtil } from "../WebClientUtil";
 
 export class StatisticsRouter
@@ -103,32 +106,91 @@ export class StatisticsRouter
         });
     }
 
+
     public static async OnCountry(req: IMyRequest, res: express.Response)
     {
-        const state = [];
-        const population = [];
         const labels = [];
 
-        const statestats = await Statistics.GetWithPlayerAndType<IPlayerStatisticsRecord>
-            (StateActivityService.PlayerId,
-                StatisticsTypes.PlayerRecord);
 
-        const popstats = await Statistics.GetWithPlayerAndType<IPlayerStatisticsRecord>
-            (PopulationActivityService.PlayerId,
-                StatisticsTypes.PlayerRecord);
+        const markets: Array<{
+            title: string,
+            data: Array<{
+                label: string,
+                data: number[],
+                borderColor: string,
+            }>,
+        }> = [];
 
-        let i = 0;
-        for (const states of statestats) {
-            labels.push(states.turnId + "");
+        for (let turnid = TurnsService.CurrentTurn.id - 90;
+            turnid < TurnsService.CurrentTurn.id;
+            turnid++) {
+            labels.push(turnid);
+        }
 
-            state.push(states.Value.cash);
-            population.push(popstats[i].Value.cash);
-            i++;
+        for (const market of await Market.All()) {
+            const stateplayerid = StateActivityService.PlayersMap.get(market.id);
+            const popplayerid = PopulationActivityService.PlayersMap.get(market.id);
+
+            if (!stateplayerid || !popplayerid) {
+                continue;
+            }
+
+            const stateplayer = (stateplayerid) ? await Player.GetById(stateplayerid) : null;
+            const popplayer = (popplayerid) ? await Player.GetById(popplayerid) : null;
+
+            const state = {
+                label: (stateplayer && stateplayer.username) || "State",
+                borderColor: market.govtColor || "red",
+                data: [],
+            };
+
+            const pop = {
+                label: (popplayer && popplayer.username) || "Population",
+                borderColor: market.popColor || "blue",
+                data: [],
+            };
+
+            const statemarket = await Statistics.GetWithPlayerAndType<IPlayerStatisticsRecord>
+                (stateplayerid,
+                    StatisticsTypes.PlayerRecord);
+
+            const popmarket = await Statistics.GetWithPlayerAndType<IPlayerStatisticsRecord>
+                (popplayerid,
+                    StatisticsTypes.PlayerRecord);
+
+            for (let turnid = TurnsService.CurrentTurn.id - 90;
+                turnid < TurnsService.CurrentTurn.id;
+                turnid++) {
+
+                const statestat = statemarket && statemarket.find((x) => x.turnId === turnid);
+                if (statestat) {
+                    state.data.push(statestat.Value.cash);
+                }
+                else {
+                    state.data.push(0);
+                }
+
+                const popstat = popmarket && popmarket.find((x) => x.turnId === turnid);
+                if (popstat) {
+                    pop.data.push(popstat.Value.cash);
+                }
+                else {
+                    pop.data.push(0);
+                }
+            }
+
+            markets.push({
+                title: market.name,
+                data: [state, pop],
+            });
+        }
+
+        for (const market of markets) {
+            market.data = JSON.stringify(market.data) as any;
         }
 
         WebClientUtil.render(req, res, "statistics/country", {
-            population: JSON.stringify(population),
-            state: JSON.stringify(state),
+            markets,
             labels: JSON.stringify(labels),
         });
     }

@@ -8,7 +8,6 @@
         function onClick() {
             id = $(this).attr("id");
             $("#recipeId").val(id);
-            console.log($(this));
             $("#recipeselector li").each(function (i, elem) {
                 $(elem).removeClass("selected");
             });

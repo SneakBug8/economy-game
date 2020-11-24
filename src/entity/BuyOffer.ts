@@ -56,7 +56,7 @@ export class BuyOffer extends MarketOffer
     public async From(dbobject: any)
     {
         this.id = dbobject.id;
-        this.marketId = dbobject.market_id;
+        this.marketId = dbobject.marketId;
         this.actorId = dbobject.actor_id;
         this.goodId = dbobject.good_id;
         this.amount = dbobject.amount;
@@ -112,7 +112,7 @@ export class BuyOffer extends MarketOffer
     public static async Update(offer: BuyOffer): Promise<number>
     {
         const d = await BuyOfferRepository().where("id", offer.id).update({
-            market_id: offer.marketId,
+            marketId: offer.marketId,
             actor_id: offer.actorId,
             good_id: offer.goodId,
             amount: offer.amount,
@@ -129,7 +129,7 @@ export class BuyOffer extends MarketOffer
     public static async Insert(offer: BuyOffer): Promise<number>
     {
         const d = await BuyOfferRepository().insert({
-            market_id: offer.marketId,
+            marketId: offer.marketId,
             actor_id: offer.actorId,
             good_id: offer.goodId,
             amount: offer.amount,

@@ -118,6 +118,13 @@ export class WebClientUtil {
         next();
     }
 
+    public static async LoadMarkets(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        const markets = await Market.All();
+        res.locals.markets = markets;
+        next();
+    }
+
     public static async FillPlayercardData(req: IMyRequest, res: express.Response, next: () => void)
     {
         if (WebClientUtil.isLogined(req)) {

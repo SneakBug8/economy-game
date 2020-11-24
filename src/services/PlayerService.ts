@@ -16,8 +16,10 @@ export class PlayerService
     {
         const player = new Player();
 
+        player.CurrentMarketId = Market.DefaultMarket.id;
+
         player.cash = Config.RegistrationCash;
-        await StateActivityService.AddCash(-Config.RegistrationCash);
+        await StateActivityService.AddCash(player.CurrentMarketId, -Config.RegistrationCash);
 
         player.username = username;
         player.password = passwd;

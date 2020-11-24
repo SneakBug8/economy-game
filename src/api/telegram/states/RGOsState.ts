@@ -35,7 +35,10 @@ export class RGOsState extends State
     public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]>
     {
         const res: TelegramBot.KeyboardButton[][] = [];
-        const rgos = await Player.GetRGOsById(this.Client.playerId);
+        const rgos = await Player.GetRGOsById(
+            await Player.GetCurrentMarketId(this.Client.playerId),
+            this.Client.playerId,
+            );
 
         let subres: TelegramBot.KeyboardButton[] = [];
         for (const rgo of rgos) {
@@ -198,7 +201,10 @@ export class RGOsState extends State
     {
         const regex = new RegExp("\/info$");
         if (regex.test(message)) {
-            const rgos = await Player.GetRGOsById(this.Client.playerId);
+            const rgos = await Player.GetRGOsById(
+                await Player.GetCurrentMarketId(this.Client.playerId),
+                this.Client.playerId,
+                );
 
             this.Client.writeList<RGO>(rgos,
                 (x) => x.id,

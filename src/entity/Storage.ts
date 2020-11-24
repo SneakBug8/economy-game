@@ -1,6 +1,7 @@
 import { Good } from "./Good";
 import { Connection } from "DataBase";
 import { MarketActor } from "./MarketActor";
+import { Player } from "./Player";
 
 export class Storage
 {
@@ -70,11 +71,39 @@ export class Storage
         return null;
     }
 
-    public static async GetWithActor(actor: MarketActor): Promise<Storage[]>
+    public static async ___GetWithActor(actorId: number): Promise<Storage[]>
     {
         const data = await StorageRepository()
             .select()
-            .where("actorId", actor.id);
+            .where("actorId", actorId);
+
+        const res = new Array<Storage>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
+    public static async AGetWithActor(actorId: number): Promise<Storage[]>
+    {
+        return this.GetWithActor(
+            (await Player.GetWithActorId(actorId)).CurrentMarketId,
+            actorId,
+        );
+    }
+
+    public static async GetWithActor(marketId: number, actorId: number): Promise<Storage[]>
+    {
+        const data = await StorageRepository()
+            .select()
+            .where("actorId", actorId)
+            .andWhere("marketId", marketId);
 
         const res = new Array<Storage>();
 

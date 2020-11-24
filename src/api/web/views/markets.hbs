@@ -14,3 +14,18 @@
 {{/each}}
 
 </table>
+
+<div>
+<h2>Отправка денег другому игроку</h2>
+<form action="/money/send" method="POST" enctype="application/x-www-form-urlencoded">
+    <div class="form-group clearfix">
+        <label for="username">Username</label>
+        <input name="username" required type="text" class="form-control" id="username" placeholder="..." required>
+    </div>
+    <div class="form-group clearfix">
+        <label for="amount">Сумма</label>
+        <input name="amount" required type="text" class="form-control" id="amount" placeholder="0" required>
+    </div>
+    <button type="submit" class="btn btn-success">Отправить</button>
+</form>
+</div>

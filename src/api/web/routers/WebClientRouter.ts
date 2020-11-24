@@ -1,6 +1,4 @@
 import * as express from "express";
-import { Logger } from "utility/Logger";
-import { WebClient } from "api/web/WebClient";
 import { body, param, validationResult } from "express-validator";
 import * as bodyParser from "body-parser";
 import { PlayerService } from "services/PlayerService";
@@ -21,10 +19,8 @@ import { MarketService } from "services/MarketService";
 import { BuyOffer } from "entity/BuyOffer";
 import { SellOffer } from "entity/SellOffer";
 import { MarketActor } from "entity/MarketActor";
-import { Consumption } from "entity/Consumption";
-import { Production } from "entity/Production";
-import { LeaderboardService } from "services/LeaderboardService";
 import { IMyRequest, WebClientUtil } from "../WebClientUtil";
+import { StorageService } from "services/StorageService";
 
 export class WebClientRouter
 {
@@ -41,7 +37,8 @@ export class WebClientRouter
         router.get("/register", this.onRegister);
         router.post("/register", [
             body("login", "Empty login").trim().isLength({ min: 4 }).escape(),
-            body("password", "Empty password").trim().isLength({ min: 6 }).escape(),
+            body("password", "Empty password").notEmpty(),
+            body("password", "Password too short").trim().isLength({ min: 6 }).escape(),
             body("passwordconfirm", "Empty passwordconfirmation").trim().isLength({ min: 6 }).escape(),
             body("passwordconfirm", "Pasword confirm must be same as password").custom((value, { req }) => req.body && req.body.password === value),
         ], this.registerAction);
@@ -56,7 +53,7 @@ export class WebClientRouter
         router.get("/recipes", this.onRecipes);
         router.get("/rgotypes", this.onRGOTypes);
 
-        router.use(this.RedirectUnlogined);
+        router.use(WebClientUtil.RedirectUnlogined);
 
         router.get("/factories", this.onFactories);
         router.post("/factory/:id([0-9]+)/salary", [
@@ -88,7 +85,28 @@ export class WebClientRouter
             body("typeId").isNumeric(),
         ], this.rgoBuildAction);
 
-        router.get("/storage", this.onStorage);
+        router.get("/storage", [
+            WebClientUtil.LoadGoods,
+            WebClientUtil.LoadMarkets],
+            this.onStorage);
+        router.post("/storage/transfer", [
+            body("goodId", "Wrong goodId").isNumeric().notEmpty(),
+            body("amount", "Wrong amount").isNumeric().notEmpty(),
+            body("marketId", "Wrong marketId").isNumeric().notEmpty()
+        ],
+            this.onStorageTransferAction);
+        router.post("/storage/send", [
+            body("username", "Wrong username").isAlphanumeric().notEmpty().trim().escape(),
+            body("amount", "Wrong amount").isNumeric().notEmpty(),
+            body("marketId", "Wrong marketId").isNumeric().notEmpty()
+        ],
+            this.onStorageSendAction);
+
+        router.post("/money/send", [
+            body("username", "Wrong username").isAlphanumeric().notEmpty().trim().escape(),
+            body("amount", "Wrong amount").isNumeric().notEmpty(),
+        ],
+            this.onMoneySendAction);
 
         router.get("/markets", this.onMarkets);
         router.get("/market/:id([0-9]+)", this.onMarket);
@@ -131,16 +149,6 @@ export class WebClientRouter
         res.locals.backurl = req.client.getUrl();
         next();
     }*/
-
-    public static RedirectUnlogined(req: IMyRequest, res: express.Response, next: () => void)
-    {
-        if (!WebClientUtil.isLogined(req)) {
-            res.redirect("/");
-            return;
-        }
-
-        next();
-    }
 
     public static async onHome(req: IMyRequest, res: express.Response)
     {
@@ -208,13 +216,12 @@ export class WebClientRouter
         res.redirect("/");
     }
 
-    public static onInfo(req: IMyRequest, res: express.Response) { }
+    public static onInfo() { }
     public static async onStorage(req: IMyRequest, res: express.Response)
     {
         const player = await Player.GetById(req.client.playerId);
-        const actor = await player.getActor();
 
-        const storages = await Storage.GetWithActor(actor);
+        const storages = await Storage.AGetWithActor(player.actorId);
 
         const data = [];
         for (const x of storages) {
@@ -228,12 +235,117 @@ export class WebClientRouter
             data,
         });
     }
+
+    public static async onStorageTransferAction(req: IMyRequest, res: express.Response)
+    {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            WebClientUtil.error(req, res, errors.array()[0].msg);
+            return;
+        }
+
+        const goodId = Number.parseInt(req.body.goodId, 10);
+        const marketId = Number.parseInt(req.body.marketId, 10);
+        const amount = Number.parseInt(req.body.amount, 10);
+
+        const answer = await StorageService.TransferGoodsBetweenMarkets(
+            req.client.playerId,
+            await Player.GetCurrentMarketId(req.client.playerId),
+            marketId,
+            goodId,
+            amount,
+        );
+
+        if (typeof answer !== "boolean") {
+            WebClientUtil.error(req, res, answer);
+            return;
+        }
+
+        req.client.infoToShow = "Successfully sent goods";
+
+        res.redirect("/storage");
+    }
+
+    public static async onStorageSendAction(req: IMyRequest, res: express.Response)
+    {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            WebClientUtil.error(req, res, errors.array()[0].msg);
+            return;
+        }
+
+        const goodId = Number.parseInt(req.body.goodId, 10);
+
+        const username = req.body.username;
+        const receiverplayer = await Player.GetWithActor(username);
+
+        if (!receiverplayer) {
+            WebClientUtil.error(req, res, "No such player");
+            return;
+        }
+
+        const amount = Number.parseInt(req.body.amount, 10);
+
+        const answer = await StorageService.TransferGoodsBetweenPlayers(
+            await Player.GetCurrentMarketId(req.client.playerId),
+            req.client.playerId,
+            receiverplayer.id,
+            goodId,
+            amount,
+        );
+
+        if (typeof answer !== "boolean") {
+            WebClientUtil.error(req, res, answer);
+            return;
+        }
+
+        req.client.infoToShow = "Successfully sent goods";
+
+        res.redirect("/storage");
+    }
+
+    public static async onMoneySendAction(req: IMyRequest, res: express.Response)
+    {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            WebClientUtil.error(req, res, errors.array()[0].msg);
+            return;
+        }
+
+        const username = req.body.username;
+        const receiverplayer = await Player.GetWithLogin(username);
+
+        if (!receiverplayer) {
+            WebClientUtil.error(req, res, "No such player");
+            return;
+        }
+
+        const amount = Number.parseInt(req.body.amount, 10);
+
+        const answer = await Player.TransferCash(req.client.playerId,
+            receiverplayer.id,
+            amount,
+        );
+
+        if (typeof answer !== "boolean") {
+            WebClientUtil.error(req, res, answer as any);
+            return;
+        }
+
+        req.client.infoToShow = "Successfully sent cash";
+
+        res.redirect("/markets");
+    }
+
     public static async onFactories(req: IMyRequest, res: express.Response)
     {
         const factories = await Player.GetFactoriesById(
             await Player.GetCurrentMarketId(req.client.playerId),
             req.client.playerId,
-            );
+        );
 
         const data = [];
 
@@ -451,7 +563,10 @@ export class WebClientRouter
 
     public static async onRGOs(req: IMyRequest, res: express.Response)
     {
-        const rgos = await Player.GetRGOsById(req.client.playerId);
+        const rgos = await Player.GetRGOsById(
+            await Player.GetCurrentMarketId(req.client.playerId),
+            req.client.playerId,
+        );
 
         const data = [];
 
@@ -582,7 +697,7 @@ export class WebClientRouter
         }
 
         const playerId = req.client.playerId;
-        const player = await Player.GetById(req.client.clientId);
+        const player = await Player.GetById(req.client.playerId);
 
         if (!player) {
             WebClientUtil.error(req, res, "Wrong player");
@@ -648,7 +763,7 @@ export class WebClientRouter
             return;
         }
 
-        const player = await Player.GetById(req.client.clientId);
+        const player = await Player.GetById(req.client.playerId);
 
         const demand = await MarketService.CountDemand(goodid);
         const supply = await MarketService.CountSupply(goodid);
@@ -659,25 +774,21 @@ export class WebClientRouter
         const buyoffers = [];
         const selloffers = [];
         for (const s of so) {
-            const actor = await s.getActor();
-            const player = await Player.GetWithActor(actor);
+            const player = await Player.GetWithActorId(s.getActorId());
             selloffers.push({
                 id: s.id,
                 amount: s.amount,
                 price: s.price,
-                actor,
                 player,
             });
         }
 
         for (const b of bo) {
-            const actor = await b.getActor();
-            const player = await Player.GetWithActor(actor);
+            const player = await Player.GetWithActorId(b.getActorId());
             buyoffers.push({
                 id: b.id,
                 amount: b.amount,
                 price: b.price,
-                actor,
                 player,
             });
         }
@@ -705,7 +816,7 @@ export class WebClientRouter
         }
 
         const goodid = Number.parseInt(req.params.id, 10);
-        const player = await Player.GetById(req.client.clientId);
+        const player = await Player.GetById(req.client.playerId);
         const actor = await MarketActor.GetById(req.client.actorId);
         const amount = Number.parseInt(req.body.amount, 10);
         const price = Number.parseInt(req.body.price, 10);
@@ -739,7 +850,7 @@ export class WebClientRouter
         }
 
         const goodid = Number.parseInt(req.params.id, 10);
-        const player = await Player.GetById(req.client.clientId);
+        const player = await Player.GetById(req.client.playerId);
         const actor = await MarketActor.GetById(req.client.actorId);
         const amount = Number.parseInt(req.body.amount, 10);
         const price = Number.parseInt(req.body.price, 10);
@@ -764,7 +875,6 @@ export class WebClientRouter
     public static async onMarketRedeemSell(req: IMyRequest, res: express.Response)
     {
         const goodid = Number.parseInt(req.params.id, 10);
-        const player = await Player.GetById(req.client.clientId);
         const actor = await MarketActor.GetById(req.client.actorId);
         const offerId = Number.parseInt(req.params.offer, 10);
         const offer = await SellOffer.GetById(offerId);
@@ -795,7 +905,6 @@ export class WebClientRouter
     public static async onMarketRedeemBuy(req: IMyRequest, res: express.Response)
     {
         const goodid = Number.parseInt(req.params.id, 10);
-        const player = await Player.GetById(req.client.clientId);
         const actor = await MarketActor.GetById(req.client.actorId);
         const offerId = Number.parseInt(req.params.offer, 10);
         const offer = await BuyOffer.GetById(offerId);

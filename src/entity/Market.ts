@@ -3,6 +3,8 @@ import { Connection } from "DataBase";
 export class Market {
     public id: number;
     public name: string;
+    public popColor: string;
+    public govtColor: string;
 
     public static DefaultMarket: Market;
 
@@ -10,6 +12,8 @@ export class Market {
         const res = new Market();
         res.id = dbobject.id;
         res.name = dbobject.name;
+        res.popColor = dbobject.popColor;
+        res.govtColor = dbobject.govtColor;
 
         return res;
     }

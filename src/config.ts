@@ -41,6 +41,8 @@ export class Config
         },
     ];
 
+    public static MarketingCost = 100;
+
     // Dictionary <RGOType.id, Dictionary <Good.id, amount>>
     public static RGOCostsDictionary: Map<number, Array<{ goodId: number, Amount: number }> > = new Map(
         [

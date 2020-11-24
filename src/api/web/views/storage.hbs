@@ -13,3 +13,44 @@
 {{/each}}
 
 </table>
+
+<div class="col-6 col-sm-12">
+<h2>Отправка в другой регион</h2>
+
+<form action="/storage/transfer" method="POST" enctype="application/x-www-form-urlencoded">
+    <div class="form-group clearfix">
+        <label for="marketId">ID рынка</label>
+        <input readonly name="marketId" type="text" class="form-control" id="marketId" placeholder="0" required>
+    </div>
+    {{> marketselector}}
+    <div class="form-group clearfix">
+        <label for="goodId">ID товара</label>
+        <input readonly name="goodId" type="text" class="form-control" id="goodId" placeholder="0" required>
+    </div>
+    {{> goodselector inputId='goodId'}}
+    <div class="form-group clearfix">
+        <label for="amount">Количество</label>
+        <input name="amount" type="text" class="form-control" id="amount" placeholder="0" required>
+    </div>
+    <button type="submit" class="btn btn-success">Отправить</button>
+</form>
+</div>
+<div class="col-6 col-sm-12">
+<h2>Отправка другому игроку</h2>
+<form action="/storage/send" method="POST" enctype="application/x-www-form-urlencoded">
+    <div class="form-group clearfix">
+        <label for="username">Username</label>
+        <input name="username" type="text" class="form-control" id="username" placeholder="..." required>
+    </div>
+    <div class="form-group clearfix">
+        <label for="goodId">ID товара</label>
+        <input readonly name="goodId" type="text" class="form-control" id="goodId1" placeholder="0" required>
+    </div>
+    {{> goodselector inputId='goodId1'}}
+    <div class="form-group clearfix">
+        <label for="amount">Количество</label>
+        <input name="amount" type="text" class="form-control" id="amount" placeholder="0" required>
+    </div>
+    <button type="submit" class="btn btn-success">Отправить</button>
+</form>
+</div>

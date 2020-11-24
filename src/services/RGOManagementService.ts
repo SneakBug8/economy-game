@@ -27,7 +27,7 @@ export class RGOManagementService
                 rgo.targetEmployees = Math.round(rgo.targetEmployees);
             }
 
-            await player.payCashToState(canpay);
+            await player.payCashToState(rgo.marketId, canpay);
 
             Log.LogTemp(`[RGO] ${player.username} paid ${canpay} salary for ${rgo.id}`);
             PlayerService.SendOffline(player.id, `RGO ${rgo.id} paid ${canpay} in salaries`);

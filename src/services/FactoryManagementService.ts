@@ -26,7 +26,9 @@ export class FactoryManagementService
                 factory.setTargetEmployees(Math.round(factory.getTargetEmployees()));
             }
 
-            await player.payCash(await PopulationActivityService.GetPlayer(), canpay);
+            await player.payCash(
+                await PopulationActivityService.GetPlayer(factory.marketId),
+                canpay);
 
             Log.LogTemp(`[Factory] ${player.username} paid ${canpay} salary for ${factory.id}`);
             PlayerService.SendOffline(player.id, `Factory ${factory.id} paid ${canpay} in salaries`);

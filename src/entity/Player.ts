@@ -46,6 +46,31 @@ export class Player
         return this.cash;
     }
 
+    public static async TransferCash(fromId: number, toId: number, amount: number)
+    {
+        if (fromId === toId) {
+            return true;
+        }
+
+        const fromplayer = await Player.GetById(fromId);
+        const toplayer = await Player.GetById(toId);
+
+        if (!fromplayer || !toplayer) {
+            return "No such player";
+        }
+        else if (fromplayer.cash < amount) {
+            return Logger.warn(`Not enough money to make transfer`);
+        }
+        else if (amount < 0 && toplayer.cash < amount) {
+            return `Not enough money to make transfer`;
+        }
+
+        await fromplayer.ModifyCash(-amount);
+        await toplayer.ModifyCash(amount);
+
+        return true;
+    }
+
     public async payCash(to: Player, amount: number): Promise<boolean>
     {
         if (this.id === to.id || this.actorId === to.actorId) {
@@ -81,14 +106,14 @@ export class Player
         // return d[0];
     }
 
-    public async payCashToState(amount: number): Promise<boolean>
+    public async payCashToState(marketId: number, amount: number): Promise<boolean>
     {
-        return await this.payCash(await StateActivityService.GetPlayer(), amount);
+        return await this.payCash(await StateActivityService.GetPlayer(marketId), amount);
     }
 
-    public async takeCashFromState(amount: number): Promise<boolean>
+    public async takeCashFromState(marketId: number, amount: number): Promise<boolean>
     {
-        return await this.payCash(await StateActivityService.GetPlayer(), -amount);
+        return await this.payCash(await StateActivityService.GetPlayer(marketId), -amount);
     }
 
     public Verbose(): void
@@ -134,7 +159,8 @@ export class Player
         return this.GetFactoriesById(player.CurrentMarketId, player.id);
     }
 
-    public static async GetCurrentMarketId(playerId: number){
+    public static async GetCurrentMarketId(playerId: number)
+    {
         const player = await Player.GetById(playerId);
         if (player) {
             return player.CurrentMarketId;
@@ -146,7 +172,7 @@ export class Player
     public static async GetFactoriesById(marketId: number, playerid: number): Promise<Factory[]>
     {
         const data = await FactoryRepository().select().where("playerId", playerid)
-        .andWhere("marketId", marketId);
+            .andWhere("marketId", marketId);
 
         const res = new Array<Factory>();
 
@@ -161,7 +187,8 @@ export class Player
         return [];
     }
 
-    public async getFactoriesWorkers() {
+    public async getFactoriesWorkers()
+    {
         const factories = await Player.GetFactoriesById(this.CurrentMarketId, this.id);
 
         let res = 0;
@@ -173,7 +200,8 @@ export class Player
         return res;
     }
 
-    public async getRGOWorkers() {
+    public async getRGOWorkers()
+    {
         const rgos = await this.getRGOs();
 
         let res = 0;
@@ -192,12 +220,16 @@ export class Player
 
     public static async GetRGOs(player: Player): Promise<RGO[]>
     {
-        return this.GetRGOsById(player.id);
+        return this.GetRGOsById(
+            player.CurrentMarketId,
+            player.id,
+        );
     }
 
-    public static async GetRGOsById(playerid: number): Promise<RGO[]>
+    public static async GetRGOsById(marketId: number, playerid: number): Promise<RGO[]>
     {
-        const data = await RGORepository().select().where("playerId", playerid);
+        const data = await RGORepository().select().where("playerId", playerid)
+            .andWhere("marketId", marketId);
 
         const res = new Array<RGO>();
 
@@ -268,7 +300,6 @@ export class Player
         return d[0];
     }
 
-
     public static async Insert(player: Player): Promise<number>
     {
         const d = await PlayerRepository().insert({
@@ -295,7 +326,7 @@ export class Player
             return false;
         }
 
-        await player.payCashToState(player.cash);
+        await player.payCashToState(player.CurrentMarketId, player.cash);
 
         if (player.getActor()) {
             MarketActor.Delete(player.actorId);
@@ -312,7 +343,8 @@ export class Player
         return true;
     }
 
-    public static async UseQuery(data: Player[]) {
+    public static async UseQuery(data: Player[])
+    {
         const res = new Array<Player>();
 
         if (data) {

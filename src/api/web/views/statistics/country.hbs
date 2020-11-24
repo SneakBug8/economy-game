@@ -1,25 +1,21 @@
-<h1>Статистика страны</h1>
+<h1>Статистика стран</h1>
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js" type="text/javascript"></script>
 
-<canvas id="myChart" width="400" height="200"></canvas>
+{{#each markets}}
+<h2>{{this.title}}</h2>
+Денежные средства:
+<canvas id="{{this.title}}" width="400" height="200"></canvas>
 <script>
-    var ctx = document.getElementById('myChart');
+    var ctx = document.getElementById('{{this.title}}');
     var myChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: {{{ labels }}},
-    datasets: [
-        {
-            label: "State cash",
-            data: {{{ state }}},
-        borderColor: "red"
-        }, {
-            label: "Population cash",
-            data: {{{ population }}},
-        borderColor: "blue"
-        },
-    ]
+            labels: {{{ @root.labels }}},
+    datasets:
+        {{{this.data}}},
     }
 });
 </script>
+
+{{/each}}

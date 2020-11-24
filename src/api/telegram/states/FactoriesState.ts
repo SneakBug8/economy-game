@@ -34,7 +34,10 @@ export class FactoriesState extends State
 
     public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]> {
         const res: TelegramBot.KeyboardButton[][] = [];
-        const factories = await Player.GetFactoriesById(this.Client.playerId);
+        const factories = await Player.GetFactoriesById(
+            await Player.GetCurrentMarketId(this.Client.playerId),
+            this.Client.playerId,
+            );
 
         let subres: TelegramBot.KeyboardButton[] = [];
         for (const factory of factories) {
@@ -62,7 +65,6 @@ export class FactoriesState extends State
         if (registerregex.test(message)) {
 
             const recipes = RecipesService.All;
-
 
             this.Client.writeList<Recipe>(recipes, (x) => x.id, (x) => {
                 let res = `${x.name}: `;
@@ -115,7 +117,10 @@ export class FactoriesState extends State
     public async OnInfo(message: string): Promise<boolean> {
         const regex = new RegExp("\/info$");
         if (regex.test(message)) {
-            const factories = await Player.GetFactoriesById(this.Client.playerId);
+            const factories = await Player.GetFactoriesById(
+                await Player.GetCurrentMarketId(this.Client.playerId),
+                this.Client.playerId
+                );
 
             this.Client.writeList<Factory>(factories,
                 (x) => x.id,
