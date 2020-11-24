@@ -2,11 +2,14 @@ import { Connection } from "DataBase";
 
 export class Market {
     public id: number;
+    public name: string;
+
     public static DefaultMarket: Market;
 
     public static async From(dbobject: any) {
         const res = new Market();
         res.id = dbobject.id;
+        res.name = dbobject.name;
 
         return res;
     }

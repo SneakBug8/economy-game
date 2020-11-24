@@ -15,6 +15,7 @@ export class RGO
     public settings: string;
     private playerId: number;
     private typeId: number;
+    public marketId: number;
 
     public level: number = 1;
 
@@ -69,6 +70,7 @@ export class RGO
         res.Settings = JSON.parse(res.settings);
         res.playerId = dbobject.playerId;
         res.level = dbobject.level;
+        res.marketId = dbobject.marketId;
 
         return res;
     }
@@ -153,13 +155,14 @@ export class RGO
             playerId: rgo.playerId,
             typeId: rgo.typeId,
             level: rgo.level,
+            marketId: rgo.marketId,
         });
     }
 
-    public static async Create(owner: Player, employeesCount: number, salary: number, type: number): Promise<number>
+    public static async Create(marketId: number, playerId: number, employeesCount: number, salary: number, type: number): Promise<number>
     {
         const rgo = new RGO();
-        rgo.setOwner(owner);
+        rgo.playerId = playerId;
         rgo.employeesCount = employeesCount;
         rgo.targetEmployees = employeesCount;
         rgo.salary = salary;
@@ -180,6 +183,7 @@ export class RGO
             salary: rgo.salary,
             settings: rgo.settings,
             level: rgo.level,
+            marketId: rgo.marketId,
         });
 
         rgo.id = d[0];

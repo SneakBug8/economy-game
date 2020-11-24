@@ -10,7 +10,7 @@ export abstract class MarketOffer
     public amount: number;
     public price: number;
     public turn_id: number;
-    protected marketId: number;
+    public marketId: number;
     protected actorId: number;
     protected goodId: number;
 

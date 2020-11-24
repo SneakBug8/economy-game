@@ -14,6 +14,8 @@ export class Factory
     public settings: string;
     private playerId: number;
 
+    public marketId: number;
+
     public level: number = 1;
 
     public getTargetEmployees(): number {
@@ -68,6 +70,7 @@ export class Factory
         res.Settings = JSON.parse(res.settings);
         res.playerId = dbobject.playerId;
         res.level = dbobject.level;
+        res.marketId = dbobject.marketId;
 
         return res;
     }
@@ -116,17 +119,19 @@ export class Factory
             settings: factory.settings,
             playerId: factory.playerId,
             level: factory.level,
+            marketId: factory.marketId,
         });
     }
 
-    public static async Create(owner: Player, employeesCount: number, salary: number): Promise<number>
+    public static async Create(marketId: number, playerId: number, employeesCount: number, salary: number): Promise<number>
     {
         const factory = new Factory();
-        factory.setOwner(owner);
+        factory.playerId = playerId;
         factory.employeesCount = employeesCount;
         factory.targetEmployees = employeesCount;
         factory.salary = salary;
         factory.level = 1;
+        factory.marketId = marketId;
 
         return this.Insert(factory);
     }
@@ -140,7 +145,8 @@ export class Factory
             targetEmployees: factory.targetEmployees,
             salary: factory.salary,
             settings: factory.settings,
-            level: factory.level
+            level: factory.level,
+            marketId: factory.marketId,
         });
 
         factory.id = d[0];

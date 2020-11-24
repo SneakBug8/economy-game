@@ -72,7 +72,7 @@ export class BuyOffer extends MarketOffer
         return res.From(dbobject);
     }
 
-    public static async Create(goodId: number, amount: number, price: number, actorId: number)
+    public static async Create(marketId: number, goodId: number, amount: number, price: number, actorId: number)
     {
         const player = await Player.GetWithActorId(actorId);
 
@@ -86,6 +86,7 @@ export class BuyOffer extends MarketOffer
         offer.amount = amount;
         offer.price = price;
         offer.setActorId(actorId);
+        offer.marketId = marketId;
 
         return await this.Insert(offer);
     }
@@ -164,9 +165,29 @@ export class BuyOffer extends MarketOffer
         return [];
     }
 
-    public static async GetWithGoodOrdered(good: Good, sort: string = "desc"): Promise<BuyOffer[]>
+    public static async GetWithGoodAndMarket(marketId: number, goodId: number, sort: string = "desc"): Promise<BuyOffer[]>
     {
-        const data = await BuyOfferRepository().where("good_id", good.id).select().orderBy("price", sort);
+        const data = await BuyOfferRepository()
+        .where("good_id", goodId).andWhere("marketId", marketId)
+        .select().orderBy("price", sort);
+        const res = new Array<BuyOffer>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
+    public static async GetWithGood(goodId: number, sort: string = "desc"): Promise<BuyOffer[]>
+    {
+        const data = await BuyOfferRepository()
+        .where("good_id", goodId)
+        .select().orderBy("price", sort);
         const res = new Array<BuyOffer>();
 
         if (data) {

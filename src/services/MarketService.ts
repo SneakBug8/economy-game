@@ -27,8 +27,8 @@ export class MarketService
         for (const market of await Market.All()) {
             for (const good of await Good.All()) {
 
-                const buyoffers = await BuyOffer.GetWithGoodOrdered(good);
-                const selloffers = await SellOffer.GetWithGoodOrdered(good);
+                const buyoffers = await BuyOffer.GetWithGoodAndMarket(market.id, good.id);
+                const selloffers = await SellOffer.GetWithGoodAndMarket(market.id, good.id);
 
                 let b = 0;
                 let s = 0;
@@ -87,7 +87,7 @@ export class MarketService
 
                         await this.TransferCash(buyactor, sellactor, transactioncost - taxcost);
                         await buyerplayer.payCashToState(taxcost);
-                        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
+                        await Storage.AddGoodTo(buy.marketId, buyactor.id, good.id, transactionsize);
 
                         PlayerService.SendOffline(sellerplayer.id,
                             `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyerplayer.username}, tax: ${taxcost}`);
@@ -323,7 +323,7 @@ export class MarketService
         const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
         await buyplayer.payCash(sellerplayer, transactioncost - taxcost);
         await buyplayer.payCashToState(taxcost);
-        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
+        await Storage.AddGoodTo(sell.marketId, buyactor.id, good.id, transactionsize);
 
         PlayerService.SendOffline(sellerplayer.id,
             `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyplayer.username}, tax: ${taxcost}`);
@@ -375,7 +375,7 @@ export class MarketService
             return "Buyer doesn't have enough cash";
         }
 
-        if (!Storage.Has(sellactor.id, good.id, transactionsize)) {
+        if (!Storage.Has(buy.marketId, sellactor.id, good.id, transactionsize)) {
             return "Not enough resources";
         }
 
@@ -384,7 +384,7 @@ export class MarketService
         const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
         await buyplayer.payCash(sellerplayer, transactioncost - taxcost);
         await buyplayer.payCashToState(taxcost);
-        await Storage.AddGoodTo(buyactor.id, good.id, transactionsize);
+        await Storage.AddGoodTo(buy.marketId, buyactor.id, good.id, transactionsize);
 
         PlayerService.SendOffline(sellerplayer.id,
             `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyplayer.username}, tax: ${taxcost}`);
@@ -415,20 +415,23 @@ export class MarketService
         }
     }
 
-    public static async AddBuyOffer(actor: MarketActor, good: Good, amount: number, price: number)
+    public static async AddBuyOffer(marketId: number,
+        actorId: number, goodId: number, amount: number, price: number)
     {
-        return await BuyOffer.Create(good.id, amount, price, actor.id);
+        return await BuyOffer.Create(marketId, goodId, amount, price, actorId);
     }
 
-    public static async AddSellOffer(actor: MarketActor, good: Good, amount: number, price: number)
+    public static async AddSellOffer(marketId: number,
+        actorId: number, goodId: number, amount: number, price: number)
     {
-        return await SellOffer.Create(good.id, amount, price, actor.id);
+        return await SellOffer.Create(marketId, goodId, amount, price, actorId);
     }
 
-    public static async CountDemand(good: Good)
+    public static async CountDemand(goodId: number)
     {
         let demand = 0;
-        const offers = await BuyOffer.GetWithGoodOrdered(good);
+        // TODO: replace it with market-dependant numbers
+        const offers = await BuyOffer.GetWithGood(goodId);
 
         for (const entry of offers) {
             demand += entry.amount;
@@ -443,10 +446,10 @@ export class MarketService
         return demand;
     }
 
-    public static async CountSupply(good: Good)
+    public static async CountSupply(goodId: number)
     {
         let supply = 0;
-        const offers = await SellOffer.GetWithGoodOrdered(good);
+        const offers = await SellOffer.GetWithGood(goodId);
 
         for (const entry of offers) {
             supply += entry.amount;

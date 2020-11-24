@@ -84,22 +84,22 @@ export class SellOffer extends MarketOffer
         return null;
     }
 
-    public static async Create(goodId: number, amount: number, price: number, actorId: number)
+    public static async Create(marketId: number, goodId: number, amount: number, price: number, actorId: number)
     {
         const player = await Player.GetWithActorId(actorId);
 
-        if (!await Storage.Has(actorId, goodId, amount)) {
+        if (!await Storage.Has(marketId, actorId, goodId, amount)) {
             return "Not enough resources";
         }
 
         const offer = new SellOffer();
-        offer.marketId = Market.DefaultMarket.id;
+        offer.marketId = marketId;
         offer.setGoodId(goodId);
         offer.amount = amount;
         offer.price = price;
         offer.setActorId(actorId);
 
-        await Storage.AddGoodTo(actorId, goodId, -amount);
+        await Storage.AddGoodTo(marketId, actorId, goodId, -amount);
 
         return await this.Insert(offer);
     }
@@ -158,7 +158,7 @@ export class SellOffer extends MarketOffer
             return;
         }
 
-        await Storage.AddGoodTo(offer.actorId, offer.goodId, offer.amount);
+        await Storage.AddGoodTo(offer.marketId, offer.actorId, offer.goodId, offer.amount);
 
         await SellOfferRepository().delete().where("id", id);
 
@@ -181,9 +181,27 @@ export class SellOffer extends MarketOffer
         return [];
     }
 
-    public static async GetWithGoodOrdered(good: Good, sort: string = "asc"): Promise<SellOffer[]>
+    public static async GetWithGood(goodId: number, sort: string = "asc"): Promise<SellOffer[]>
     {
-        const data = await SellOfferRepository().where("good_id", good.id).select().orderBy("price", sort);
+        const data = await SellOfferRepository().where("good_id", goodId).select().orderBy("price", sort);
+        const res = new Array<SellOffer>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
+
+    public static async GetWithGoodAndMarket(marketId: number, goodId: number, sort: string = "desc"): Promise<SellOffer[]>
+    {
+        const data = await SellOfferRepository()
+        .where("good_id", goodId).andWhere("marketId", marketId)
+        .select().orderBy("price", sort);
         const res = new Array<SellOffer>();
 
         if (data) {

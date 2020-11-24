@@ -5,6 +5,7 @@ import { RecipesService } from "services/RecipesService";
 import { Good } from "entity/Good";
 import { RGOType } from "entity/RGOType";
 import { Player } from "entity/Player";
+import { Market } from "entity/Market";
 
 export class WebClientUtil {
     public static clients = new Array<WebClient>();
@@ -121,6 +122,9 @@ export class WebClientUtil {
             res.locals.player = player;
             res.locals.playerfactoryworkers = await player.getFactoriesWorkers();
             res.locals.playerrgoworkers = await player.getRGOWorkers();
+
+            const market = await Market.GetById(player.CurrentMarketId);
+            res.locals.CurrentMarket = market;
         }
         next();
     }

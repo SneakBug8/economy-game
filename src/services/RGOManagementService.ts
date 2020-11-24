@@ -96,7 +96,7 @@ export class RGOManagementService
                 return "Wrong RGO construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(actor.id, good.id, costentry.Amount)) {
+            if (!await Storage.Has(player.CurrentMarketId, actor.id, good.id, costentry.Amount)) {
                 return "Not enough resources";
             }
         }
@@ -104,10 +104,10 @@ export class RGOManagementService
         for (const costentry of costs) {
             const good = await Good.GetById(costentry.goodId);
 
-            await Storage.TakeGoodFrom(actor, good, costentry.Amount);
+            await Storage.TakeGoodFrom(player.CurrentMarketId, actor.id, good.id, costentry.Amount);
         }
 
-        const rgo = await RGO.Create(player, 0, 0, rgotypeid);
+        const rgo = await RGO.Create(player.CurrentMarketId, player.id, 0, 0, rgotypeid);
         return rgo;
     }
 
@@ -140,7 +140,7 @@ export class RGOManagementService
                 return "Wrong RGO construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(actor.id, good.id, upgradeamount)) {
+            if (!await Storage.Has(rgo.marketId, actor.id, good.id, upgradeamount)) {
                 return "Not enough resources";
             }
         }
@@ -150,7 +150,7 @@ export class RGOManagementService
 
             const good = await Good.GetById(costentry.goodId);
 
-            await Storage.TakeGoodFrom(actor, good, upgradeamount);
+            await Storage.TakeGoodFrom(rgo.marketId, actor.id, good.id, upgradeamount);
 
         }
 

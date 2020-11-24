@@ -40,7 +40,7 @@ export class ProductionService
 
                 // Second try - repeats on resources
                 for (const input of recipe.Requisites) {
-                    const storageentry = await Storage.GetWithGoodAndActor(actor.id, input.Good.id);
+                    const storageentry = await Storage.GetWithGoodMarketAndActor(factory.marketId, actor.id, input.Good.id);
 
                     if (!storageentry) {
                         break;
@@ -70,12 +70,12 @@ export class ProductionService
 
                 // Take inputs
                 for (const input of recipe.Requisites) {
-                    await Storage.TakeGoodFrom(actor, input.Good, reciperepeats * input.amount);
+                    await Storage.TakeGoodFrom(factory.marketId, actor.id, input.Good.id, reciperepeats * input.amount);
                 }
 
                 // Give outputs
                 for (const output of recipe.Results) {
-                    await Storage.AddGoodTo(actor.id, output.Good.id, reciperepeats * output.amount);
+                    await Storage.AddGoodTo(factory.marketId, actor.id, output.Good.id, reciperepeats * output.amount);
 
                     EventsList.onProduction.emit({
                         Factory: factory,

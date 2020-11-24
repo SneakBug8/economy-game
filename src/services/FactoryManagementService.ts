@@ -64,7 +64,7 @@ export class FactoryManagementService
         return (start + percent * (end - start));
     }
 
-    public static async ConstructNew(playerid: number) {
+    public static async ConstructNew(playerid: number, marketId: number) {
 
         const costs = Config.NewFactoryCosts;
         const player = await Player.GetById(playerid);
@@ -87,7 +87,7 @@ export class FactoryManagementService
                 return "Wrong Factory construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(actor.id, good.id, costentry.Amount)) {
+            if (!await Storage.Has(marketId, actor.id, good.id, costentry.Amount)) {
                 return "Not enough resources";
             }
         }
@@ -95,10 +95,10 @@ export class FactoryManagementService
         for (const costentry of costs) {
             const good = await Good.GetById(costentry.goodId);
 
-            await Storage.TakeGoodFrom(actor, good, costentry.Amount);
+            await Storage.TakeGoodFrom(marketId, actor.id, good.id, costentry.Amount);
         }
 
-        const factory = await Factory.Create(player, 0, 0);
+        const factory = await Factory.Create(marketId, player.id, 0, 0);
         return factory;
     }
 
@@ -126,7 +126,7 @@ export class FactoryManagementService
                 return "Wrong RGO construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(actor.id, good.id, upgradeamount)) {
+            if (!await Storage.Has(factory.marketId, actor.id, good.id, upgradeamount)) {
                 return "Not enough resources";
             }
         }
@@ -136,7 +136,7 @@ export class FactoryManagementService
 
             const good = await Good.GetById(costentry.goodId);
 
-            await Storage.TakeGoodFrom(actor, good, upgradeamount);
+            await Storage.TakeGoodFrom(factory.marketId, actor.id, good.id, upgradeamount);
 
         }
 

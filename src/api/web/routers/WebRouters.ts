@@ -1,6 +1,7 @@
 import * as express from "express";
 import { IMyRequest, WebClientUtil } from "../WebClientUtil";
 import { LeaderboardsRouter } from "./LeaderboardsRouter";
+import { MarketsRouter } from "./MarketsRouter";
 import { StatisticsRouter } from "./StatisticsRouter";
 import { WebAPIRouter } from "./WebAPIRouter";
 import { WebClientRouter } from "./WebClientRouter";
@@ -13,6 +14,7 @@ export class WebRouters
         app.use(WebClientUtil.FillPlayercardData);
 
         app.use("/leaderboard", LeaderboardsRouter.GetRouter());
+        app.use("/markets", MarketsRouter.GetRouter());
         app.use("/statistics", StatisticsRouter.GetRouter());
 
         app.use(WebClientRouter.GetRouter());

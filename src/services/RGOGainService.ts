@@ -25,7 +25,7 @@ export class RGOGainService
 
             const amountproduced = Math.round(rgo.employeesCount * type.efficiency);
 
-            await Storage.AddGoodTo(actor.id, type.getGoodId(), amountproduced);
+            await Storage.AddGoodTo(rgo.marketId, actor.id, type.getGoodId(), amountproduced);
 
             PlayerService.SendOffline(player.id, `RGO ${rgo.id} gathered ${amountproduced} ${await (await type.getGood()).name}`);
 

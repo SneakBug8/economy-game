@@ -61,11 +61,11 @@ export class StateActivityService
 
         for (const p of calculatedprices) {
             if (p.type === CalculatedPriceType.Sell) {
-                Storage.AddGoodTo(player.actorId, p.goodId, p.amount);
+                Storage.AddGoodTo(player.CurrentMarketId, player.actorId, p.goodId, p.amount);
             }
             if (p.type === CalculatedPriceType.Buy) {
-                Storage.AddGoodTo(player.actorId, p.goodId,
-                    await Storage.Amount(player.actorId, p.goodId));
+                Storage.AddGoodTo(player.CurrentMarketId, player.actorId, p.goodId,
+                    await Storage.Amount(player.CurrentMarketId, player.actorId, p.goodId));
             }
         }
     }
@@ -104,13 +104,13 @@ export class StateActivityService
             if (p.type === CalculatedPriceType.Buy) {
                 console.log("Created buy order");
 
-                BuyOffer.Create(p.goodId, p.amount, p.price, player.actorId);
+                BuyOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.actorId);
                 continue;
             }
             else if (p.type === CalculatedPriceType.Sell) {
                 console.log("Created sell order");
 
-                SellOffer.Create(p.goodId, p.amount, p.price, player.actorId);
+                SellOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.actorId);
                 continue;
             }
         }
@@ -128,25 +128,25 @@ export class StateActivityService
 
         for (const p of calculatedprices) {
             if (p.type === CalculatedPriceType.Buy &&
-                await Storage.Has(player.actorId, p.goodId, p.amount)) {
+                await Storage.Has(player.CurrentMarketId, player.actorId, p.goodId, p.amount)) {
                 p.price = Math.floor(p.price * 1.01);
                 CalculatedPrice.Update(p);
                 continue;
             }
             else if (p.type === CalculatedPriceType.Buy &&
-                (await Storage.Amount(player.actorId, p.goodId)) === 0) {
+                (await Storage.Amount(player.CurrentMarketId, player.actorId, p.goodId)) === 0) {
                 p.price = Math.ceil(p.price * 0.99);
                 CalculatedPrice.Update(p);
                 continue;
             }
             else if (p.type === CalculatedPriceType.Sell &&
-                (await Storage.Amount(player.actorId, p.goodId)) > 0) {
+                (await Storage.Amount(player.CurrentMarketId, player.actorId, p.goodId)) > 0) {
                 p.price = Math.floor(p.price * 0.99);
                 CalculatedPrice.Update(p);
                 continue;
             }
             else if (p.type === CalculatedPriceType.Sell &&
-                (await Storage.Amount(player.actorId, p.goodId)) === 0) {
+                (await Storage.Amount(player.CurrentMarketId, player.actorId, p.goodId)) === 0) {
                 p.price = Math.ceil(p.price * 1.01);
                 CalculatedPrice.Update(p);
                 continue;

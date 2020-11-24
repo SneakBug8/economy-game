@@ -579,8 +579,14 @@ export class WebClientRouter
         }
 
         const playerId = req.client.playerId;
+        const player = await Player.GetById(req.client.clientId);
 
-        const response = await FactoryManagementService.ConstructNew(playerId);
+        if (!player) {
+            WebClientUtil.error(req, res, "Wrong player");
+            return;
+        }
+
+        const response = await FactoryManagementService.ConstructNew(player.CurrentMarketId, playerId);
 
         if (typeof response !== "number") {
             WebClientUtil.error(req, res, response as string);
@@ -594,7 +600,7 @@ export class WebClientRouter
     {
         const goods = await Good.All();
 
-        let data = [];
+        const data = [];
 
         for (const good of goods) {
             const lastrecord = await PriceRecord.GetLastWithGood(good.id);
@@ -639,10 +645,12 @@ export class WebClientRouter
             return;
         }
 
-        const demand = await MarketService.CountDemand(good);
-        const supply = await MarketService.CountSupply(good);
-        const bo = await BuyOffer.GetWithGoodOrdered(good);
-        const so = await SellOffer.GetWithGoodOrdered(good);
+        const player = await Player.GetById(req.client.clientId);
+
+        const demand = await MarketService.CountDemand(goodid);
+        const supply = await MarketService.CountSupply(goodid);
+        const bo = await BuyOffer.GetWithGoodAndMarket(player.CurrentMarketId, goodid);
+        const so = await SellOffer.GetWithGoodAndMarket(player.CurrentMarketId, goodid);
         so.reverse();
 
         const buyoffers = [];
@@ -671,8 +679,7 @@ export class WebClientRouter
             });
         }
 
-        const actor = await MarketActor.GetById(req.client.actorId);
-        const storage = await Storage.Amount(actor.id, good.id);
+        const storage = await Storage.Amount(player.CurrentMarketId, req.client.actorId, good.id);
 
         WebClientUtil.render(req, res, "market", {
             good, buyoffers, selloffers, demand, supply, storage, helpers: { notequal: ((x, y) => x !== y), equal: ((x, y) => x === y) },
@@ -707,7 +714,7 @@ export class WebClientRouter
             return;
         }
 
-        const data = await MarketService.AddSellOffer(actor, good, amount, price);
+        const data = await MarketService.AddSellOffer(player.CurrentMarketId, actor.id, good.id, amount, price);
 
         if (typeof data === "string") {
             WebClientUtil.error(req, res, data);
@@ -741,7 +748,7 @@ export class WebClientRouter
             return;
         }
 
-        const data = await MarketService.AddBuyOffer(actor, good, amount, price);
+        const data = await MarketService.AddBuyOffer(player.CurrentMarketId, actor.id, good.id, amount, price);
 
         if (typeof data === "string") {
             WebClientUtil.error(req, res, data);

@@ -129,7 +129,7 @@ export class MarketState extends State
             const player = await Player.GetById(this.Client.playerId);
             const actor = await player.getActor();
 
-            const id = await MarketService.AddBuyOffer(actor, good, amount, this.marketBuyPrice);
+            const id = await MarketService.AddBuyOffer(player.CurrentMarketId, actor.id, good.id, amount, this.marketBuyPrice);
 
             if (id) {
                 this.Client.write("Added buy offer id " + id);
@@ -297,7 +297,7 @@ export class MarketState extends State
             const player = await Player.GetById(this.Client.playerId);
             const actor = await player.getActor();
 
-            const id = await MarketService.AddSellOffer(actor, good, amount, this.marketSellPrice);
+            const id = await MarketService.AddSellOffer(player.CurrentMarketId, actor.id, good.id, amount, this.marketSellPrice);
 
             if (id) {
                 this.Client.write("Added sell offer id " + id);
