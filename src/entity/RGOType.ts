@@ -8,6 +8,7 @@ import { RGO } from "./RGO";
 export class RGOType
 {
     public id: number;
+    public marketId: number;
     public name: string;
     public efficiency: number = 1;
     private goodId: number;
@@ -38,6 +39,7 @@ export class RGOType
         res.goodId = dbobject.goodId;
         res.maxAmount = dbobject.maxAmount;
         res.name = dbobject.name;
+        res.marketId = dbobject.marketId;
 
         return res;
     }
@@ -84,6 +86,7 @@ export class RGOType
             goodId: type.goodId,
             maxAmount: type.maxAmount,
             name: type.name,
+            marketId: type.marketId,
         });
     }
 
@@ -94,6 +97,7 @@ export class RGOType
             goodId: type.goodId,
             maxAmount: type.maxAmount,
             name: type.name,
+            marketId: type.marketId,
         });
 
         type.id = d[0];
@@ -112,6 +116,23 @@ export class RGOType
         Log.LogText("Deleted RGOType id " + id);
 
         return true;
+    }
+
+    public static async BuildableWithinRegion(marketId: number): Promise<RGOType[]>
+    {
+        const data = await Connection.raw("select * from RGOTypes where marketId = 1 " +
+        "and (select count(id) from RGOs where RGOs.typeId = RGOTypes.id) < maxAmount;");
+        const res = new Array<RGOType>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
     }
 
     public static async All(): Promise<RGOType[]>

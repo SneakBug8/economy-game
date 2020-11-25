@@ -6,7 +6,14 @@ import { Runner } from "Runner";
 import { Factory } from "entity/Factory";
 import { RGO } from "entity/RGO";
 import { Logger } from "utility/Logger";
-import { IMedianCashRecord, IPlayerStatisticsRecord, Statistics, StatisticsTypes } from "entity/Statistics";
+import { ICurrencyRecord, IMedianCashRecord, IPlayerStatisticsRecord, Statistics, StatisticsTypes } from "entity/Statistics";
+import { Market } from "entity/Market";
+import { StateActivityService } from "./StateActivityService";
+import { Good } from "entity/Good";
+import { Storage } from "entity/Storage";
+import { Config } from "config";
+import { MarketService } from "./MarketService";
+import { Currency } from "entity/finances/Currency";
 
 export class TurnsService
 {
@@ -64,6 +71,7 @@ export class TurnsService
 
     public static async CalculateBalance()
     {
+        /*
         this.CurrentTurn.totalcash = 0;
 
         // TODO: Imagine a way of controlling money flows other than totalcash
@@ -74,25 +82,32 @@ export class TurnsService
         this.CurrentTurn.totalcash -= this.CurrentTurn.freecash;
 
         this.CurrentTurn.cashperplayer = this.CurrentTurn.totalcash / (await Player.Count());
+        */
     }
 
     public static async CalculateMedian()
     {
-        const data = [];
+        for (const currency of await Currency.All()) {
+            const data = [];
 
-        for (const pl of (await Player.All())) {
-            const cash = await pl.AgetCash();
-            Statistics.Create<IPlayerStatisticsRecord>(pl.id, this.CurrentTurn.id, StatisticsTypes.PlayerRecord, {
-                cash,
+            for (const pl of (await Player.All())) {
+
+                const cash = await Storage.SumWithGoodAndPlayer(currency.goodId, pl.id);
+
+                Statistics.Create<IPlayerStatisticsRecord>(pl.id, this.CurrentTurn.id, StatisticsTypes.PlayerRecord, {
+                    cash,
+                    goodId: currency.goodId,
+                });
+
+                data.push(cash);
+            }
+
+            const mediancash = this.Median(data);
+            Statistics.Create<IMedianCashRecord>(null, this.CurrentTurn.id, StatisticsTypes.MedianCashRecord, {
+                cash: mediancash,
+                goodId: currency.goodId,
             });
-
-            data.push(cash);
         }
-
-        const mediancash = this.Median(data);
-        Statistics.Create<IMedianCashRecord>(null, this.CurrentTurn.id, StatisticsTypes.MedianCashRecord, {
-            cash: mediancash,
-        });
     }
 
     public static async CalculateWorkers()

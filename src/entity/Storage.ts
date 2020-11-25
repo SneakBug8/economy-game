@@ -52,11 +52,11 @@ export class Storage
         return null;
     }
 
-    public static async ___GetWithActor(actorId: number): Promise<Storage[]>
+    public static async ___GetWithActor(playerId: number): Promise<Storage[]>
     {
         const data = await StorageRepository()
             .select()
-            .where("actorId", actorId);
+            .where("playerId", playerId);
 
         const res = new Array<Storage>();
 
@@ -167,6 +167,47 @@ export class Storage
         await StorageRepository().delete().where("id", id);
 
         return true;
+    }
+
+    public static async SumWithGoodAndPlayer(goodId: number, playerId: number): Promise<number>
+    {
+        const data = await StorageRepository()
+            .sum("amount as c")
+            .where("goodId", goodId)
+            .andWhere("playerId", playerId)
+            .first() as any;
+
+        return data.c || 0;
+    }
+
+    public static async SumWithGood(goodId: number): Promise<number>
+    {
+        const data = await StorageRepository()
+            .sum("amount as c")
+            .where("goodId", goodId)
+            .first() as any;
+
+        return data.c || 0;
+    }
+
+    public static async AllWithGood(goodId: number): Promise<Storage[]>
+    {
+        const data = await StorageRepository()
+            .select()
+            .where("goodId", goodId)
+            .orderBy("goodId");
+
+        const res = new Array<Storage>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
     }
 
     public static async All(): Promise<Storage[]>

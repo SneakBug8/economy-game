@@ -20,6 +20,7 @@ import { BuyOffer } from "entity/BuyOffer";
 import { SellOffer } from "entity/SellOffer";
 import { IMyRequest, WebClientUtil } from "../WebClientUtil";
 import { StorageService } from "services/StorageService";
+import { Market } from "entity/Market";
 
 export class WebClientRouter
 {
@@ -71,7 +72,7 @@ export class WebClientRouter
         ], this.onFactoryProductionQueueAdd);
         router.get("/factory/build", this.factoryBuildAction);
 
-        router.get("/rgos", [WebClientUtil.LoadRGOTypes], this.onRGOs);
+        router.get("/rgos", [WebClientUtil.LoadBuildableTypes], this.onRGOs);
         router.get("/rgo/:id([0-9]+)/delete", this.rgoDeleteAction);
         router.get("/rgo/:id([0-9]+)/upgrade", this.onRGOUpgrade);
         router.post("/rgo/:id([0-9]+)/salary", [
@@ -715,7 +716,7 @@ export class WebClientRouter
 
     public static async onMarkets(req: IMyRequest, res: express.Response)
     {
-        const goods = await Good.All();
+        const goods = await MarketService.GetTradeableGoods();
 
         const data = [];
 
@@ -980,6 +981,8 @@ export class WebClientRouter
         let data = [];
 
         for (const type of types) {
+            const market = await Market.GetById(type.marketId);
+
             data.push({
                 id: type.id,
                 name: type.name,
@@ -987,6 +990,7 @@ export class WebClientRouter
                 workers: 1 / type.efficiency,
                 maxamount: type.maxAmount,
                 already: await RGOManagementService.CountOfType(type.id),
+                market: market.name,
                 resources: await WebClientRouter.formResourcesString(type),
             });
         }

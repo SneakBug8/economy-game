@@ -6,8 +6,10 @@ import { Good } from "entity/Good";
 import { RGOType } from "entity/RGOType";
 import { Player } from "entity/Player";
 import { Market } from "entity/Market";
+import { MarketService } from "services/MarketService";
 
-export class WebClientUtil {
+export class WebClientUtil
+{
     public static clients = new Array<WebClient>();
 
     public static LoadPlayerData(req: IMyRequest, res: express.Response, next: () => void)
@@ -111,9 +113,24 @@ export class WebClientUtil {
         next();
     }
 
+    public static async LoadBuildableTypes(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        const player = await Player.GetById(req.client.playerId);
+        const rgotypes = await RGOType.BuildableWithinRegion(player.CurrentMarketId);
+        res.locals.rgotypes = rgotypes;
+        next();
+    }
+
     public static async LoadGoods(req: IMyRequest, res: express.Response, next: () => void)
     {
         const goods = await Good.All();
+        res.locals.goods = goods;
+        next();
+    }
+
+    public static async LoadTradeableGoods(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        const goods = await MarketService.GetTradeableGoods();
         res.locals.goods = goods;
         next();
     }
@@ -130,7 +147,8 @@ export class WebClientUtil {
         if (WebClientUtil.isLogined(req)) {
             const player = await Player.GetById(req.client.playerId);
             res.locals.player = player;
-            res.locals.cash = await player.AgetCash();
+            res.locals.mycash = await player.AgetCash();
+            res.locals.currency = (await Market.GetCashGood(player.CurrentMarketId)).name;
             res.locals.playerfactoryworkers = await player.getFactoriesWorkers();
             res.locals.playerrgoworkers = await player.getRGOWorkers();
 

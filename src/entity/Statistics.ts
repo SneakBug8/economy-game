@@ -72,6 +72,7 @@ export class Statistics<T>
     {
         const data = await StatisticsRepository().select()
             .where("playerId", playerId)
+            .limit(90)
             .andWhere("type", type);
 
         const res = new Array<Statistics<T>>();
@@ -160,16 +161,28 @@ export enum StatisticsTypes
 {
     PlayerRecord,
     MedianCashRecord,
+    CurrencyRecord,
 }
 
 export interface IPlayerStatisticsRecord
 {
+    goodId: number;
     cash: number;
 }
 
 export interface IMedianCashRecord
 {
+    goodId: number;
     cash: number;
+}
+
+export interface ICurrencyRecord
+{
+    goodId: number;
+    totalamount: number;
+    inflation: number;
+    goldExchangeRate: number;
+    goldreserve: number;
 }
 
 export const StatisticsRepository = () => Connection<Statistics<any>>("Statistics");

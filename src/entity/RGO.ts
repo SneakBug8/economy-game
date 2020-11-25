@@ -159,14 +159,14 @@ export class RGO
         });
     }
 
-    public static async Create(marketId: number, playerId: number, employeesCount: number, salary: number, type: number): Promise<number>
+    public static async Create(marketId: number, playerId: number, employeesCount: number, salary: number, typeId: number): Promise<number>
     {
         const rgo = new RGO();
         rgo.playerId = playerId;
         rgo.employeesCount = employeesCount;
         rgo.targetEmployees = employeesCount;
         rgo.salary = salary;
-        rgo.typeId = type;
+        rgo.typeId = typeId;
         rgo.level = 1;
 
         return this.Insert(rgo);

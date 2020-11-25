@@ -1,4 +1,5 @@
 import { Connection } from "DataBase";
+import { Currency } from "./finances/Currency";
 import { Good } from "./Good";
 
 export class Market
@@ -7,18 +8,32 @@ export class Market
     public name: string;
     public popColor: string;
     public govtColor: string;
-    public cashGoodId: number;
+    public currencyId: number;
+    public govStrategy: string;
+    public GovStrategy: IGovernmentStrategy;
+    // How much currency can you buy with one gold
 
     public static DefaultMarket: Market;
 
-    public static async GetCashGoodId(marketId: number) {
-        const market = await this.GetById(marketId);
-        return market.cashGoodId;
+    public async getCurrency() {
+        return await Currency.GetById(this.currencyId);
     }
 
-    public async getCashGood()
-    {
-        return await Good.GetById(this.cashGoodId);
+    public async getCashGoodId() {
+        const currency = await this.getCurrency();
+        return currency.goodId;
+    }
+
+    public static async GetCashGoodId(marketId: number) {
+        const market = await this.GetById(marketId);
+        const currency = await market.getCurrency();
+        return currency.goodId;
+    }
+
+    public static async GetCashGood(marketId: number) {
+        const market = await this.GetById(marketId);
+        const currency = await market.getCurrency();
+        return await currency.getGood();
     }
 
     public static async From(dbobject: any)
@@ -28,7 +43,9 @@ export class Market
         res.name = dbobject.name;
         res.popColor = dbobject.popColor;
         res.govtColor = dbobject.govtColor;
-        res.cashGoodId = dbobject.cashGoodId;
+        res.currencyId = dbobject.currencyId;
+        res.govStrategy = dbobject.govStrategy;
+        res.GovStrategy = JSON.parse(res.govStrategy);
 
         return res;
     }
@@ -42,6 +59,11 @@ export class Market
         }
 
         return null;
+    }
+
+    public static async Update(market: Market)
+    {
+        await MarketRepository().where("id", market.id).update(this);
     }
 
     public static async Exists(id: number): Promise<boolean>
@@ -66,6 +88,13 @@ export class Market
 
         return [];
     }
+}
+
+interface IGovernmentStrategy {
+    goldBuySize?: number;
+    goldSellSize?: number;
+    keepMSRatio: boolean;
+    changeExchangeRate: boolean;
 }
 
 export const MarketRepository = () => Connection("Markets");

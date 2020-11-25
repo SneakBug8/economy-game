@@ -3,15 +3,17 @@
     <thead>
     <th>ID</th>
     <th>Добыча</th>
+    <th>Регион</th>
     <th>Добывает</th>
     <th>Рабочих</th>
-    <th>Построено в мире</th>
-    <th>Ресурсы для постройки</th>
+    <th>Построено</th>
+    <th>Ресурсы для строительства</th>
     </thead>
 {{#each data}}
     <tr>
 <td>{{this.id}}</td>
 <td>{{this.name}}</td>
+<td>{{this.market}}</td>
 <td>{{this.makes}}</td>
 <td>{{this.workers}}</td>
 <td>{{this.already}} / {{this.maxamount}}</td>

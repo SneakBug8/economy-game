@@ -1,10 +1,13 @@
 import { Factory } from "entity/Factory";
+import { Currency } from "entity/finances/Currency";
+import { Good } from "entity/Good";
 import { Market } from "entity/Market";
 import { Player } from "entity/Player";
-import { IMedianCashRecord, IPlayerStatisticsRecord, Statistics, StatisticsTypes } from "entity/Statistics";
+import { ICurrencyRecord, IMedianCashRecord, IPlayerStatisticsRecord, Statistics, StatisticsTypes } from "entity/Statistics";
 import { Turn } from "entity/Turn";
 import * as express from "express";
 import { toUnicode } from "punycode";
+import { MarketService } from "services/MarketService";
 import { PopulationActivityService } from "services/PopulationActivityService";
 import { StateActivityService } from "services/StateActivityService";
 import { TurnsService } from "services/TurnsService";
@@ -21,7 +24,7 @@ export class StatisticsRouter
         router.get("/", this.onHome);
         router.get("/inflation", this.OnInflation);
         router.get("/workers", this.OnWorkers);
-        router.get("/cashglobal", this.OnCash);
+        // router.get("/cashglobal", this.OnCash);
         router.get("/country", this.OnCountry);
         router.get("/cash", [WebClientUtil.RedirectUnlogined], this.OnOwnCash);
 
@@ -35,22 +38,134 @@ export class StatisticsRouter
 
     public static async OnInflation(req: IMyRequest, res: express.Response)
     {
-        const data = await Turn.All();
 
-        const props = [];
+        const inflationdata: Array<{
+            title: string,
+            description: string,
+            data: Array<{
+                label: string,
+                data: number[],
+                borderColor: string,
+            }> | string,
+        }> = [];
+
         const labels = [];
-        const relative = [];
 
-        for (const turn of data) {
-            labels.push(turn.id + "");
-            props.push(turn.freecash || 0);
-            relative.push((turn.freecash || 0) * 100 / (turn.totalcash || 1));
+        for (const market of await Market.All()) {
+            const stateplayerid = StateActivityService.PlayersMap.get(market.id);
+
+            if (!stateplayerid) {
+                continue;
+            }
+
+            const currency = await Market.GetCashGood(market.id);
+
+            if (!currency) {
+                continue;
+            }
+
+            const currencystats = await Statistics.GetWithPlayerAndType<ICurrencyRecord>
+                (stateplayerid,
+                    StatisticsTypes.CurrencyRecord);
+
+            const inflabsolute = {
+                label: (currency && currency.name) || "State",
+                borderColor: market.govtColor || "red",
+                data: [],
+            };
+
+            const inflrelative = {
+                label: (currency && currency.name) || "State",
+                borderColor: market.govtColor || "red",
+                data: [],
+            };
+
+            const totalamount = {
+                label: (currency && currency.name) || "State",
+                borderColor: market.govtColor || "red",
+                data: [],
+            };
+
+            const goldreserve = {
+                label: (currency && currency.name) || "State",
+                borderColor: market.govtColor || "red",
+                data: [],
+            };
+
+            const goldratio = {
+                label: (currency && currency.name) || "State",
+                borderColor: market.govtColor || "red",
+                data: [],
+            };
+
+            const backing = {
+                label: (currency && currency.name) || "State",
+                borderColor: market.govtColor || "red",
+                data: [],
+            };
+
+            for (const entry of currencystats) {
+                labels.push(entry.turnId);
+                inflabsolute.data.push(entry.Value.inflation);
+                inflrelative.data.push(entry.Value.inflation / entry.Value.totalamount);
+                totalamount.data.push(entry.Value.totalamount);
+                goldreserve.data.push(entry.Value.goldreserve);
+                goldratio.data.push(entry.Value.goldExchangeRate);
+                backing.data.push((entry.Value.goldreserve * entry.Value.goldExchangeRate * 100) / (entry.Value.totalamount || 1));
+            }
+
+            inflationdata.push(
+                {
+                    title: (currency && currency.name) + ": Inflation (absolute)" || "State",
+                    description: "Инфляция в абсолютных значениях.",
+                    data: JSON.stringify([inflabsolute]),
+                },
+            );
+
+            inflationdata.push(
+                {
+                    title: (currency && currency.name) + ": Inflation (relative)" || "State",
+                    description: "Инфляция в процентах от общего объёма валюты.",
+                    data: JSON.stringify([inflrelative]),
+                },
+            );
+
+            inflationdata.push(
+                {
+                    title: (currency && currency.name) + ": Total supply" || "State",
+                    description: "Общий объём валюты (Money Supply).",
+                    data: JSON.stringify([totalamount]),
+                },
+            );
+
+            inflationdata.push(
+                {
+                    title: (currency && currency.name) + ": Gold reserve" || "State",
+                    description: "Золотовалютный запас страны обеспечивает привязку стоимости валюты к золоту.",
+                    data: JSON.stringify([goldreserve]),
+                },
+            );
+
+            inflationdata.push(
+                {
+                    title: (currency && currency.name) + ": Gold to currency ratio" || "State",
+                    description: "Золотой эквивалент единицы валюты. Меняется лишь государством.",
+                    data: JSON.stringify([goldratio]),
+                },
+            );
+
+            inflationdata.push(
+                {
+                    title: (currency && currency.name) + ": Gold backing" || "State",
+                    description: "Процент валюты, обеспеченной золотом.",
+                    data: JSON.stringify([backing]),
+                },
+            );
         }
 
         WebClientUtil.render(req, res, "statistics/inflation", {
-            data: JSON.stringify(props),
-            labels: JSON.stringify(labels),
-            relative: JSON.stringify(relative),
+            data: inflationdata,
+            labels: JSON.stringify(labels)
         });
     }
 
@@ -118,7 +233,7 @@ export class StatisticsRouter
                 label: string,
                 data: number[],
                 borderColor: string,
-            }>,
+            }> | string,
         }> = [];
 
         for (let turnid = TurnsService.CurrentTurn.id - 90;
@@ -181,12 +296,8 @@ export class StatisticsRouter
 
             markets.push({
                 title: market.name,
-                data: [state, pop],
+                data: JSON.stringify([state, pop]),
             });
-        }
-
-        for (const market of markets) {
-            market.data = JSON.stringify(market.data) as any;
         }
 
         WebClientUtil.render(req, res, "statistics/country", {
@@ -197,21 +308,59 @@ export class StatisticsRouter
 
     public static async OnOwnCash(req: IMyRequest, res: express.Response)
     {
-        const cash = [];
+        const cashdata: Array<{
+            title: string,
+            description: string,
+            data: Array<{
+                label: string,
+                data: number[],
+            }> | string,
+        }> = [];
+
         const labels = [];
 
-        const stats = await Statistics.GetWithPlayerAndType<IPlayerStatisticsRecord>
-            (req.client.playerId,
-                StatisticsTypes.PlayerRecord);
+        for (let i = TurnsService.CurrentTurn.id - 90; i < TurnsService.CurrentTurn.id; i++) {
+            if (i < 0) { continue; }
+            labels.push(i);
+        }
 
-        for (const s of stats) {
-            labels.push(s.turnId + "");
-            cash.push(s.Value.cash);
+        for (const currency of await Currency.All()) {
+
+            const Stats = await Statistics.GetWithPlayerAndType<IPlayerStatisticsRecord>(
+                req.client.playerId,
+                StatisticsTypes.PlayerRecord,
+            );
+
+            const cash = {
+                label: (currency && currency.name),
+                data: [],
+            };
+
+            for (let i = TurnsService.CurrentTurn.id - 90; i < TurnsService.CurrentTurn.id; i++) {
+                if (i < 0) { continue; }
+
+                const entry = Stats.find((x) => x.turnId === i && x.Value.goodId === currency.goodId);
+
+                if (!entry) {
+                    cash.data.push(0);
+                }
+                else {
+                    cash.data.push(entry.Value.cash);
+                }
+            }
+
+            cashdata.push(
+                {
+                    title: (currency && currency.name) || "State",
+                    description: "",
+                    data: JSON.stringify([cash]),
+                },
+            );
         }
 
         WebClientUtil.render(req, res, "statistics/cash", {
-            cash: JSON.stringify(cash),
-            labels: JSON.stringify(labels),
+            data: cashdata,
+            labels: JSON.stringify(labels)
         });
     }
 }

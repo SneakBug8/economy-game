@@ -1,7 +1,6 @@
 import { Factory, FactoryRepository } from "./Factory";
 import { Connection } from "DataBase";
 import { Log } from "./Log";
-import { TurnsService } from "services/TurnsService";
 import { RGO, RGORepository } from "./RGO";
 import { Logger } from "utility/Logger";
 import { StateActivityService } from "services/StateActivityService";
@@ -36,15 +35,20 @@ export class Player
         return await this.getCashMarket(this.CurrentMarketId);
     }
 
-    public async getCash(goodId: number)
+    public async getCash(goodId: number, marketId: number = this.CurrentMarketId)
     {
-        return await Storage.Amount(this.CurrentMarketId, this.id, goodId);
+        return await Storage.Amount(marketId, this.id, goodId);
     }
 
     public async getCashMarket(marketId: number)
     {
         const market = await Market.GetById(marketId);
-        return await Storage.Amount(marketId, this.id, market.cashGoodId);
+
+        if (!market) {
+            console.log(marketId);
+        }
+
+        return await Storage.Amount(marketId, this.id, await market.getCashGoodId());
     }
 
     public async getGold()

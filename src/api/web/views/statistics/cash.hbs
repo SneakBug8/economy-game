@@ -2,19 +2,20 @@
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js" type="text/javascript"></script>
 
-<canvas id="myChart" width="400" height="200"></canvas>
+{{#each data}}
+<h2>{{this.title}}</h2>
+{{this.description}}
+<canvas id="{{this.title}}" width="400" height="200"></canvas>
 <script>
-    var ctx = document.getElementById('myChart');
+    var ctx = document.getElementById('{{this.title}}');
     var myChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: {{{ labels }}},
-    datasets: [
-        {
-            label: "Your cash",
-            data: {{{ cash }}},
-        },
-    ]
+            labels: {{{ @root.labels }}},
+    datasets:
+        {{{this.data}}},
     }
 });
 </script>
+
+{{/each}}

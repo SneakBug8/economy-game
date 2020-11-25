@@ -663,12 +663,12 @@ export class WebAPIRouter
 
     public static async onMarkets(req: IMyRequest, res: express.Response)
     {
-        const goods = await Good.All();
+        const goods = await MarketService.GetTradeableGoods();
 
         let data = [];
 
         for (const good of goods) {
-            const lastrecord = await PriceRecord.GetLatestWithGood(good);
+            const lastrecord = await PriceRecord.GetLastWithGood(good.id);
 
             if (lastrecord && lastrecord.tradeamount) {
                 data.push({

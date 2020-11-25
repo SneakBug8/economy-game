@@ -50,7 +50,7 @@ export class Config
         [
             [1, [
                 {
-                    goodId: 1,
+                    goodId: 2,
                     Amount: 300,
                 },
             ]],

@@ -1,6 +1,6 @@
 import { BuyOffer } from "entity/BuyOffer";
 import { SellOffer } from "entity/SellOffer";
-import { Good } from "entity/Good";
+import { Good, GoodRepository } from "entity/Good";
 import { Player } from "entity/Player";
 import { Storage } from "entity/Storage";
 import { Consumption } from "entity/Consumption";
@@ -11,6 +11,7 @@ import { TradeEventType } from "events/types/TradeEvent";
 import { PlayerService } from "./PlayerService";
 import { Config } from "config";
 import { Logger } from "utility/Logger";
+import { Connection } from "DataBase";
 
 export class MarketService
 {
@@ -24,7 +25,7 @@ export class MarketService
         await EventsList.beforeMarket.emit();
 
         for (const market of await Market.All()) {
-            for (const good of await Good.All()) {
+            for (const good of await this.GetTradeableGoods()) {
 
                 const buyoffers = await BuyOffer.GetWithGoodAndMarket(market.id, good.id);
                 const selloffers = await SellOffer.GetWithGoodAndMarket(market.id, good.id);
@@ -472,5 +473,15 @@ export class MarketService
         return supply;
     }
 
+    public static async GetTradeableGoods() {
+        const data = await Connection.raw("select * from goods where id not in (select goodId from Currencies);");
 
+        return Good.UseQuery(data);
+    }
+
+    public static async GetCurrencies() {
+        const data = await Connection.raw("select * from goods where id in (select goodId from Currencies);");
+
+        return Good.UseQuery(data);
+    }
 }

@@ -10,6 +10,7 @@ import { PlayerService } from "./PlayerService";
 import { Config } from "config";
 import { Logger } from "utility/Logger";
 import { Market } from "entity/Market";
+import { Statistics, ICurrencyRecord, StatisticsTypes } from "entity/Statistics";
 
 export class StateActivityService
 {
@@ -42,23 +43,31 @@ export class StateActivityService
     public static async Init()
     {
         if (!StateActivityService.Initialized) {
+            EventsList.onAfterNewTurn.on(StateActivityService.onAfterNewTurn);
             EventsList.beforeMarket.on(StateActivityService.BeforeMarketGeneration);
             EventsList.beforeMarket.on(StateActivityService.PublishOrders);
             EventsList.afterMarket.on(StateActivityService.AfterMarketCleanup);
+            EventsList.onBeforeNewTurn.on(StateActivityService.MakeStatistics);
             //EventsList.onBeforeNewTurn.on(async (t) => await StateActivityService.MakeStatistics(t));
 
             StateActivityService.Initialized = true;
         }
     }
 
-    public static async MakeStatistics()
+    public static async onAfterNewTurn(turn: Turn)
     {
-        /*await StateActivityService.GetPlayer();
-
-        Statistics.Create<IPlayerStatisticsRecord>(StateActivityService.Player.id, t.id, StatisticsTypes.PlayerRecord, {
-            cash: StateActivityService.Player.cash,
-        });*/
+        for (const market of await Market.All()) {
+            if (market.GovStrategy.keepMSRatio) {
+                await StateActivityService.KeepMSRatio(market);
+            }
+        }
     }
+
+    /*await StateActivityService.GetPlayer();
+
+    Statistics.Create<IPlayerStatisticsRecord>(StateActivityService.Player.id, t.id, StatisticsTypes.PlayerRecord, {
+        cash: StateActivityService.Player.cash,
+    });*/
 
     public static async BeforeMarketGeneration()
     {
@@ -77,7 +86,7 @@ export class StateActivityService
                 }
                 if (p.type === CalculatedPriceType.Buy) {
                     Storage.AddGoodTo(player.CurrentMarketId, player.id, p.goodId,
-                        await Storage.Amount(player.CurrentMarketId, player.id, p.goodId));
+                        -1 * await Storage.Amount(player.CurrentMarketId, player.id, p.goodId));
                 }
             }
         }
@@ -88,17 +97,26 @@ export class StateActivityService
         for (const market of await Market.All()) {
             const player = await StateActivityService.GetPlayer(market.id);
 
+            const currency = await market.getCurrency();
+
             if (!player) {
                 return;
             }
 
             if (await player.AgetCash() <= 10000) {
-                await StateActivityService.CreateCash(market.id, 10000);
+
+                if (market.GovStrategy.changeExchangeRate) {
+                    (await market.getCurrency()).exchangeRate--;
+                    Market.Update(market);
+                }
+                else {
+                    await StateActivityService.CreateCash(player.id, 10000);
+                }
             }
             else {
                 // Make regular inflation
                 await StateActivityService.CreateCash(
-                    market.id,
+                    player.id,
                     Math.ceil(TurnsService.CurrentTurn.totalcash * Config.EverydayInflation)
                 );
             }
@@ -129,6 +147,56 @@ export class StateActivityService
                     continue;
                 }
             }
+
+            // Sell All Gold
+            const goldreserve = await Storage.Amount(market.id, player.id, Config.GoldGoodId);
+
+            if (goldreserve > 0) {
+                if (market.GovStrategy.goldBuySize) {
+                    await SellOffer.Create(market.id, Config.GoldGoodId,
+                        Math.round(goldreserve * market.GovStrategy.goldBuySize), currency.exchangeRate,
+                        player.id);
+                }
+                else {
+                    await SellOffer.Create(market.id, Config.GoldGoodId, goldreserve, currency.exchangeRate,
+                        player.id);
+                }
+            }
+
+            if (market.GovStrategy.goldSellSize) {
+                await BuyOffer.Create(market.id, Config.GoldGoodId,
+                    Math.round(goldreserve / market.GovStrategy.goldSellSize), currency.exchangeRate,
+                    player.id);
+            }
+            else {
+                await BuyOffer.Create(market.id, Config.GoldGoodId, goldreserve, currency.exchangeRate,
+                    player.id);
+            }
+        }
+    }
+
+    public static async KeepMSRatio(market: Market)
+    {
+        const currency = await market.getCurrency();
+
+        const statsolder = await Statistics.GetWithPlayerAndTurnAndType<ICurrencyRecord>(
+            this.PlayersMap.get(market.id),
+            TurnsService.CurrentTurn.id - 2,
+            StatisticsTypes.CurrencyRecord,
+        );
+
+        const statsold = await Statistics.GetWithPlayerAndTurnAndType<ICurrencyRecord>(
+            this.PlayersMap.get(market.id),
+            TurnsService.CurrentTurn.id - 1,
+            StatisticsTypes.CurrencyRecord,
+        );
+
+        if (!statsolder || !statsold) {
+            return;
+        }
+
+        if (statsolder.Value.goldreserve < statsold.Value.goldreserve) {
+            await this.CreateCash(this.PlayersMap.get(market.id), currency.exchangeRate);
         }
     }
 
@@ -180,5 +248,46 @@ export class StateActivityService
             await Market.GetCashGoodId(player.CurrentMarketId),
             amount);
         TurnsService.RegisterNewCash(amount);
+    }
+
+    public static async MakeStatistics()
+    {
+        for (const market of await Market.All()) {
+            const currency = await market.getCurrency();
+            const player = await StateActivityService.GetPlayer(market.id);
+
+            if (!player) {
+                return;
+            }
+
+            const aggrgoods = await Storage.SumWithGood(await market.getCashGoodId());
+
+            const lastrecord = await Statistics.GetWithPlayerAndTurnAndType<ICurrencyRecord>(
+                player.id,
+                TurnsService.CurrentTurn.id - 1,
+                StatisticsTypes.CurrencyRecord,
+            );
+
+            const lasttotalamount = (lastrecord && lastrecord.Value.totalamount) || 0;
+
+            const goldreserve = await Storage.Amount(
+                market.id,
+                player.id,
+                Config.GoldGoodId,
+            );
+
+            Statistics.Create<ICurrencyRecord>(
+                player.id,
+                TurnsService.CurrentTurn.id,
+                StatisticsTypes.CurrencyRecord,
+                {
+                    goodId: await market.getCashGoodId(),
+                    totalamount: aggrgoods,
+                    inflation: (lasttotalamount) ? aggrgoods - lasttotalamount : 0,
+                    goldExchangeRate: currency.exchangeRate,
+                    goldreserve,
+                }
+            );
+        }
     }
 }

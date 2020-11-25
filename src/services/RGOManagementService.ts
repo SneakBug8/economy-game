@@ -79,8 +79,13 @@ export class RGOManagementService
             return "No such RGO type";
         }
 
-        const costs = Config.RGOCostsDictionary.get(rgotypeid);
         const player = await Player.GetById(playerid);
+
+        if (rgotype.marketId !== player.CurrentMarketId) {
+            return "Can't build this in this region";
+        }
+
+        const costs = Config.RGOCostsDictionary.get(rgotypeid);
 
         if (!costs) {
             return "Can't build such RGO";
