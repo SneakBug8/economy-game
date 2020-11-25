@@ -84,7 +84,8 @@ export class Storage
         const data = await StorageRepository()
             .select()
             .where("playerId", playerId)
-            .andWhere("marketId", marketId);
+            .andWhere("marketId", marketId)
+            .orderBy("goodId");
 
         const res = new Array<Storage>();
 

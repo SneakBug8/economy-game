@@ -66,8 +66,9 @@ export class TurnsService
     {
         this.CurrentTurn.totalcash = 0;
 
+        // TODO: Imagine a way of controlling money flows other than totalcash
         for (const pl of (await Player.All())) {
-            this.CurrentTurn.totalcash += pl.cash;
+            this.CurrentTurn.totalcash += await pl.AgetCash();
         }
 
         this.CurrentTurn.totalcash -= this.CurrentTurn.freecash;
@@ -80,11 +81,12 @@ export class TurnsService
         const data = [];
 
         for (const pl of (await Player.All())) {
+            const cash = await pl.AgetCash();
             Statistics.Create<IPlayerStatisticsRecord>(pl.id, this.CurrentTurn.id, StatisticsTypes.PlayerRecord, {
-                cash: pl.cash,
+                cash,
             });
 
-            data.push(pl.cash);
+            data.push(cash);
         }
 
         const mediancash = this.Median(data);

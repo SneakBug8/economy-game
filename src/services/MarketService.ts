@@ -317,7 +317,7 @@ export class MarketService
         }
         const transactioncost = transactionsize * sellOffer.price;
 
-        if (buyplayer.cash < transactioncost) {
+        if (await buyplayer.AgetCash() < transactioncost) {
             return "Not enough cash";
         }
 
@@ -379,7 +379,7 @@ export class MarketService
 
         const good = await buy.getGood();
 
-        if (buyplayer.cash < transactioncost) {
+        if (await buyplayer.AgetCash() < transactioncost) {
             return "Buyer doesn't have enough cash";
         }
 

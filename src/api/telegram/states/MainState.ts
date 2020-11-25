@@ -64,7 +64,7 @@ export class MainState extends State
                 return;
             }
 
-            this.Client.write(`Player: ${player.username}\n---\nCash: ${player.cash}`);
+            this.Client.write(`Player: ${player.username}\n---\nCash: ${await player.AgetCash()}`);
 
             return true;
         }

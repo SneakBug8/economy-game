@@ -5,13 +5,15 @@ import { TurnsService } from "services/TurnsService";
 import { RGO, RGORepository } from "./RGO";
 import { Logger } from "utility/Logger";
 import { StateActivityService } from "services/StateActivityService";
+import { Storage } from "./Storage";
+import { Config } from "config";
+import { Market } from "./Market";
 
 export class Player
 {
     public id: number;
     public username: string;
     public password: string;
-    public cash: number = 0;
 
     public CurrentMarketId: number;
 
@@ -23,16 +25,31 @@ export class Player
         res.id = dbobject.id;
         res.username = dbobject.username;
         res.password = dbobject.password;
-        res.cash = dbobject.cash;
         res.isAdmin = dbobject.isAdmin;
         res.CurrentMarketId = dbobject.CurrentMarketId;
 
         return res;
     }
 
-    public getCash()
+    public async AgetCash()
     {
-        return this.cash;
+        return await this.getCashMarket(this.CurrentMarketId);
+    }
+
+    public async getCash(goodId: number)
+    {
+        return await Storage.Amount(this.CurrentMarketId, this.id, goodId);
+    }
+
+    public async getCashMarket(marketId: number)
+    {
+        const market = await Market.GetById(marketId);
+        return await Storage.Amount(marketId, this.id, market.cashGoodId);
+    }
+
+    public async getGold()
+    {
+        return await Storage.Amount(this.CurrentMarketId, this.id, Config.GoldGoodId);
     }
 
     public static async TransferCash(fromId: number, toId: number, amount: number)
@@ -47,47 +64,34 @@ export class Player
         if (!fromplayer || !toplayer) {
             return "No such player";
         }
-        else if (fromplayer.cash < amount) {
+        else if (await fromplayer.AgetCash() < amount) {
             return Logger.warn(`Not enough money to make transfer`);
         }
-        else if (amount < 0 && toplayer.cash < amount) {
+        else if (amount < 0 && await toplayer.AgetCash() < amount) {
             return `Not enough money to make transfer`;
         }
 
-        await fromplayer.ModifyCash(-amount);
-        await toplayer.ModifyCash(amount);
+        await fromplayer.modifyCash(fromplayer.CurrentMarketId, -amount);
+        await toplayer.modifyCash(fromplayer.CurrentMarketId, amount);
 
         return true;
     }
 
-    public async payCash(to: Player, amount: number): Promise<boolean>
+    public async payCash(to: Player, amount: number)
     {
-        if (this.id === to.id) {
-            return true;
-        }
-        else if (this.cash < amount) {
-            Logger.warn(`[${this.username} Not enough money to make transfer to ${to.username}`);
-            return false;
-        }
-        else if (amount < 0 && to.cash < amount) {
-            Logger.warn(`[${this.username} Not enough money to make transfer to ${this.username}`);
-            return false;
-        }
-
-        Logger.verbose(`${this.username} paid ${amount} to ${to.username}. Old balance: ${this.cash}`);
-
-        await this.ModifyCash(-amount);
-        await to.ModifyCash(amount);
-
-        Logger.verbose(`New balance: ${to.cash}`);
-
-        return true;
+        return await Player.TransferCash(this.id, to.id, amount);
     }
 
-    private async ModifyCash(amount: number)
+    private async modifyCash(marketId: number, amount: number)
     {
-        this.cash += amount;
-        const d = await Connection.raw("UPDATE Players set cash = cash + ? WHERE id = ?", [amount, this.id]);
+        return await Player.ModifyCash(this.id, marketId, amount);
+    }
+
+    private static async ModifyCash(playerId: number, marketId: number, amount: number)
+    {
+        // this.cash += amount;
+        Storage.AddGoodTo(marketId, playerId, await Market.GetCashGoodId(marketId), amount);
+        // const d = await Connection.raw("UPDATE Players set cash = cash + ? WHERE id = ?", [amount, this.id]);
         // const d = await PlayerRepository().where("id", this.id).update(Connection.raw("cash = cash + ?", amount));
 
         // player.id = d[0];
@@ -95,19 +99,19 @@ export class Player
         // return d[0];
     }
 
-    public async payCashToState(marketId: number, amount: number): Promise<boolean>
+    public async payCashToState(marketId: number, amount: number)
     {
         return await this.payCash(await StateActivityService.GetPlayer(marketId), amount);
     }
 
-    public async takeCashFromState(marketId: number, amount: number): Promise<boolean>
+    public async takeCashFromState(marketId: number, amount: number)
     {
         return await this.payCash(await StateActivityService.GetPlayer(marketId), -amount);
     }
 
-    public Verbose(): void
+    public async Verbose()
     {
-        Log.LogTemp(`Player ${this.username} (${this.id}), cash: ${this.cash}`);
+        Log.LogTemp(`Player ${this.username} (${this.id}), cash: ${await this.AgetCash()}`);
     }
 
     public static async GetById(id: number): Promise<Player>
@@ -256,7 +260,6 @@ export class Player
         const d = await PlayerRepository().where("id", player.id).update({
             username: player.username,
             password: player.password,
-            cash: player.getCash(),
             isAdmin: player.isAdmin,
             CurrentMarketId: player.CurrentMarketId,
         });
@@ -272,7 +275,6 @@ export class Player
             id: player.id,
             username: player.username,
             password: player.password,
-            cash: player.getCash(),
             isAdmin: player.isAdmin,
             CurrentMarketId: player.CurrentMarketId,
         });
@@ -291,7 +293,8 @@ export class Player
             return false;
         }
 
-        await player.payCashToState(player.CurrentMarketId, player.cash);
+        // TODO: make sure all types of cashes everywhere is properly transfered to govt
+        await player.payCashToState(player.CurrentMarketId, await player.AgetCash());
 
         for (const factory of await Player.GetFactoriesById(player.CurrentMarketId, player.id)) {
             Factory.Delete(factory.id);
@@ -329,7 +332,7 @@ export class Player
     {
         const player = await Player.GetById(id);
 
-        if (player.getCash() >= amount) {
+        if (await player.AgetCash() >= amount) {
             return true;
         }
 

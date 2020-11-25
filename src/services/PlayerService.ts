@@ -17,8 +17,9 @@ export class PlayerService
 
         player.CurrentMarketId = Market.DefaultMarket.id;
 
-        player.cash = Config.RegistrationCash;
-        await StateActivityService.AddCash(player.CurrentMarketId, -Config.RegistrationCash);
+        // TODO: Imagine another way of adding RegistrationCash
+        /*player.cash = Config.RegistrationCash;
+        await StateActivityService.AddCash(player.CurrentMarketId, -Config.RegistrationCash);*/
 
         player.username = username;
         player.password = passwd;

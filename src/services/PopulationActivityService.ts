@@ -97,7 +97,7 @@ export class PopulationActivityService
 
             const calculatedprices = await CalculatedPrice.GetWithPlayer(player.id);
 
-            if (player.cash <= 10000) {
+            if (await player.AgetCash() <= 10000) {
                 for (const c of calculatedprices) {
                     c.amount = Math.floor(0.99 * c.amount);
                     await CalculatedPrice.Update(c);
@@ -106,7 +106,7 @@ export class PopulationActivityService
                     }
                 }
             }
-            else if (player.cash >= 20000) {
+            else if (await player.AgetCash() >= 20000) {
                 for (const c of calculatedprices) {
                     c.amount = Math.ceil(1.01 * c.amount);
                     await CalculatedPrice.Update(c);
@@ -184,18 +184,13 @@ export class PopulationActivityService
         }
     }
 
-    public static async AddCash(marketId: number, amount: number)
-    {
-        const player = await this.GetPlayer(marketId);
-        player.cash += amount;
-        await Player.Update(player);
-    }
-
     public static async CreateCash(player: Player, amount: number)
     {
-        player.cash += amount;
+        await Storage.AddGoodTo(player.CurrentMarketId,
+            player.id,
+            await Market.GetCashGoodId(player.CurrentMarketId),
+            amount);
         TurnsService.RegisterNewCash(amount);
-        await Player.Update(player);
     }
 
     public static async DoMarketingMoveOn(marketId: number, playerId: number, goodId: number)
@@ -207,7 +202,7 @@ export class PopulationActivityService
 
         const cost = price.price * price.amount * 10;
 
-        if (player.cash < cost) {
+        if (await player.AgetCash() < cost) {
             return "Not enough cash";
         }
 

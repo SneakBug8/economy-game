@@ -92,7 +92,7 @@ export class StateActivityService
                 return;
             }
 
-            if (player.cash <= 10000) {
+            if (await player.AgetCash() <= 10000) {
                 await StateActivityService.CreateCash(market.id, 10000);
             }
             else {
@@ -172,18 +172,13 @@ export class StateActivityService
         }
     }
 
-    public static async AddCash(marketId: number, amount: number)
-    {
-        const player = await this.GetPlayer(marketId);
-        player.cash += amount;
-        Player.Update(player);
-    }
-
     public static async CreateCash(playerId: number, amount: number)
     {
         const player = await Player.GetById(playerId);
-        player.cash += amount;
-        await Player.Update(player);
+        await Storage.AddGoodTo(player.CurrentMarketId,
+            player.id,
+            await Market.GetCashGoodId(player.CurrentMarketId),
+            amount);
         TurnsService.RegisterNewCash(amount);
     }
 }

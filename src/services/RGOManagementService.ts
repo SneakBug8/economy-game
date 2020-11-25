@@ -19,9 +19,13 @@ export class RGOManagementService
             const player = await rgo.getOwner();
 
             const hastopay = rgo.salary * rgo.employeesCount;
-            const canpay = Math.min(hastopay, player.cash);
+            let canpay = Math.min(hastopay, await player.AgetCash());
 
-            if (player.cash < 0 || hastopay > canpay) {
+            if (canpay < 0) {
+                canpay = 0;
+            }
+
+            if (hastopay > canpay) {
                 PlayerService.SendOffline(player.id, `Can pay salaries for RGO ${rgo.id} no more`);
                 rgo.targetEmployees = this.Lerp(rgo.targetEmployees, 0, 0.75);
                 rgo.targetEmployees = Math.round(rgo.targetEmployees);
@@ -33,7 +37,7 @@ export class RGOManagementService
             PlayerService.SendOffline(player.id, `RGO ${rgo.id} paid ${canpay} in salaries`);
 
             // Increase employees count
-            if (player.cash > 0 && rgo.targetEmployees > rgo.employeesCount) {
+            if (await player.AgetCash() > 0 && rgo.targetEmployees > rgo.employeesCount) {
                 let delta = this.Lerp(rgo.employeesCount,
                     rgo.targetEmployees,
                     Config.WorkersRecruitmentSpeed) - rgo.employeesCount;

@@ -18,9 +18,13 @@ export class FactoryManagementService
             const player = await Player.GetWithFactory(factory);
 
             const hastopay = factory.salary * factory.employeesCount;
-            const canpay = Math.min(hastopay, player.cash);
+            let canpay = Math.min(hastopay, await player.AgetCash());
 
-            if (player.cash < 0 || hastopay > canpay) {
+            if (canpay < 0) {
+                canpay = 0;
+            }
+
+            if (hastopay > canpay) {
                 PlayerService.SendOffline(player.id, `Can pay salaries for factory ${factory.id} no more`);
                 factory.setTargetEmployees(this.Lerp(factory.getTargetEmployees(), 0, 0.75));
                 factory.setTargetEmployees(Math.round(factory.getTargetEmployees()));
@@ -34,7 +38,7 @@ export class FactoryManagementService
             PlayerService.SendOffline(player.id, `Factory ${factory.id} paid ${canpay} in salaries`);
 
             // Increase employees count
-            if (player.cash > 0 && factory.getTargetEmployees() > factory.employeesCount) {
+            if (await player.AgetCash() > 0 && factory.getTargetEmployees() > factory.employeesCount) {
                 let delta = this.Lerp(factory.employeesCount,
                     factory.getTargetEmployees(),
                     Config.WorkersRecruitmentSpeed) - factory.employeesCount;

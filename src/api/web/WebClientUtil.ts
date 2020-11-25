@@ -130,6 +130,7 @@ export class WebClientUtil {
         if (WebClientUtil.isLogined(req)) {
             const player = await Player.GetById(req.client.playerId);
             res.locals.player = player;
+            res.locals.cash = await player.AgetCash();
             res.locals.playerfactoryworkers = await player.getFactoriesWorkers();
             res.locals.playerrgoworkers = await player.getRGOWorkers();
 

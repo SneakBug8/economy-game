@@ -91,21 +91,21 @@ export class WebClientRouter
         router.post("/storage/transfer", [
             body("goodId", "Wrong goodId").isNumeric().notEmpty(),
             body("amount", "Wrong amount").isNumeric().notEmpty(),
-            body("marketId", "Wrong marketId").isNumeric().notEmpty()
+            body("marketId", "Wrong marketId").isNumeric().notEmpty(),
         ],
             this.onStorageTransferAction);
         router.post("/storage/send", [
             body("username", "Wrong username").isAlphanumeric().notEmpty().trim().escape(),
+            body("goodId", "Wrong goodId").isNumeric().notEmpty(),
             body("amount", "Wrong amount").isNumeric().notEmpty(),
-            body("marketId", "Wrong marketId").isNumeric().notEmpty()
         ],
             this.onStorageSendAction);
 
-        router.post("/money/send", [
+        /*router.post("/money/send", [
             body("username", "Wrong username").isAlphanumeric().notEmpty().trim().escape(),
             body("amount", "Wrong amount").isNumeric().notEmpty(),
         ],
-            this.onMoneySendAction);
+            this.onMoneySendAction);*/
 
         router.get("/markets", this.onMarkets);
         router.get("/market/:id([0-9]+)", this.onMarket);
@@ -225,7 +225,7 @@ export class WebClientRouter
         const data = [];
         for (const x of storages) {
             data.push({
-                name: (await x.getGood()).name + "(" + (await x.getGood()).id + ")",
+                name: (await x.getGood()).name + " (" + (await x.getGood()).id + ")",
                 amount: x.amount,
             });
         }
