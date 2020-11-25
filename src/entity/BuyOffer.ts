@@ -1,6 +1,5 @@
 import { MarketOffer } from "./MarketOffer";
 import { Connection } from "DataBase";
-import { MarketActor } from "./MarketActor";
 import { Market } from "entity/Market";
 import { Good } from "./Good";
 import { Turn } from "./Turn";
@@ -36,28 +35,12 @@ export class BuyOffer extends MarketOffer
     {
         this.turn_id = turn.id;
     }
-    public getActor(): Promise<MarketActor>
-    {
-        return MarketActor.GetById(this.actorId);
-    }
-    public setActor(actor: MarketActor)
-    {
-        this.actorId = actor.id;
-    }
-    public setActorId(actorId: number)
-    {
-        this.actorId = actorId;
-    }
-    public getActorId(): number
-    {
-        return this.actorId;
-    }
 
     public async From(dbobject: any)
     {
         this.id = dbobject.id;
         this.marketId = dbobject.marketId;
-        this.actorId = dbobject.actor_id;
+        this.playerId = dbobject.playerId;
         this.goodId = dbobject.good_id;
         this.amount = dbobject.amount;
         this.price = dbobject.price;
@@ -72,9 +55,9 @@ export class BuyOffer extends MarketOffer
         return res.From(dbobject);
     }
 
-    public static async Create(marketId: number, goodId: number, amount: number, price: number, actorId: number)
+    public static async Create(marketId: number, goodId: number, amount: number, price: number, playerId: number)
     {
-        const player = await Player.GetWithActorId(actorId);
+        const player = await Player.GetById(playerId);
 
         if (!await Player.HasCash(player.id, amount * price)) {
             return false;
@@ -85,7 +68,7 @@ export class BuyOffer extends MarketOffer
         offer.setGoodId(goodId);
         offer.amount = amount;
         offer.price = price;
-        offer.setActorId(actorId);
+        offer.playerId = playerId;
         offer.marketId = marketId;
 
         return await this.Insert(offer);
@@ -113,7 +96,7 @@ export class BuyOffer extends MarketOffer
     {
         const d = await BuyOfferRepository().where("id", offer.id).update({
             marketId: offer.marketId,
-            actor_id: offer.actorId,
+            playerId: offer.playerId,
             good_id: offer.goodId,
             amount: offer.amount,
             price: offer.price,
@@ -130,7 +113,7 @@ export class BuyOffer extends MarketOffer
     {
         const d = await BuyOfferRepository().insert({
             marketId: offer.marketId,
-            actor_id: offer.actorId,
+            playerId: offer.playerId,
             good_id: offer.goodId,
             amount: offer.amount,
             price: offer.price,
@@ -201,9 +184,9 @@ export class BuyOffer extends MarketOffer
         return [];
     }
 
-    public static async GetWithActor(actorId: number): Promise<BuyOffer[]>
+    public static async GetWithPlayer(playerId: number): Promise<BuyOffer[]>
     {
-        const data = await BuyOfferRepository().where("actor_id", actorId).select();
+        const data = await BuyOfferRepository().where("playerId", playerId).select();
         const res = new Array<BuyOffer>();
 
         if (data) {

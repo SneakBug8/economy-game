@@ -18,7 +18,6 @@ import { PlayerLog } from "entity/PlayerLog";
 import { MarketService } from "services/MarketService";
 import { BuyOffer } from "entity/BuyOffer";
 import { SellOffer } from "entity/SellOffer";
-import { MarketActor } from "entity/MarketActor";
 import { IMyRequest, WebClientUtil } from "../WebClientUtil";
 import { StorageService } from "services/StorageService";
 
@@ -221,7 +220,7 @@ export class WebClientRouter
     {
         const player = await Player.GetById(req.client.playerId);
 
-        const storages = await Storage.AGetWithActor(player.actorId);
+        const storages = await Storage.AGetWithPlayer(player.id);
 
         const data = [];
         for (const x of storages) {
@@ -279,7 +278,7 @@ export class WebClientRouter
         const goodId = Number.parseInt(req.body.goodId, 10);
 
         const username = req.body.username;
-        const receiverplayer = await Player.GetWithActor(username);
+        const receiverplayer = await Player.GetWithLogin(username);
 
         if (!receiverplayer) {
             WebClientUtil.error(req, res, "No such player");
@@ -774,7 +773,7 @@ export class WebClientRouter
         const buyoffers = [];
         const selloffers = [];
         for (const s of so) {
-            const player = await Player.GetWithActorId(s.getActorId());
+            const player = await Player.GetById(s.playerId);
             selloffers.push({
                 id: s.id,
                 amount: s.amount,
@@ -784,7 +783,7 @@ export class WebClientRouter
         }
 
         for (const b of bo) {
-            const player = await Player.GetWithActorId(b.getActorId());
+            const player = await Player.GetById(b.playerId);
             buyoffers.push({
                 id: b.id,
                 amount: b.amount,
@@ -793,7 +792,7 @@ export class WebClientRouter
             });
         }
 
-        const storage = await Storage.Amount(player.CurrentMarketId, req.client.actorId, good.id);
+        const storage = await Storage.Amount(player.CurrentMarketId, req.client.playerId, good.id);
 
         WebClientUtil.render(req, res, "market", {
             good, buyoffers, selloffers, demand, supply, storage, helpers: { notequal: ((x, y) => x !== y), equal: ((x, y) => x === y) },
@@ -802,7 +801,7 @@ export class WebClientRouter
 
     public static async onMarketSell(req: IMyRequest, res: express.Response)
     {
-        //TODO: Удаление офферов
+        // TODO: Удаление офферов
         // TODO: Частичный выкуп оффера
         // TODO: Модалки получше
         // TODO: оформление Homm3
@@ -817,7 +816,6 @@ export class WebClientRouter
 
         const goodid = Number.parseInt(req.params.id, 10);
         const player = await Player.GetById(req.client.playerId);
-        const actor = await MarketActor.GetById(req.client.actorId);
         const amount = Number.parseInt(req.body.amount, 10);
         const price = Number.parseInt(req.body.price, 10);
 
@@ -828,7 +826,7 @@ export class WebClientRouter
             return;
         }
 
-        const data = await MarketService.AddSellOffer(player.CurrentMarketId, actor.id, good.id, amount, price);
+        const data = await MarketService.AddSellOffer(player.CurrentMarketId, player.id, good.id, amount, price);
 
         if (typeof data === "string") {
             WebClientUtil.error(req, res, data);
@@ -851,7 +849,6 @@ export class WebClientRouter
 
         const goodid = Number.parseInt(req.params.id, 10);
         const player = await Player.GetById(req.client.playerId);
-        const actor = await MarketActor.GetById(req.client.actorId);
         const amount = Number.parseInt(req.body.amount, 10);
         const price = Number.parseInt(req.body.price, 10);
 
@@ -862,7 +859,7 @@ export class WebClientRouter
             return;
         }
 
-        const data = await MarketService.AddBuyOffer(player.CurrentMarketId, actor.id, good.id, amount, price);
+        const data = await MarketService.AddBuyOffer(player.CurrentMarketId, player.id, good.id, amount, price);
 
         if (typeof data === "string") {
             WebClientUtil.error(req, res, data);
@@ -874,25 +871,11 @@ export class WebClientRouter
 
     public static async onMarketRedeemSell(req: IMyRequest, res: express.Response)
     {
-        const goodid = Number.parseInt(req.params.id, 10);
-        const actor = await MarketActor.GetById(req.client.actorId);
         const offerId = Number.parseInt(req.params.offer, 10);
-        const offer = await SellOffer.GetById(offerId);
 
-        if (!offer) {
-            WebClientUtil.error(req, res, "No such offer");
-        }
+        const amount = Number.parseInt(req.params.amount, 10) || null;
 
-        const amount = Number.parseInt(req.params.amount, 10) || offer.amount;
-
-        const good = await Good.GetById(goodid);
-
-        if (!good) {
-            WebClientUtil.error(req, res, "No such market");
-            return;
-        }
-
-        const data = await MarketService.RedeemSellOffer(actor, offer, amount);
+        const data = await MarketService.RedeemSellOffer(req.client.playerId, offerId, amount);
 
         if (typeof data === "string") {
             WebClientUtil.error(req, res, data);
@@ -905,7 +888,6 @@ export class WebClientRouter
     public static async onMarketRedeemBuy(req: IMyRequest, res: express.Response)
     {
         const goodid = Number.parseInt(req.params.id, 10);
-        const actor = await MarketActor.GetById(req.client.actorId);
         const offerId = Number.parseInt(req.params.offer, 10);
         const offer = await BuyOffer.GetById(offerId);
 
@@ -922,7 +904,7 @@ export class WebClientRouter
             return;
         }
 
-        const data = await MarketService.RedeemBuyOffer(actor, offer, amount);
+        const data = await MarketService.RedeemBuyOffer(req.client.playerId, offer, amount);
 
         if (typeof data === "string") {
             WebClientUtil.error(req, res, data);

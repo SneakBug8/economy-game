@@ -15,7 +15,6 @@ export class ProductionService
             const queue = await ProductionQueue.GetWithFactory(factory);
 
             const player = await factory.getOwner();
-            const actor = await player.getActor();
 
             if (!queue) {
                 continue;
@@ -40,7 +39,7 @@ export class ProductionService
 
                 // Second try - repeats on resources
                 for (const input of recipe.Requisites) {
-                    const storageentry = await Storage.GetWithGoodMarketAndActor(factory.marketId, actor.id, input.Good.id);
+                    const storageentry = await Storage.GetWithGoodMarketAndPlayer(factory.marketId, player.id, input.Good.id);
 
                     if (!storageentry) {
                         break;
@@ -70,12 +69,12 @@ export class ProductionService
 
                 // Take inputs
                 for (const input of recipe.Requisites) {
-                    await Storage.TakeGoodFrom(factory.marketId, actor.id, input.Good.id, reciperepeats * input.amount);
+                    await Storage.TakeGoodFrom(factory.marketId, player.id, input.Good.id, reciperepeats * input.amount);
                 }
 
                 // Give outputs
                 for (const output of recipe.Results) {
-                    await Storage.AddGoodTo(factory.marketId, actor.id, output.Good.id, reciperepeats * output.amount);
+                    await Storage.AddGoodTo(factory.marketId, player.id, output.Good.id, reciperepeats * output.amount);
 
                     EventsList.onProduction.emit({
                         Factory: factory,

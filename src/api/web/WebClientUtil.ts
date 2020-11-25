@@ -94,7 +94,7 @@ export class WebClientUtil {
 
     public static isLogined(req: IMyRequest)
     {
-        return req.client && req.client.playerId && req.client.actorId;
+        return req.client && req.client.playerId;
     }
 
     public static LoadRecipes(req: IMyRequest, res: express.Response, next: () => void)

@@ -18,7 +18,6 @@ export class TelegramClient
     public userId: number;
 
     public playerId: number;
-    public actorId: number;
 
     public State: State;
 
@@ -64,19 +63,9 @@ export class TelegramClient
         res.playerId = playerId;
         res.isAdmin = isAdmin;
 
-        await res.LoadActorId();
-
         res.setState(new MainState(), true);
 
         return res;
-    }
-
-    public async LoadActorId()
-    {
-        const player = await Player.GetById(this.playerId);
-        const actor = await player.getActor();
-
-        this.actorId = actor.id;
     }
 
     public async CheckLogin(): Promise<boolean>

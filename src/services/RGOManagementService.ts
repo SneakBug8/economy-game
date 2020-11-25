@@ -77,7 +77,6 @@ export class RGOManagementService
 
         const costs = Config.RGOCostsDictionary.get(rgotypeid);
         const player = await Player.GetById(playerid);
-        const actor = await player.getActor();
 
         if (!costs) {
             return "Can't build such RGO";
@@ -96,7 +95,7 @@ export class RGOManagementService
                 return "Wrong RGO construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(player.CurrentMarketId, actor.id, good.id, costentry.Amount)) {
+            if (!await Storage.Has(player.CurrentMarketId, player.id, good.id, costentry.Amount)) {
                 return "Not enough resources";
             }
         }
@@ -104,7 +103,7 @@ export class RGOManagementService
         for (const costentry of costs) {
             const good = await Good.GetById(costentry.goodId);
 
-            await Storage.TakeGoodFrom(player.CurrentMarketId, actor.id, good.id, costentry.Amount);
+            await Storage.TakeGoodFrom(player.CurrentMarketId, player.id, good.id, costentry.Amount);
         }
 
         const rgo = await RGO.Create(player.CurrentMarketId, player.id, 0, 0, rgotypeid);
@@ -125,7 +124,6 @@ export class RGOManagementService
 
         const costs = Config.RGOCostsDictionary.get(rgotype.id);
         const player = await Player.GetById(playerid);
-        const actor = await player.getActor();
 
         if (!costs) {
             return "Can't upgrade RGO";
@@ -140,7 +138,7 @@ export class RGOManagementService
                 return "Wrong RGO construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(rgo.marketId, actor.id, good.id, upgradeamount)) {
+            if (!await Storage.Has(rgo.marketId, player.id, good.id, upgradeamount)) {
                 return "Not enough resources";
             }
         }
@@ -150,7 +148,7 @@ export class RGOManagementService
 
             const good = await Good.GetById(costentry.goodId);
 
-            await Storage.TakeGoodFrom(rgo.marketId, actor.id, good.id, upgradeamount);
+            await Storage.TakeGoodFrom(rgo.marketId, player.id, good.id, upgradeamount);
 
         }
 

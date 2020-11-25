@@ -73,11 +73,11 @@ export class StateActivityService
 
             for (const p of calculatedprices) {
                 if (p.type === CalculatedPriceType.Sell) {
-                    Storage.AddGoodTo(player.CurrentMarketId, player.actorId, p.goodId, p.amount);
+                    Storage.AddGoodTo(player.CurrentMarketId, player.id, p.goodId, p.amount);
                 }
                 if (p.type === CalculatedPriceType.Buy) {
-                    Storage.AddGoodTo(player.CurrentMarketId, player.actorId, p.goodId,
-                        await Storage.Amount(player.CurrentMarketId, player.actorId, p.goodId));
+                    Storage.AddGoodTo(player.CurrentMarketId, player.id, p.goodId,
+                        await Storage.Amount(player.CurrentMarketId, player.id, p.goodId));
                 }
             }
         }
@@ -103,12 +103,12 @@ export class StateActivityService
                 );
             }
 
-            const borders = await BuyOffer.GetWithActor(player.actorId);
+            const borders = await BuyOffer.GetWithPlayer(player.id);
             for (const o of borders) {
                 await BuyOffer.Delete(o.id);
             }
 
-            const sorders = await SellOffer.GetWithActor(player.actorId);
+            const sorders = await SellOffer.GetWithPlayer(player.id);
             for (const o of sorders) {
                 await SellOffer.Delete(o.id);
             }
@@ -119,13 +119,13 @@ export class StateActivityService
                 if (p.type === CalculatedPriceType.Buy) {
                     Logger.verbose("Created buy order");
 
-                    BuyOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.actorId);
+                    BuyOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.id);
                     continue;
                 }
                 else if (p.type === CalculatedPriceType.Sell) {
                     Logger.verbose("Created sell order");
 
-                    SellOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.actorId);
+                    SellOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.id);
                     continue;
                 }
             }
@@ -145,25 +145,25 @@ export class StateActivityService
 
             for (const p of calculatedprices) {
                 if (p.type === CalculatedPriceType.Buy &&
-                    await Storage.Has(player.CurrentMarketId, player.actorId, p.goodId, p.amount)) {
+                    await Storage.Has(player.CurrentMarketId, player.id, p.goodId, p.amount)) {
                     p.price = Math.floor(p.price * 1.01);
                     CalculatedPrice.Update(p);
                     continue;
                 }
                 else if (p.type === CalculatedPriceType.Buy &&
-                    (await Storage.Amount(player.CurrentMarketId, player.actorId, p.goodId)) === 0) {
+                    (await Storage.Amount(player.CurrentMarketId, player.id, p.goodId)) === 0) {
                     p.price = Math.ceil(p.price * 0.99);
                     CalculatedPrice.Update(p);
                     continue;
                 }
                 else if (p.type === CalculatedPriceType.Sell &&
-                    (await Storage.Amount(player.CurrentMarketId, player.actorId, p.goodId)) > 0) {
+                    (await Storage.Amount(player.CurrentMarketId, player.id, p.goodId)) > 0) {
                     p.price = Math.floor(p.price * 0.99);
                     CalculatedPrice.Update(p);
                     continue;
                 }
                 else if (p.type === CalculatedPriceType.Sell &&
-                    (await Storage.Amount(player.CurrentMarketId, player.actorId, p.goodId)) === 0) {
+                    (await Storage.Amount(player.CurrentMarketId, player.id, p.goodId)) === 0) {
                     p.price = Math.ceil(p.price * 1.01);
                     CalculatedPrice.Update(p);
                     continue;

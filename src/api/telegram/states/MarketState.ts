@@ -127,9 +127,8 @@ export class MarketState extends State
 
             const good = await Good.GetById(this.marketBuyGoodId);
             const player = await Player.GetById(this.Client.playerId);
-            const actor = await player.getActor();
 
-            const id = await MarketService.AddBuyOffer(player.CurrentMarketId, actor.id, good.id, amount, this.marketBuyPrice);
+            const id = await MarketService.AddBuyOffer(player.CurrentMarketId, player.id, good.id, amount, this.marketBuyPrice);
 
             if (id) {
                 this.Client.write("Added buy offer id " + id);
@@ -176,7 +175,7 @@ export class MarketState extends State
 
             const offer = await BuyOffer.GetById(offerid);
 
-            if (offer.getActorId() !== this.Client.actorId) {
+            if (offer.playerId !== this.Client.playerId) {
                 this.Client.write("That's not your offer");
                 return;
             }
@@ -199,9 +198,8 @@ export class MarketState extends State
         if (registerregex.test(message)) {
 
             const player = await Player.GetById(this.Client.playerId);
-            const actor = await player.getActor();
 
-            const res = await BuyOffer.GetWithActor(actor.id);
+            const res = await BuyOffer.GetWithPlayer(player.id);
 
             this.Client.writeList<BuyOffer>(res, (x) => x.id, async (x) => `${x.amount} ${(await x.getGood()).name} for ${x.price} each`);
 
@@ -295,9 +293,8 @@ export class MarketState extends State
 
             const good = await Good.GetById(this.marketSellGoodId);
             const player = await Player.GetById(this.Client.playerId);
-            const actor = await player.getActor();
 
-            const id = await MarketService.AddSellOffer(player.CurrentMarketId, actor.id, good.id, amount, this.marketSellPrice);
+            const id = await MarketService.AddSellOffer(player.CurrentMarketId, player.id, good.id, amount, this.marketSellPrice);
 
             if (id) {
                 this.Client.write("Added sell offer id " + id);
@@ -343,7 +340,7 @@ export class MarketState extends State
 
             const offer = await SellOffer.GetById(offerid);
 
-            if (offer.getActorId() !== this.Client.actorId) {
+            if (offer.playerId !== this.Client.playerId) {
                 this.Client.write("That's not your offer");
                 return;
             }
@@ -366,9 +363,8 @@ export class MarketState extends State
         if (registerregex.test(message)) {
 
             const player = await Player.GetById(this.Client.playerId);
-            const actor = await player.getActor();
 
-            const res = await SellOffer.GetWithActor(actor.id);
+            const res = await SellOffer.GetWithPlayer(player.id);
 
             this.Client.writeList<SellOffer>(res, (x) => x.id, async (x) => `${x.amount} ${(await x.getGood()).name} for ${x.price} each`);
 

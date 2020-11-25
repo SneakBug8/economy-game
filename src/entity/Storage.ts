@@ -1,31 +1,12 @@
 import { Good } from "./Good";
 import { Connection } from "DataBase";
-import { MarketActor } from "./MarketActor";
 import { Player } from "./Player";
 
 export class Storage
 {
     public id;
-    public actorId: number;
+    public playerId: number;
     public marketId: number;
-
-    public async getActor(): Promise<MarketActor>
-    {
-        return MarketActor.GetById(this.actorId);
-    }
-    public setActor(actor: MarketActor)
-    {
-        this.actorId = actor.id;
-    }
-
-    public getActorId()
-    {
-        return this.actorId;
-    }
-    public setActorId(actorid: number)
-    {
-        this.actorId = actorid;
-    }
 
     public goodId: number;
 
@@ -52,7 +33,7 @@ export class Storage
     {
         const res = new Storage();
         res.id = dbobject.id;
-        res.actorId = dbobject.actorId;
+        res.playerId = dbobject.actorId;
         res.goodId = dbobject.goodId;
         res.amount = dbobject.amount;
         res.marketId = dbobject.marketId;
@@ -90,19 +71,19 @@ export class Storage
         return [];
     }
 
-    public static async AGetWithActor(actorId: number): Promise<Storage[]>
+    public static async AGetWithPlayer(playerId: number): Promise<Storage[]>
     {
-        return this.GetWithActor(
-            (await Player.GetWithActorId(actorId)).CurrentMarketId,
-            actorId,
+        return this.GetWithPlayer(
+            (await Player.GetById(playerId)).CurrentMarketId,
+            playerId,
         );
     }
 
-    public static async GetWithActor(marketId: number, actorId: number): Promise<Storage[]>
+    public static async GetWithPlayer(marketId: number, playerId: number): Promise<Storage[]>
     {
         const data = await StorageRepository()
             .select()
-            .where("actorId", actorId)
+            .where("playerId", playerId)
             .andWhere("marketId", marketId);
 
         const res = new Array<Storage>();
@@ -118,11 +99,11 @@ export class Storage
         return [];
     }
 
-    public static async GetWithGoodMarketAndActor(marketId: number, actorid: number, goodid: number): Promise<Storage>
+    public static async GetWithGoodMarketAndPlayer(marketId: number, playerId: number, goodid: number): Promise<Storage>
     {
         const data = await StorageRepository()
             .select()
-            .where("actorId", actorid)
+            .where("playerId", playerId)
             .andWhere("goodId", goodid)
             .andWhere("marketId", marketId)
             .first();
@@ -156,7 +137,7 @@ export class Storage
     {
         const d = await StorageRepository().where("id", record.id).update({
             goodId: record.goodId,
-            actorId: record.actorId,
+            playerId: record.playerId,
             amount: record.amount,
             marketId: record.marketId,
         });
@@ -170,7 +151,7 @@ export class Storage
         const d = await StorageRepository().insert({
             id: record.id,
             goodId: record.goodId,
-            actorId: record.actorId,
+            playerId: record.playerId,
             amount: record.amount,
             marketId: record.marketId,
         });
@@ -203,9 +184,9 @@ export class Storage
         return [];
     }
 
-    public static async AddGoodTo(marketId: number, actorid: number, goodid: number, amount: number)
+    public static async AddGoodTo(marketId: number, playerId: number, goodid: number, amount: number)
     {
-        const existingstorage = await this.GetWithGoodMarketAndActor(marketId, actorid, goodid);
+        const existingstorage = await this.GetWithGoodMarketAndPlayer(marketId, playerId, goodid);
 
         if (existingstorage) {
             existingstorage.amount += amount;
@@ -214,7 +195,7 @@ export class Storage
         }
 
         const newStorage = new Storage();
-        newStorage.setActorId(actorid);
+        newStorage.playerId = playerId;
         newStorage.setGoodId(goodid);
         newStorage.marketId = marketId;
         newStorage.amount = amount;
@@ -222,9 +203,9 @@ export class Storage
         await this.Insert(newStorage);
     }
 
-    public static async Has(marketId: number, actorId: number, goodId: number, amount: number): Promise<boolean>
+    public static async Has(marketId: number, playerId: number, goodId: number, amount: number): Promise<boolean>
     {
-        const existingstorage = await this.GetWithGoodMarketAndActor(marketId, actorId, goodId);
+        const existingstorage = await this.GetWithGoodMarketAndPlayer(marketId, playerId, goodId);
 
         if (existingstorage && existingstorage.amount >= amount) {
             return true;
@@ -233,9 +214,9 @@ export class Storage
         return false;
     }
 
-    public static async Amount(marketId: number, actorId: number, goodId: number): Promise<number>
+    public static async Amount(marketId: number, playerId: number, goodId: number): Promise<number>
     {
-        const existingstorage = await this.GetWithGoodMarketAndActor(marketId, actorId, goodId);
+        const existingstorage = await this.GetWithGoodMarketAndPlayer(marketId, playerId, goodId);
 
         if (existingstorage && existingstorage.amount) {
             return existingstorage.amount;
@@ -244,9 +225,9 @@ export class Storage
         return 0;
     }
 
-    public static async TakeGoodFrom(marketId: number, actorId: number, goodId: number, amount: number): Promise<boolean>
+    public static async TakeGoodFrom(marketId: number, playerId: number, goodId: number, amount: number): Promise<boolean>
     {
-        const existingstorage = await this.GetWithGoodMarketAndActor(marketId, actorId, goodId);
+        const existingstorage = await this.GetWithGoodMarketAndPlayer(marketId, playerId, goodId);
 
         if (existingstorage && existingstorage.amount >= amount) {
             existingstorage.amount -= amount;

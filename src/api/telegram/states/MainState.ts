@@ -108,7 +108,7 @@ export class MainState extends State
         if (registerregex.test(message)) {
 
             const player = await Player.GetById(this.Client.playerId);
-            const storages = await Storage.GetWithActor(player.CurrentMarketId, player.actorId);
+            const storages = await Storage.GetWithPlayer(player.CurrentMarketId, player.id);
 
             this.Client.writeList<Storage>(storages,
                 async (x) => (await x.getGood()).id + " " + (await x.getGood()).name,

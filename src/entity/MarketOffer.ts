@@ -1,7 +1,5 @@
 import { Good } from "./Good";
 import { Market } from "./Market";
-import { MarketActor } from "./MarketActor";
-import { Connection } from "DataBase";
 import { Turn } from "./Turn";
 
 export abstract class MarketOffer
@@ -11,8 +9,8 @@ export abstract class MarketOffer
     public price: number;
     public turn_id: number;
     public marketId: number;
-    protected actorId: number;
-    protected goodId: number;
+    public playerId: number;
+    public goodId: number;
 
     public abstract async getGood(): Promise<Good>;
     public abstract setGood(good: Good);
@@ -22,8 +20,5 @@ export abstract class MarketOffer
 
     public abstract async getTurn(): Promise<Turn>;
     public abstract setTurn(turn: Turn);
-
-    public abstract async getActor(): Promise<MarketActor>;
-    public abstract setActor(actor: MarketActor);
 
 }

@@ -16,6 +16,6 @@ export class TransactionWatcher
 
     public static async OnTradeListener(event: ITradeEvent)
     {
-        await Transaction.Create(event.Good, event.Amount, event.Price, event.Actor, event.Type);
+        await Transaction.Create(event.Good, event.Amount, event.Price, event.Player.id, event.Type);
     }
 }

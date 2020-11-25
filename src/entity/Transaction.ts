@@ -1,6 +1,5 @@
 import { MarketOffer } from "./MarketOffer";
 import { Connection } from "DataBase";
-import { MarketActor } from "./MarketActor";
 import { Market } from "entity/Market";
 import { Good } from "./Good";
 import { Turn } from "./Turn";
@@ -15,7 +14,7 @@ export class Transaction
     price: number;
     public type: TradeEventType;
     public turnId: number;
-    protected actorId: number;
+    protected playerId: number;
     protected goodId: number;
 
     public async getGood(): Promise<Good>
@@ -34,23 +33,11 @@ export class Transaction
     {
         this.turnId = turn.id;
     }
-    public getActor(): Promise<MarketActor>
-    {
-        return MarketActor.GetById(this.actorId);
-    }
-    public setActor(actor: MarketActor)
-    {
-        this.actorId = actor.id;
-    }
-    public getActorId(): number
-    {
-        return this.actorId;
-    }
 
     public async From(dbobject: any)
     {
         this.id = dbobject.id;
-        this.actorId = dbobject.actorId;
+        this.playerId = dbobject.playerId;
         this.goodId = dbobject.goodId;
         this.amount = dbobject.amount;
         this.price = dbobject.price;
@@ -66,23 +53,21 @@ export class Transaction
         return res.From(dbobject);
     }
 
-    public static async Create(good: Good, amount: number, price: number, actor: MarketActor, type: TradeEventType)
+    public static async Create(good: Good, amount: number, price: number, playerId: number, type: TradeEventType)
     {
-        const player = await Player.GetWithActor(actor);
-
-        if (!await Player.HasCash(player.id, amount * price)) {
+        if (!await Player.HasCash(playerId, amount * price)) {
             return false;
         }
 
-        const offer = new Transaction();
-        offer.setGood(good);
-        offer.amount = amount;
-        offer.price = price;
-        offer.setActor(actor);
-        offer.turnId = TurnsService.CurrentTurn.id;
-        offer.type = type;
+        const transaction = new Transaction();
+        transaction.setGood(good);
+        transaction.amount = amount;
+        transaction.price = price;
+        transaction.playerId = playerId;
+        transaction.turnId = TurnsService.CurrentTurn.id;
+        transaction.type = type;
 
-        return await this.Insert(offer);
+        return await this.Insert(transaction);
     }
 
     public static async GetById(id: number): Promise<Transaction>
@@ -106,7 +91,7 @@ export class Transaction
     public static async Update(offer: Transaction): Promise<number>
     {
         const d = await TransactionRepository().where("id", offer.id).update({
-            actorId: offer.actorId,
+            playerId: offer.playerId,
             goodId: offer.goodId,
             amount: offer.amount,
             price: offer.price,
@@ -122,7 +107,7 @@ export class Transaction
     public static async Insert(offer: Transaction): Promise<number>
     {
         const d = await TransactionRepository().insert({
-            actorId: offer.actorId,
+            playerId: offer.playerId,
             goodId: offer.goodId,
             amount: offer.amount,
             price: offer.price,

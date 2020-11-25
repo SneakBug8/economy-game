@@ -285,7 +285,7 @@ export class WebAPIRouter
         const player = await Player.GetById(req.client.playerId);
         const actor = await player.getActor();
 
-        const storages = await Storage.GetWithActor(actor);
+        const storages = await Storage.GetWithPlayer(actor);
 
         const data = [];
         for (const x of storages) {

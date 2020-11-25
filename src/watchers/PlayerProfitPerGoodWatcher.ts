@@ -19,13 +19,11 @@ export class PlayerProfitPerGoodWatcher
     {
         if (event.Type === TradeEventType.FromPlayer ||
             event.Type === TradeEventType.FromGovernment) {
-            const player = await Player.GetWithActor(event.Actor);
-            this.Bought(player.id, event.Good.id, event.Price * event.Amount);
+            this.Bought(event.Player.id, event.Good.id, event.Price * event.Amount);
         }
         else if (event.Type === TradeEventType.ToPlayer ||
             event.Type === TradeEventType.ToGovernment) {
-            const player = await Player.GetWithActor(event.Actor);
-            this.Sold(player.id, event.Good.id, event.Price * event.Amount);
+            this.Sold(event.Player.id, event.Good.id, event.Price * event.Amount);
         }
     }
 

@@ -70,7 +70,6 @@ export class FactoryManagementService
 
         const costs = Config.NewFactoryCosts;
         const player = await Player.GetById(playerid);
-        const actor = await player.getActor();
 
         if (!costs) {
             return "Can't build factories";
@@ -89,7 +88,7 @@ export class FactoryManagementService
                 return "Wrong Factory construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(marketId, actor.id, good.id, costentry.Amount)) {
+            if (!await Storage.Has(marketId, player.id, good.id, costentry.Amount)) {
                 return "Not enough resources";
             }
         }
@@ -97,7 +96,7 @@ export class FactoryManagementService
         for (const costentry of costs) {
             const good = await Good.GetById(costentry.goodId);
 
-            await Storage.TakeGoodFrom(marketId, actor.id, good.id, costentry.Amount);
+            await Storage.TakeGoodFrom(marketId, player.id, good.id, costentry.Amount);
         }
 
         const factory = await Factory.Create(marketId, player.id, 0, 0);
@@ -113,7 +112,6 @@ export class FactoryManagementService
 
         const costs = Config.NewFactoryCosts;
         const player = await Player.GetById(playerid);
-        const actor = await player.getActor();
 
         if (!costs) {
             return "Can't upgrade factory";
@@ -128,7 +126,7 @@ export class FactoryManagementService
                 return "Wrong RGO construction recipe. Contact the admins.";
             }
 
-            if (!await Storage.Has(factory.marketId, actor.id, good.id, upgradeamount)) {
+            if (!await Storage.Has(factory.marketId, player.id, good.id, upgradeamount)) {
                 return "Not enough resources";
             }
         }
@@ -138,7 +136,7 @@ export class FactoryManagementService
 
             const good = await Good.GetById(costentry.goodId);
 
-            await Storage.TakeGoodFrom(factory.marketId, actor.id, good.id, upgradeamount);
+            await Storage.TakeGoodFrom(factory.marketId, player.id, good.id, upgradeamount);
 
         }
 

@@ -1,7 +1,6 @@
 import { Player } from "entity/Player";
 import { Config } from "config";
 import { Factory } from "entity/Factory";
-import { MarketActor } from "entity/MarketActor";
 import { TurnsService } from "./TurnsService";
 import { Runner } from "Runner";
 import { Logger } from "utility/Logger";
@@ -23,10 +22,6 @@ export class PlayerService
 
         player.username = username;
         player.password = passwd;
-
-        const actor = new MarketActor();
-        await MarketActor.Insert(actor);
-        player.setActor(actor);
 
         const id = await Player.Insert(player);
 

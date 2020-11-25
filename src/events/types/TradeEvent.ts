@@ -1,9 +1,9 @@
-import { MarketActor } from "entity/MarketActor";
 import { Good } from "entity/Good";
+import { Player } from "entity/Player";
 
 export class ITradeEvent {
     public Type: TradeEventType;
-    public Actor: MarketActor;
+    public Player: Player;
     public Good: Good;
     public Amount: number;
     public Price: number;

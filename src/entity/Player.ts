@@ -1,5 +1,4 @@
 import { Factory, FactoryRepository } from "./Factory";
-import { MarketActor } from "./MarketActor";
 import { Connection } from "DataBase";
 import { Log } from "./Log";
 import { TurnsService } from "services/TurnsService";
@@ -16,16 +15,7 @@ export class Player
 
     public CurrentMarketId: number;
 
-    public actorId: number;
     public isAdmin: number = 0;
-    public async getActor(): Promise<MarketActor>
-    {
-        return MarketActor.GetById(this.actorId);
-    }
-    public setActor(actor: MarketActor)
-    {
-        this.actorId = actor.id;
-    }
 
     public static async From(dbobject: any)
     {
@@ -34,7 +24,6 @@ export class Player
         res.username = dbobject.username;
         res.password = dbobject.password;
         res.cash = dbobject.cash;
-        res.actorId = dbobject.actorId;
         res.isAdmin = dbobject.isAdmin;
         res.CurrentMarketId = dbobject.CurrentMarketId;
 
@@ -73,7 +62,7 @@ export class Player
 
     public async payCash(to: Player, amount: number): Promise<boolean>
     {
-        if (this.id === to.id || this.actorId === to.actorId) {
+        if (this.id === to.id) {
             return true;
         }
         else if (this.cash < amount) {
@@ -118,7 +107,7 @@ export class Player
 
     public Verbose(): void
     {
-        Log.LogTemp(`Player ${this.username} (${this.id}) with actor ${this.actorId}, cash: ${this.cash}`);
+        Log.LogTemp(`Player ${this.username} (${this.id}), cash: ${this.cash}`);
     }
 
     public static async GetById(id: number): Promise<Player>
@@ -244,28 +233,6 @@ export class Player
         return [];
     }
 
-    public static async GetWithActor(actor: MarketActor): Promise<Player>
-    {
-        const data = await PlayerRepository().select().where("actorId", actor.id).first();
-
-        if (data) {
-            return this.From(data);
-        }
-
-        return null;
-    }
-
-    public static async GetWithActorId(actorId: number): Promise<Player>
-    {
-        const data = await PlayerRepository().select().where("actorId", actorId).first();
-
-        if (data) {
-            return this.From(data);
-        }
-
-        return null;
-    }
-
     public static async Count(): Promise<number>
     {
         const data = await PlayerRepository().count("id as c").first() as any;
@@ -290,7 +257,6 @@ export class Player
             username: player.username,
             password: player.password,
             cash: player.getCash(),
-            actorId: player.actorId,
             isAdmin: player.isAdmin,
             CurrentMarketId: player.CurrentMarketId,
         });
@@ -307,7 +273,6 @@ export class Player
             username: player.username,
             password: player.password,
             cash: player.getCash(),
-            actorId: player.actorId,
             isAdmin: player.isAdmin,
             CurrentMarketId: player.CurrentMarketId,
         });
@@ -327,10 +292,6 @@ export class Player
         }
 
         await player.payCashToState(player.CurrentMarketId, player.cash);
-
-        if (player.getActor()) {
-            MarketActor.Delete(player.actorId);
-        }
 
         for (const factory of await Player.GetFactoriesById(player.CurrentMarketId, player.id)) {
             Factory.Delete(factory.id);

@@ -1,7 +1,6 @@
 import { MarketOffer } from "./MarketOffer";
 import { Connection } from "DataBase";
 import { Market } from "./Market";
-import { MarketActor } from "./MarketActor";
 import { Good } from "./Good";
 import { Storage } from "entity/Storage";
 import { Player } from "./Player";
@@ -37,28 +36,12 @@ export class SellOffer extends MarketOffer
     {
         this.turn_id = turn.id;
     }
-    public getActor(): Promise<MarketActor>
-    {
-        return MarketActor.GetById(this.actorId);
-    }
-    public setActor(actor: MarketActor)
-    {
-        this.actorId = actor.id;
-    }
-    public setActorId(actorId: number)
-    {
-        this.actorId = actorId;
-    }
-    public getActorId(): number
-    {
-        return this.actorId;
-    }
 
     public async From(dbobject: any)
     {
         this.id = dbobject.id;
         this.marketId = dbobject.marketId;
-        this.actorId = dbobject.actor_id;
+        this.playerId = dbobject.playerId;
         this.goodId = dbobject.good_id;
         this.amount = dbobject.amount;
         this.price = dbobject.price;
@@ -84,11 +67,11 @@ export class SellOffer extends MarketOffer
         return null;
     }
 
-    public static async Create(marketId: number, goodId: number, amount: number, price: number, actorId: number)
+    public static async Create(marketId: number, goodId: number, amount: number, price: number, playerId: number)
     {
-        const player = await Player.GetWithActorId(actorId);
+        const player = await Player.GetById(playerId);
 
-        if (!await Storage.Has(marketId, actorId, goodId, amount)) {
+        if (!await Storage.Has(marketId, playerId, goodId, amount)) {
             return "Not enough resources";
         }
 
@@ -97,9 +80,9 @@ export class SellOffer extends MarketOffer
         offer.setGoodId(goodId);
         offer.amount = amount;
         offer.price = price;
-        offer.setActorId(actorId);
+        offer.playerId = playerId;
 
-        await Storage.AddGoodTo(marketId, actorId, goodId, -amount);
+        await Storage.AddGoodTo(marketId, playerId, goodId, -amount);
 
         return await this.Insert(offer);
     }
@@ -115,7 +98,7 @@ export class SellOffer extends MarketOffer
     {
         const d = await SellOfferRepository().where("id", offer.id).update({
             marketId: offer.marketId,
-            actor_id: offer.actorId,
+            playerId: offer.playerId,
             good_id: offer.goodId,
             amount: offer.amount,
             price: offer.price,
@@ -131,7 +114,7 @@ export class SellOffer extends MarketOffer
     {
         const d = await SellOfferRepository().insert({
             marketId: offer.marketId,
-            actor_id: offer.actorId,
+            playerId: offer.playerId,
             good_id: offer.goodId,
             amount: offer.amount,
             price: offer.price,
@@ -158,7 +141,7 @@ export class SellOffer extends MarketOffer
             return;
         }
 
-        await Storage.AddGoodTo(offer.marketId, offer.actorId, offer.goodId, offer.amount);
+        await Storage.AddGoodTo(offer.marketId, offer.playerId, offer.goodId, offer.amount);
 
         await SellOfferRepository().delete().where("id", id);
 
@@ -215,9 +198,9 @@ export class SellOffer extends MarketOffer
         return [];
     }
 
-    public static async GetWithActor(actorId: number): Promise<SellOffer[]>
+    public static async GetWithPlayer(playerId: number): Promise<SellOffer[]>
     {
-        const data = await SellOfferRepository().where("actor_id", actorId).select();
+        const data = await SellOfferRepository().where("playerId", playerId).select();
         const res = new Array<SellOffer>();
 
         if (data) {
