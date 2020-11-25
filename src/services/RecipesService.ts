@@ -53,7 +53,7 @@ export class RecipesService
     public static async Init()
     {
         // Where recipes are added
-        this.firstgood = await Good.GetById(1);
+        this.firstgood = await Good.GetById(2);
         this.FirstToFirst = new Recipe(1, "Test",
             [
                 new RecipeEntry(this.firstgood, 1),

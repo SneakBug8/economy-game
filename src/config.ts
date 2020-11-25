@@ -36,12 +36,14 @@ export class Config
     public static NewFactoryCosts: Array<{ goodId: number, Amount: number }> =
     [
         {
-            goodId: 1,
+            goodId: 2,
             Amount: 300,
         },
     ];
 
     public static MarketingCost = 100;
+
+    public static GoldGoodId = 1;
 
     // Dictionary <RGOType.id, Dictionary <Good.id, amount>>
     public static RGOCostsDictionary: Map<number, Array<{ goodId: number, Amount: number }> > = new Map(

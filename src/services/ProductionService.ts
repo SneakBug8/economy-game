@@ -1,7 +1,6 @@
 import { Factory } from "entity/Factory";
-import { RecipesService, Recipe } from "./RecipesService";
+import { RecipesService } from "./RecipesService";
 import { Storage } from "entity/Storage";
-import { Player } from "entity/Player";
 import { EventsList } from "events/EventsList";
 import { ProductionQueue } from "entity/ProductionQueue";
 import { PlayerService } from "./PlayerService";
@@ -9,6 +8,7 @@ import { Logger } from "utility/Logger";
 
 export class ProductionService
 {
+    // TODO: Factory effectiveness growth over time when not changing recipes
     public static async Run(): Promise<void>
     {
         for (const factory of await Factory.All()) {
