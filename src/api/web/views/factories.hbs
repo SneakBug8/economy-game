@@ -1,5 +1,10 @@
+<div style='background-image:url("/images/paintings/production.jpg");' class="center headimage"></div>
+
 <h2>Ваши фабрики</h2>
 <script src="/js/factories.js"></script>
+{{#unless data}}
+У вас пока нет фабрик.
+{{/unless}}
 {{#each data}}
 <div class="card">
     <div class="card-body">

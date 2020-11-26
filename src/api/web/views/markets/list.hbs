@@ -1,6 +1,5 @@
 <h1>Markets</h1>
-<ul>
 {{#each markets}}
-<li>{{this.id}} {{this.name}} <a href="{{@root.baseUrl}}/move/{{this.id}}">Поехать</a></li>
+<div style='background-image:url("{{this.image}}");' class="center headimage"></div>
+<h3>{{this.id}} {{this.name}} <a href="{{@root.baseUrl}}/move/{{this.id}}">Поехать</a></h3>
 {{/each}}
-</ul>

@@ -208,7 +208,7 @@ export class RGOsState extends State
 
             this.Client.writeList<RGO>(rgos,
                 (x) => x.id,
-                (x) => `Employees: ${x.employeesCount} / ${x.targetEmployees}, salary: ${x.salary}`,
+                (x) => `Employees: ${x.employeesCount} / ${x.getTargetEmployees()}, salary: ${x.salary}`,
                 "Your RGOs");
 
             return true;

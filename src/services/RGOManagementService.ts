@@ -27,8 +27,9 @@ export class RGOManagementService
 
             if (hastopay > canpay) {
                 PlayerService.SendOffline(player.id, `Can pay salaries for RGO ${rgo.id} no more`);
-                rgo.targetEmployees = this.Lerp(rgo.targetEmployees, 0, 0.75);
-                rgo.targetEmployees = Math.round(rgo.targetEmployees);
+                rgo.setTargetEmployees(
+                    Math.round(this.Lerp(rgo.getTargetEmployees(), 0, 0.75))
+                    );
             }
 
             await player.payCashToState(rgo.marketId, canpay);
@@ -37,9 +38,9 @@ export class RGOManagementService
             PlayerService.SendOffline(player.id, `RGO ${rgo.id} paid ${canpay} in salaries`);
 
             // Increase employees count
-            if (await player.AgetCash() > 0 && rgo.targetEmployees > rgo.employeesCount) {
+            if (await player.AgetCash() > 0 && rgo.getTargetEmployees() > rgo.employeesCount) {
                 let delta = this.Lerp(rgo.employeesCount,
-                    rgo.targetEmployees,
+                    rgo.getTargetEmployees(),
                     Config.WorkersRecruitmentSpeed) - rgo.employeesCount;
                 if (delta < 1) {
                     delta = 1;
@@ -50,10 +51,10 @@ export class RGOManagementService
                 PlayerService.SendOffline(player.id, `RGO ${rgo.id} hired ${delta} workers`);
             }
 
-            if (rgo.targetEmployees < rgo.employeesCount) {
-                let delta = rgo.employeesCount - rgo.targetEmployees;
+            if (rgo.getTargetEmployees() < rgo.employeesCount) {
+                let delta = rgo.employeesCount - rgo.getTargetEmployees();
                 delta = Math.round(delta);
-                rgo.employeesCount = rgo.targetEmployees;
+                rgo.employeesCount = rgo.getTargetEmployees();
 
                 PlayerService.SendOffline(player.id, `RGO ${rgo.id} fired ${delta} workers`);
             }

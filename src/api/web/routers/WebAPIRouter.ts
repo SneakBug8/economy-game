@@ -527,7 +527,7 @@ export class WebAPIRouter
             data.push({
                 id: rgo.id,
                 employeesCount: rgo.employeesCount,
-                targetEmployees: rgo.targetEmployees,
+                targetEmployees: rgo.getTargetEmployees(),
                 salary: rgo.salary,
                 level: rgo.level,
                 maxWorkers: rgo.getMaxWorkers(),

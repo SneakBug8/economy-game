@@ -574,7 +574,7 @@ export class WebClientRouter
             data.push({
                 id: rgo.id,
                 employeesCount: rgo.employeesCount,
-                targetEmployees: rgo.targetEmployees,
+                targetEmployees: rgo.getTargetEmployees(),
                 salary: rgo.salary,
                 level: rgo.level,
                 maxWorkers: rgo.getMaxWorkers(),
@@ -632,7 +632,12 @@ export class WebClientRouter
             return;
         }
 
-        rgo.targetEmployees = workers;
+        if (workers > rgo.getMaxWorkers()) {
+            WebClientUtil.error(req, res, "Workers more than max");
+            return;
+        }
+
+        rgo.setTargetEmployees(workers);
 
         await RGO.Update(rgo);
 

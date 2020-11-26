@@ -1,0 +1,22 @@
+<h1>Открытые сделки</h1>
+{{#unless data}}
+Пока нет открытых сделок.
+{{/unless}}
+<ul>
+{{#each data}}
+<li>
+        <a href="{{@root.baseUrl}}/{{this.id}}">{{this.id}} с {{this.anotherPlayerName}}</a>
+</li>
+{{/each}}
+</ul>
+
+<div class="col-6 col-sm-12">
+<h2>Открыть сделку</h2>
+<form action="{{baseUrl}}/new" method="POST" enctype="application/x-www-form-urlencoded">
+    <div class="form-group clearfix">
+        <label for="username">Username</label>
+        <input name="username" type="text" class="form-control" id="username" placeholder="..." required>
+    </div>
+    <button type="submit" class="btn btn-success">Новая сделка</button>
+</form>
+</div>

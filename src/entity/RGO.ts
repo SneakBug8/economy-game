@@ -9,13 +9,24 @@ export class RGO
 {
     public id: number;
     public employeesCount: number = 0;
-    public targetEmployees: number = 0;
+    private targetEmployees: number = 0;
     public salary: number = 1;
     private Settings: IRGOSettings;
     public settings: string;
     private playerId: number;
     private typeId: number;
     public marketId: number;
+
+    public getTargetEmployees(): number {
+        return this.targetEmployees;
+    }
+
+    public setTargetEmployees(targetEmployees: number) {
+        if (targetEmployees > this.getMaxWorkers()) {
+            targetEmployees = this.getMaxWorkers();
+        }
+        this.targetEmployees = targetEmployees;
+    }
 
     public level: number = 1;
 

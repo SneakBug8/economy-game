@@ -57,7 +57,7 @@ export class RGOState extends State
 
             const description = await RGO.GetDescription(rgo.id);
 
-            this.Client.write(`RGO ${rgo.id}\n${description}\nEmployees: ${rgo.employeesCount} / ${rgo.targetEmployees}\nSalary: ${rgo.salary}`);
+            this.Client.write(`RGO ${rgo.id}\n${description}\nEmployees: ${rgo.employeesCount} / ${rgo.getTargetEmployees()}\nSalary: ${rgo.salary}`);
 
             return true;
         }
@@ -162,7 +162,7 @@ export class RGOState extends State
                 return;
             }
 
-            rgo.targetEmployees = workers;
+            rgo.setTargetEmployees(workers);
 
             RGO.Update(rgo);
 

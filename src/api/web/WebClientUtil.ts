@@ -51,7 +51,7 @@ export class WebClientUtil
     public static render(req: IMyRequest, res: express.Response, template: string, data?: object, remember: boolean = true)
     {
         if (remember) {
-            req.client.appendUrl(req.url);
+            req.client.appendUrl(req.originalUrl);
         }
 
         res.render(template, {
@@ -72,7 +72,7 @@ export class WebClientUtil
     public static renderLast(req: IMyRequest, res: express.Response)
     {
         if (req.client.getUrl()) {
-            res.redirect(req.client.popUrl());
+            res.redirect(req.client.getUrl());
         }
         else {
             res.redirect("/");
