@@ -18,6 +18,7 @@
 <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>}}
   {{!<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>}}
 <link rel="stylesheet" href="/css/jquery-ui.min.css">
+<script src="https://kit.fontawesome.com/4506509485.js" crossorigin="anonymous"></script>
   <script src="/js/jquery-3.2.1.min.js" type="text/javascript"></script>
   <script src="/js/jquery-ui.min.js" type="text/javascript"></script>
 </head>
@@ -41,13 +42,14 @@
       </ul>
     </div>
   </nav>}}
-  <main class="container">
+  <main class="container-fluid main">
       <div class="row">
-        <div class="col-12 col-lg-4 sidebar">
+        <div class="col-12 col-lg-3 sidebar">
+          {{> marketcard}}
           {{> playercard}}
           {{> gamemenu}}
         </div>
-        <article class="col-12 col-lg-8 mainbox">
+        <article class="col-12 col-lg-9 mainbox">
           {{#if error}}
         <div class="alert alert-danger" role="alert">
           {{error}}
@@ -68,11 +70,6 @@
           <img class="voc clearfix" src="/images/voc.gif">
         </article>
       </div>
-  <footer class="row text-center">
-    <div class="col-12">
-          <p>Made with ❤ by <a href="https://sneakbug8.com">Nakonechnyy Paul</a></p>
-          </div>
-  </footer>
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <script src="/js/popper.min.js"></script>
