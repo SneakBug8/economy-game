@@ -13,8 +13,8 @@
         <div>
             <a href="javascript:workersButton({{this.id}});" class="btn btn-primary">Изменить число сотрудников</a>
             <a href="javascript:salaryButton({{this.id}});" class="btn btn-primary">Изменить зарплату</a>
-            <a href="/rgo/{{this.id}}/upgrade" class="btn btn-success">Улучшить</a>
-            <a href="javascript:deleteconfirm('/rgo/{{this.id}}/delete')" class="btn btn-danger">Удалить</a>
+            <a href="/rgo/{{this.id}}/upgrade" class="btn btn-positive">Улучшить</a>
+            <a href="javascript:deleteconfirm('/rgo/{{this.id}}/delete')" class="btn btn-negative">Удалить</a>
         </div>
 
         <div id="workerspanel-{{this.id}}" class="d-none">
@@ -49,5 +49,5 @@
     </div>
     {{> rgoselector}}
 
-    <button type="submit" class="btn btn-success">Построить</button>
+    <button type="submit" class="btn btn-positive">Построить</button>
 </form>

@@ -12,7 +12,7 @@
 <td>{{this.RecipeId}}</td>
 <td>{{this.Amount}}</td>
 <td>
-  <a href="/factory/{{@root.factoryId}}/queue/delete/{{this.order}}" class="btn btn-danger">Удалить</a>
+  <a href="/factory/{{@root.factoryId}}/queue/delete/{{this.order}}" class="btn btn-negative">Удалить</a>
 </td>
     </tr>
 
@@ -30,5 +30,5 @@
         <label for="amount">Повторов</label>
         <input name="amount" type="text" class="form-control" id="amount" placeholder="Повторов" required>
     </div>
-    <button type="submit" class="btn btn-success">Добавить</button>
+    <button type="submit" class="btn btn-positive">Добавить</button>
 </form>

@@ -8,7 +8,7 @@
 <ul>
 {{#each owngoods}}
 <li>{{this.[0].id}} {{this.[0].name}}: {{this.[1]}}
-    <a class="btn btn-danger" href="{{@root.baseUrl}}/{{@root.data.id}}/remove/{{this.[0].id}}">x</a></li>
+    <a class="btn btn-negative" href="{{@root.baseUrl}}/{{@root.data.id}}/remove/{{this.[0].id}}">x</a></li>
 {{/each}}
 </ul>
 </div>
@@ -24,10 +24,11 @@
 </div>
 
 <a class="btn btn-primary" href="{{baseUrl}}/{{data.id}}/confirm">Confirm</a>
-<a class="btn btn-success" href="{{baseUrl}}/{{data.id}}/commit">Commit</a>
-<a class="btn btn-danger" href="{{baseUrl}}/{{data.id}}/revert">Revert</a>
+<a class="btn btn-positive" href="{{baseUrl}}/{{data.id}}/commit">Commit</a>
+<a class="btn btn-negative" href="{{baseUrl}}/{{data.id}}/revert">Revert</a>
 
-<div class="col-6 col-sm-12">
+<div class="row">
+<div class="col-sm-12 col-md-6">
 <h2>Add goods to offer</h2>
 <form action="{{baseUrl}}/{{data.id}}" method="POST" enctype="application/x-www-form-urlencoded">
     <div class="form-group clearfix">
@@ -39,6 +40,7 @@
         <label for="amount">Количество</label>
         <input name="amount" type="text" class="form-control" id="amount" placeholder="0" required>
     </div>
-    <button type="submit" class="btn btn-success">Добавить</button>
+    <button type="submit" class="btn btn-positive">Добавить</button>
 </form>
+</div>
 </div>

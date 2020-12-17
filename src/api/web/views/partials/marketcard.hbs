@@ -4,11 +4,5 @@
         $("#marketcard").toggle();
     })
 </script>
-<div class="card" id="marketcard" style="display: none;">
-    <div class="card-body">
-        <h3 class="card-title">{{CurrentMarket.name}}</h3>
-        <p class="card-text">
-            <a href="/markets/move">Поехать</a><br>
-        </p>
-    </div>
-</div>
+
+<a href="/markets/move" class="nav-group-item" id="marketcard" style="display: none;">Поехать</a>

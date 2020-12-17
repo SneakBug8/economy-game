@@ -10,13 +10,15 @@
 {{/each}}
 </ul>
 
-<div class="col-6 col-sm-12">
+<div class="row">
+<div class="col-sm-12 col-md-6">
 <h2>Открыть сделку</h2>
 <form action="{{baseUrl}}/new" method="POST" enctype="application/x-www-form-urlencoded">
     <div class="form-group clearfix">
         <label for="username">Username</label>
         <input name="username" type="text" class="form-control" id="username" placeholder="..." required>
     </div>
-    <button type="submit" class="btn btn-success">Новая сделка</button>
+    <button type="submit" class="btn btn-positive">Новая сделка</button>
 </form>
+</div>
 </div>

@@ -14,8 +14,8 @@
             <a href="javascript:workersButton({{this.id}});" class="btn btn-primary">Изменить число сотрудников</a>
             <a href="javascript:salaryButton({{this.id}});" class="btn btn-primary">Изменить зарплату</a>
             <a href="/factory/{{this.id}}/queue" class="btn btn-primary">Очередь производства</a>
-            <a href="/factory/{{this.id}}/upgrade" class="btn btn-success">Улучшить</a>
-            <a href="javascript:deleteconfirm('/factory/{{this.id}}/delete')" class="btn btn-danger">Удалить</a>
+            <a href="/factory/{{this.id}}/upgrade" class="btn btn-positive">Улучшить</a>
+            <a href="javascript:deleteconfirm('/factory/{{this.id}}/delete')" class="btn btn-negative">Удалить</a>
         </div>
 
         <div id="workerspanel-{{this.id}}" class="d-none">
@@ -42,4 +42,4 @@
 </div>
 {{/each}}
 
-<a href="/factory/build" class="btn btn-success">Построить новую</a>
+<a href="/factory/build" class="btn btn-positive">Построить новую</a>

@@ -20,7 +20,7 @@
         <td>{{this.price}}</td>
         <td>
             {{#if (notequal this.player.username @root.player.username)}}
-            <a href="javascript:onBuyButton('sell', {{this.id}})" class="btn btn-success">Купить</button>
+            <a href="javascript:onBuyButton('sell', {{this.id}})" class="btn btn-positive">Купить</button>
             {{/if}}
         </td>
     </tr>
@@ -34,7 +34,7 @@
         <td></td>
         <td>
             {{#if (notequal this.player.username @root.player.username)}}
-            <a href="javascript:onBuyButton('buy', {{this.id}})" class="btn btn-danger">Продать</button>
+            <a href="javascript:onBuyButton('buy', {{this.id}})" class="btn btn-negative">Продать</button>
             {{/if}}
         </td>
     </tr>
@@ -53,7 +53,7 @@
                 <label for="amount">Количество</label>
                 <input name="amount" type="text" class="form-control" id="amount" placeholder="0" required>
             </div>
-            <button type="submit" class="btn btn-success">Добавить</button>
+            <button type="submit" class="btn btn-positive">Добавить</button>
         </form>
     </div>
     <div class="col-12 col-lg-6">
@@ -67,7 +67,7 @@
                 <label for="amount">Количество</label>
                 <input name="amount" type="text" class="form-control" id="amount" placeholder="0" required>
             </div>
-            <button type="submit" class="btn btn-success">Добавить</button>
+            <button type="submit" class="btn btn-positive">Добавить</button>
         </form>
     </div>
 </div>
