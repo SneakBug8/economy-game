@@ -2,6 +2,7 @@ import { Connection } from "DataBase";
 import { PlayerService } from "services/PlayerService";
 import { MapToObject } from "utility/MapToObject";
 import { Good } from "./Good";
+import { GoodsBucketHelpers, IGoodsBucket } from "./interfaces/IGoodsBucket";
 import { Storage } from "./Storage";
 
 export class Deal
@@ -15,8 +16,8 @@ export class Deal
     public fromGoods: string;
     public toGoods: string;
     // GoodId to amount
-    public FromGoods: Map<number, number> = new Map();
-    public ToGoods: Map<number, number> = new Map();
+    public FromGoods: IGoodsBucket = new Map();
+    public ToGoods: IGoodsBucket = new Map();
 
     public confirmFrom: boolean = false;
     public confirmTo: boolean = false;
@@ -39,8 +40,8 @@ export class Deal
 
         res.Created = new Date(res.created);
 
-        res.FromGoods = new Map(JSON.parse(res.fromGoods));
-        res.ToGoods = new Map(JSON.parse(res.toGoods));
+        res.FromGoods = GoodsBucketHelpers.Deserialize(res.fromGoods);
+        res.ToGoods = GoodsBucketHelpers.Deserialize(res.toGoods);
 
         return res;
     }
@@ -244,8 +245,8 @@ export class Deal
 
     public static async Update(record: Deal): Promise<number>
     {
-        record.toGoods = JSON.stringify(MapToObject.Convert(record.ToGoods));
-        record.fromGoods = JSON.stringify(MapToObject.Convert(record.FromGoods));
+        record.toGoods = GoodsBucketHelpers.Serialize(record.ToGoods);
+        record.fromGoods = GoodsBucketHelpers.Serialize(record.FromGoods);
         record.ToGoods = undefined;
         record.FromGoods = undefined;
 

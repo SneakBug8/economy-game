@@ -13,6 +13,7 @@ export class RGOType
     public efficiency: number = 1;
     private goodId: number;
     public maxAmount: number;
+    public lockedByDefault: boolean;
 
     public async getGood(): Promise<Good>
     {
@@ -40,6 +41,7 @@ export class RGOType
         res.maxAmount = dbobject.maxAmount;
         res.name = dbobject.name;
         res.marketId = dbobject.marketId;
+        res.lockedByDefault = dbobject.lockedByDefault === 1;
 
         return res;
     }
