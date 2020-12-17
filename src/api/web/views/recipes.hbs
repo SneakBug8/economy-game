@@ -5,6 +5,7 @@
     <th>Сырье</th>
     <th>Продукты</th>
     <th>Рабочих для выполнения</th>
+    <th>Инструменты</th>
     </thead>
 {{#each data}}
     <tr>
@@ -12,6 +13,11 @@
 <td>{{this.requisites}}</td>
 <td>{{this.results}}</td>
 <td>{{this.workers}}</td>
+<td>
+    {{#if this.instrument}}
+    {{this.instrument}} ({{this.chance}}%)
+    {{/if}}
+    </td>
     </tr>
 
 {{/each}}

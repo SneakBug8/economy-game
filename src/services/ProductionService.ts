@@ -52,6 +52,14 @@ export class ProductionService
                     }
                 }
 
+                // Third try - repeats on instruments
+                if (recipe.InstrumentGoodId != null) {
+                    const instrumentshas = await Storage.Amount(factory.marketId, player.id, recipe.InstrumentGoodId);
+                    if (instrumentshas < reciperepeats) {
+                        reciperepeats = instrumentshas;
+                    }
+                }
+
                 if (reciperepeats < 1) {
                     PlayerService.SendOffline(player.id, "Not enough resources to produce recipe");
                     break;
@@ -63,6 +71,7 @@ export class ProductionService
                 if (queueentry.Amount !== 0) {
                     queue.Queue.unshift(queueentry);
                 }
+
                 await ProductionQueue.Update(queue);
 
                 remainingemployees -= reciperepeats * recipe.employeesneeded;
@@ -71,6 +80,10 @@ export class ProductionService
                 for (const input of recipe.Requisites) {
                     await Storage.TakeGoodFrom(factory.marketId, player.id, input.Good.id, reciperepeats * input.amount);
                 }
+
+                // Break instruments
+                const instumentsbroken = Math.round(recipe.InstrumentBreakChance * reciperepeats);
+                await Storage.TakeGoodFrom(factory.marketId, player.id, recipe.InstrumentGoodId, instumentsbroken);
 
                 // Give outputs
                 for (const output of recipe.Results) {

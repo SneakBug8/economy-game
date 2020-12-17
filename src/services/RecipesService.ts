@@ -9,7 +9,11 @@ export class Recipe
     public employeesneeded: number = 1;
     public Results: RecipeEntry[];
 
-    constructor(id: number, name: string, requisites?: RecipeEntry[], results?: RecipeEntry[], employeesneeded?: number)
+    public InstrumentGoodId: number = null;
+    public InstrumentBreakChance: number = 0;
+
+    constructor(id: number, name: string, requisites?: RecipeEntry[], results?: RecipeEntry[], employeesneeded?: number,
+        InstrumentGoodId?: number, InstrumentBreakChance?: number)
     {
         this.id = id;
         this.name = name;
@@ -22,6 +26,12 @@ export class Recipe
         }
         if (employeesneeded) {
             this.employeesneeded = employeesneeded;
+        }
+        if (InstrumentGoodId) {
+            this.InstrumentGoodId = InstrumentGoodId;
+        }
+        if (InstrumentBreakChance) {
+            this.InstrumentBreakChance = InstrumentBreakChance;
         }
     }
 }
@@ -60,7 +70,10 @@ export class RecipesService
             ],
             [
                 new RecipeEntry(this.firstgood, 2),
-            ]
+            ],
+            1,
+            2,
+            0.1,
         );
 
         this.All.push(this.FirstToFirst);

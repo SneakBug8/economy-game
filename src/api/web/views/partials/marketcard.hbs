@@ -1,0 +1,14 @@
+<div class="marketheader clearfix"><span>{{CurrentMarket.name}}</span> <i class="card-icon fas fa-chevron-down"></i></div>
+<script>
+    $(".marketheader").click(function () {
+        $("#marketcard").toggle();
+    })
+</script>
+<div class="card" id="marketcard" style="display: none;">
+    <div class="card-body">
+        <h3 class="card-title">{{CurrentMarket.name}}</h3>
+        <p class="card-text">
+            <a href="/markets/move">Поехать</a><br>
+        </p>
+    </div>
+</div>

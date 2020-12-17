@@ -3,7 +3,6 @@ import { Log } from "./Log";
 import { Player } from "./Player";
 import { Good } from "./Good";
 import { Logger } from "utility/Logger";
-import { RGO } from "./RGO";
 
 export class RGOType
 {
@@ -14,6 +13,9 @@ export class RGOType
     private goodId: number;
     public maxAmount: number;
     public lockedByDefault: boolean;
+
+    public InstrumentGoodId: number = null;
+    public InstrumentBreakChance: number = 0;
 
     public async getGood(): Promise<Good>
     {
@@ -42,6 +44,8 @@ export class RGOType
         res.name = dbobject.name;
         res.marketId = dbobject.marketId;
         res.lockedByDefault = dbobject.lockedByDefault === 1;
+        res.InstrumentBreakChance = dbobject.InstrumentBreakChance;
+        res.InstrumentGoodId = dbobject.InstrumentGoodId;
 
         return res;
     }

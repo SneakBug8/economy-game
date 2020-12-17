@@ -954,7 +954,7 @@ export class WebClientRouter
 
         WebClientUtil.render(req, res, "goods", { data });
     }
-    public static onRecipes(req: IMyRequest, res: express.Response)
+    public static async onRecipes(req: IMyRequest, res: express.Response)
     {
         const recipes = RecipesService.All;
 
@@ -965,6 +965,8 @@ export class WebClientRouter
                 requisites: "",
                 results: "",
                 workers: recipe.employeesneeded,
+                instrument: (recipe.InstrumentGoodId) ? await (await Good.GetById(recipe.InstrumentGoodId)).name : null,
+                chance: recipe.InstrumentBreakChance * 100,
             };
 
             for (const input of recipe.Requisites) {
