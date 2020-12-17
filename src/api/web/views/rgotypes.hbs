@@ -1,4 +1,5 @@
 <h2>Типы добычи</h2>
+<div style="overflow-x:auto;">
 <table class="table">
     <thead>
     <th>ID</th>
@@ -8,6 +9,7 @@
     <th>Рабочих</th>
     <th>Построено</th>
     <th>Ресурсы для строительства</th>
+    <th>Инструменты</th>
     </thead>
 {{#each data}}
     <tr>
@@ -18,8 +20,14 @@
 <td>{{this.workers}}</td>
 <td>{{this.already}} / {{this.maxamount}}</td>
 <td>{{this.resources}}</td>
+<td>
+    {{#if this.instrument}}
+    {{this.instrument}} ({{this.chance}}%)
+    {{/if}}
+    </td>
     </tr>
 
 {{/each}}
 
 </table>
+</div>

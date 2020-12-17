@@ -999,6 +999,8 @@ export class WebClientRouter
                 already: await RGOManagementService.CountOfType(type.id),
                 market: market.name,
                 resources: await WebClientRouter.formResourcesString(type),
+                instrument: (type.InstrumentGoodId) ? await (await Good.GetById(type.InstrumentGoodId)).name : null,
+                chance: type.InstrumentBreakChance * 100,
             });
         }
 
