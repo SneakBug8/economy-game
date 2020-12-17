@@ -22,8 +22,22 @@ export class RGOGainService
                 continue;
             }
 
-            const amountproduced = Math.round(rgo.employeesCount * type.efficiency);
+            // First try - employees
+            let repeats = rgo.employeesCount;
 
+            // Second try - repeats on instruments
+            if (type.InstrumentGoodId != null) {
+                const instrumentshas = await Storage.Amount(rgo.marketId, player.id, type.InstrumentGoodId);
+                if (instrumentshas < repeats) {
+                    repeats = instrumentshas;
+                }
+            }
+
+            // Break instruments
+            const instumentsbroken = Math.round(type.InstrumentBreakChance * repeats);
+            await Storage.TakeGoodFrom(rgo.marketId, player.id, type.InstrumentGoodId, instumentsbroken);
+
+            const amountproduced = Math.round(repeats * type.efficiency);
             await Storage.AddGoodTo(rgo.marketId, player.id, type.getGoodId(), amountproduced);
 
             PlayerService.SendOffline(player.id, `RGO ${rgo.id} gathered ${amountproduced} ${await (await type.getGood()).name}`);

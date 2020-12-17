@@ -457,9 +457,14 @@ body {
     background-position: center;
 }
 
-main {
-    margin: 5vh 0;
+.main {
+    height: 100%;
+    width: 95%!important;
     background-color: #efe7c6;
+}
+
+.main>.row {
+    height: 100%;
 }
 
 .btn {
@@ -499,8 +504,8 @@ table tbody tr {
 .card {
     background: none;
     border: 3px solid black;
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 3px;
+    margin-bottom: 15px;
 }
 
 .w-100 {
@@ -540,13 +545,24 @@ main {
     background-image: url("/images/bgbrown.gif");
 }*/
 
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
 footer {
     margin-top: 3em;
 }
 
+.sidebar, .mainbox {
+    height: 100%;
+    overflow-y: scroll;
+}
+
 .sidebar {
-    margin-top: 1em;
-    margin-bottom: 1em;
+    padding: 0!important;
+    padding-bottom: 1em!important;
 }
 
 .sidebar .card {
@@ -560,7 +576,7 @@ footer {
 .sidebar .btn {
     background-color: #980000;
     border: 1px solid black;
-    padding: 5px;
+    padding: 3px;
 }
 
 .sidebar .btn:hover {
@@ -636,4 +652,28 @@ footer {
     background-position: center center;
     background-repeat: no-repeat;
     background-size: 100%;
+}
+
+.marketheader, .playerbottom {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #1d1501;
+    color: white;
+    margin-bottom: 15px;
+    padding: 3px;
+}
+
+.marketheader:hover, .playerbottom:hover {
+    background-color: #443206;
+    cursor: pointer;
+}
+
+.marketheader span, .playerbottom span {
+    float: left;
+}
+
+.card-icon {
+    float: right;
 }
