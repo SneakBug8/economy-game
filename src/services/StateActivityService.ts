@@ -48,7 +48,7 @@ export class StateActivityService
             EventsList.beforeMarket.on(StateActivityService.PublishOrders);
             EventsList.afterMarket.on(StateActivityService.AfterMarketCleanup);
             EventsList.onBeforeNewTurn.on(StateActivityService.MakeStatistics);
-            //EventsList.onBeforeNewTurn.on(async (t) => await StateActivityService.MakeStatistics(t));
+            // EventsList.onBeforeNewTurn.on(async (t) => await StateActivityService.MakeStatistics(t));
 
             StateActivityService.Initialized = true;
         }
@@ -103,7 +103,7 @@ export class StateActivityService
                 return;
             }
 
-            if (await player.AgetCash() <= 10000) {
+            /*if (await player.AgetCash() <= 10000) {
 
                 if (market.GovStrategy.changeExchangeRate) {
                     (await market.getCurrency()).exchangeRate--;
@@ -119,8 +119,9 @@ export class StateActivityService
                     player.id,
                     Math.ceil(TurnsService.CurrentTurn.totalcash * Config.EverydayInflation)
                 );
-            }
+            }*/
 
+            // Clear buy/ sell orders
             const borders = await BuyOffer.GetWithPlayer(player.id);
             for (const o of borders) {
                 await BuyOffer.Delete(o.id);
@@ -177,7 +178,7 @@ export class StateActivityService
 
     public static async KeepMSRatio(market: Market)
     {
-        const currency = await market.getCurrency();
+        /*const currency = await market.getCurrency();
 
         const statsolder = await Statistics.GetWithPlayerAndTurnAndType<ICurrencyRecord>(
             this.PlayersMap.get(market.id),
@@ -195,9 +196,10 @@ export class StateActivityService
             return;
         }
 
-        if (statsolder.Value.goldreserve < statsold.Value.goldreserve) {
-            await this.CreateCash(this.PlayersMap.get(market.id), currency.exchangeRate);
-        }
+        if (statsolder.Value.goldreserve > statsold.Value.goldreserve) {
+            await this.CreateCash(this.PlayersMap.get(market.id),
+            (statsolder.Value.goldreserve - statsold.Value.goldreserve) * currency.exchangeRate);
+        }*/
     }
 
     public static async AfterMarketCleanup()
@@ -286,7 +288,7 @@ export class StateActivityService
                     inflation: (lasttotalamount) ? aggrgoods - lasttotalamount : 0,
                     goldExchangeRate: currency.exchangeRate,
                     goldreserve,
-                }
+                },
             );
         }
     }

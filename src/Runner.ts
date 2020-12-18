@@ -20,6 +20,7 @@ import { TransactionWatcher } from "watchers/TransactionWatcher";
 import { PlayerProfitPerGoodWatcher } from "watchers/PlayerProfitPerGoodWatcher";
 import { PopulationActivityService } from "services/PopulationActivityService";
 import { StateActivityService } from "services/StateActivityService";
+import { GoldMinesService } from "services/GoldMinesService";
 
 export class Runner
 {
@@ -33,6 +34,8 @@ export class Runner
 
         await PopulationActivityService.Init();
         await StateActivityService.Init();
+
+        await GoldMinesService.Init();
 
         // Watchers
         await TradeWatcher.Init();
