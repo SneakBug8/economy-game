@@ -102,7 +102,7 @@ export class PopulationActivityService
                     c.amount = Math.floor(0.99 * c.amount);
                     await CalculatedPrice.Update(c);
                     if (Runner.ApiProvider) {
-                        Runner.ApiProvider.broadcast("Population starves! Increase salaries or whole economy will collapse!");
+                        Runner.ApiProvider.broadcast(`Population of ${market.name} starves! Increase salaries or whole economy will collapse!`);
                     }
                 }
             }
@@ -111,7 +111,9 @@ export class PopulationActivityService
                     c.amount = Math.ceil(1.01 * c.amount);
                     await CalculatedPrice.Update(c);
                     if (Runner.ApiProvider) {
-                        Runner.ApiProvider.broadcast("Population grows and so does it's consumption! Good work with those salaries!");
+                        Runner.ApiProvider.broadcast(
+                            `Population of ${market.name} grows and so does it's consumption! Good work with those salaries!`
+                        );
                     }
                 }
             }
