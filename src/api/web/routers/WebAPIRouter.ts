@@ -948,7 +948,7 @@ export class WebAPIRouter
         const data = [];
         for (const recipe of recipes) {
             let entry = {
-                id: recipe.id,
+                name: recipe.name || recipe.id,
                 requisites: "",
                 results: "",
                 workers: recipe.employeesneeded,

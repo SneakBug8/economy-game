@@ -935,21 +935,24 @@ export class WebClientRouter
 
             if (lastrecord && lastrecord.tradeamount) {
                 data.push({
-                    name: good.name + `(${good.id})`,
+                    name: good.name,
+                    id: good.id,
                     prices: `${lastrecord.minprice}-${lastrecord.maxprice}`,
                     amount: lastrecord.tradeamount,
                 });
             }
             else if (lastrecord) {
                 data.push({
-                    name: good.name + `(${good.id})`,
+                    name: good.name,
+                    id: good.id,
                     prices: "",
                     amount: lastrecord.tradeamount,
                 });
             }
             else {
                 data.push({
-                    name: good.name + `(${good.id})`,
+                    name: good.name,
+                    id: good.id,
                     prices: "",
                     amount: 0,
                 });
@@ -965,7 +968,7 @@ export class WebClientRouter
         const data = [];
         for (const recipe of recipes) {
             let entry = {
-                id: recipe.id,
+                id: recipe.name || recipe.id,
                 requisites: "",
                 results: "",
                 workers: recipe.employeesneeded,
@@ -973,11 +976,32 @@ export class WebClientRouter
                 chance: recipe.InstrumentBreakChance * 100,
             };
 
+            let i = 0;
             for (const input of recipe.Requisites) {
-                entry.requisites += `${input.amount} ${input.Good.name}`;
+                const good = await Good.GetById(input.GoodId);
+
+                if (recipe.Requisites.length === 1 || i === recipe.Requisites.length - 1) {
+                    entry.requisites += `${input.amount} ${good.name}`;
+                }
+                else {
+                    entry.requisites += `${input.amount} ${good.name}, `;
+                }
+
+                i++;
             }
+
+            i = 0;
+
             for (const output of recipe.Results) {
-                entry.results += `${output.amount} ${output.Good.name}`;
+                const good = await Good.GetById(output.GoodId);
+                if (recipe.Results.length === 1 || i === recipe.Results.length - 1) {
+                    entry.results += `${output.amount} ${good.name}`;
+                }
+                else {
+                    entry.results += `${output.amount} ${good.name}, `;
+                }
+
+                i++;
             }
 
             data.push(entry);

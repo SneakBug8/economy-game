@@ -1,5 +1,7 @@
+import { timeStamp } from "console";
 import { Good } from "entity/Good";
 import { Log } from "entity/Log";
+import { GoodsList } from "./GoodsList";
 
 export class Recipe
 {
@@ -34,22 +36,36 @@ export class Recipe
             this.InstrumentBreakChance = InstrumentBreakChance;
         }
     }
+
+    async Init() {
+        for (const req of this.Requisites) {
+            await req.Init();
+        }
+        for (const req of this.Results) {
+            await req.Init();
+        }
+    }
 }
 
 export class RecipeEntry
 {
+    public GoodId: number;
     public Good: Good;
     public amount: number;
 
-    constructor(good?: Good, amount?: number)
+    constructor(goodId?: number, amount?: number)
     {
-        if (good) {
-            this.Good = good;
+        if (goodId) {
+            this.GoodId = goodId;
         }
 
         if (amount) {
             this.amount = amount;
         }
+    }
+
+    async Init() {
+        this.Good = await Good.GetById(this.GoodId);
     }
 }
 
@@ -62,21 +78,9 @@ export class RecipesService
 
     public static async Init()
     {
-        // Where recipes are added
-        this.firstgood = await Good.GetById(2);
-        this.FirstToFirst = new Recipe(1, "Test",
-            [
-                new RecipeEntry(this.firstgood, 1),
-            ],
-            [
-                new RecipeEntry(this.firstgood, 2),
-            ],
-            1,
-            2,
-            0.1,
-        );
-
-        this.All.push(this.FirstToFirst);
+        for (const rec of this.All) {
+            await rec.Init();
+        }
 
         Log.LogText("Recipes initialized");
     }
@@ -92,5 +96,100 @@ export class RecipesService
         return null;
     }
 
-    static All = new Array<Recipe>();
+    static All: Recipe[] = [
+        new Recipe(2, "Молоть пшеницу", [
+            new RecipeEntry(GoodsList.Wheat, 2),
+        ], [
+            new RecipeEntry(GoodsList.Flour, 1),
+        ]),
+        new Recipe(3, "Печь хлеб", [
+            new RecipeEntry(GoodsList.Flour, 2),
+        ], [
+            new RecipeEntry(GoodsList.Bread, 1),
+        ]),
+        new Recipe(4, "Ткать", [
+            new RecipeEntry(GoodsList.Flax, 2),
+        ], [
+            new RecipeEntry(GoodsList.Cloth, 1),
+        ]),
+        new Recipe(5, "Шить одежду", [
+            new RecipeEntry(GoodsList.Cloth, 2),
+        ], [
+            new RecipeEntry(GoodsList.Clothes, 1),
+        ]),
+        new Recipe(6, "Шить дорогую одежду", [
+            new RecipeEntry(GoodsList.Cloth, 2),
+            new RecipeEntry(GoodsList.Fur, 1),
+        ], [
+            new RecipeEntry(GoodsList.LuxuryClothes, 1),
+        ]),
+        new Recipe(7, "", [
+            new RecipeEntry(GoodsList.IronOre, 2),
+        ], [
+            new RecipeEntry(GoodsList.Iron, 1),
+        ]),
+        new Recipe(8, "", [
+            new RecipeEntry(GoodsList.GoldOre, 2),
+        ], [
+            new RecipeEntry(GoodsList.Gold, 1),
+        ]),
+        new Recipe(9, "", [
+            new RecipeEntry(GoodsList.SilverOre, 2),
+        ], [
+            new RecipeEntry(GoodsList.Silver, 1),
+        ]),
+        new Recipe(10, "", [
+            new RecipeEntry(GoodsList.Gems, 1),
+            new RecipeEntry(GoodsList.Gold, 2),
+            new RecipeEntry(GoodsList.Silver, 2),
+
+        ], [
+            new RecipeEntry(GoodsList.Jewelry, 1),
+        ]),
+        new Recipe(11, "", [
+            new RecipeEntry(GoodsList.Iron, 2),
+
+        ], [
+            new RecipeEntry(GoodsList.Weapons, 1),
+        ]),
+        new Recipe(12, "", [
+            new RecipeEntry(GoodsList.Iron, 3),
+
+        ], [
+            new RecipeEntry(GoodsList.Armor, 1),
+        ]),
+        new Recipe(13, "", [
+            new RecipeEntry(GoodsList.Sulphur, 2),
+
+        ], [
+            new RecipeEntry(GoodsList.Fertilizer, 1),
+        ]),
+        new Recipe(14, "", [
+            new RecipeEntry(GoodsList.Fish, 1),
+            new RecipeEntry(GoodsList.Bread, 1),
+
+        ], [
+            new RecipeEntry(GoodsList.CheapFood, 1),
+        ]),
+        new Recipe(15, "", [
+            new RecipeEntry(GoodsList.Cattle, 1),
+            new RecipeEntry(GoodsList.Bread, 2),
+        ], [
+            new RecipeEntry(GoodsList.Food, 1),
+        ]),
+        new Recipe(16, "", [
+            new RecipeEntry(GoodsList.Salt, 1),
+            new RecipeEntry(GoodsList.Cattle, 1),
+            new RecipeEntry(GoodsList.Bread, 3),
+
+        ], [
+            new RecipeEntry(GoodsList.LuxuryFood, 1),
+        ]),
+        new Recipe(17 , "", [
+            new RecipeEntry(GoodsList.Stone, 2),
+
+        ], [
+            new RecipeEntry(GoodsList.StoneBlock, 1),
+        ])
+    ];
 }

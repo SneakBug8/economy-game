@@ -1,5 +1,5 @@
 <h1>Товары</h1>
-<table class="table">
+<table class="table-striped">
     <thead>
     <th>Товар</th>
     <th>Цены последнего дня</th>
@@ -7,7 +7,7 @@
     </thead>
 {{#each data}}
     <tr>
-<td>{{this.name}}</td>
+<td>{{this.name}} ({{this.id}})</td>
 <td>{{this.prices}}</td>
 <td>{{this.amount}}</td>
     </tr>

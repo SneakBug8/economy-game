@@ -5,6 +5,7 @@ import { EventsList } from "events/EventsList";
 import { ProductionQueue } from "entity/ProductionQueue";
 import { PlayerService } from "./PlayerService";
 import { Logger } from "utility/Logger";
+import { Good } from "entity/Good";
 
 export class ProductionService
 {
@@ -39,7 +40,7 @@ export class ProductionService
 
                 // Second try - repeats on resources
                 for (const input of recipe.Requisites) {
-                    const storageentry = await Storage.GetWithGoodMarketAndPlayer(factory.marketId, player.id, input.Good.id);
+                    const storageentry = await Storage.GetWithGoodMarketAndPlayer(factory.marketId, player.id, input.GoodId);
 
                     if (!storageentry) {
                         break;
@@ -78,7 +79,7 @@ export class ProductionService
 
                 // Take inputs
                 for (const input of recipe.Requisites) {
-                    await Storage.TakeGoodFrom(factory.marketId, player.id, input.Good.id, reciperepeats * input.amount);
+                    await Storage.TakeGoodFrom(factory.marketId, player.id, input.GoodId, reciperepeats * input.amount);
                 }
 
                 // Break instruments
@@ -87,11 +88,13 @@ export class ProductionService
 
                 // Give outputs
                 for (const output of recipe.Results) {
-                    await Storage.AddGoodTo(factory.marketId, player.id, output.Good.id, reciperepeats * output.amount);
+                    await Storage.AddGoodTo(factory.marketId, player.id, output.GoodId, reciperepeats * output.amount);
+
+                    const good = await Good.GetById(output.GoodId);
 
                     EventsList.onProduction.emit({
                         Factory: factory,
-                        Good: output.Good,
+                        Good: good,
                         Amount: reciperepeats * output.amount,
                     });
                     // Market.AddToStorage(player.Actor, output.Good, reciperepeats * output.amount);
