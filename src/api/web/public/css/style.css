@@ -10,6 +10,10 @@ article {
     padding: 0 10px;
 }
 
+table {
+    table-layout: fixed;
+}
+
 .card {
     max-width: 100%;
     background: none;

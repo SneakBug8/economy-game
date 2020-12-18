@@ -4,9 +4,10 @@ import { Log } from "./Log";
 import { RGO, RGORepository } from "./RGO";
 import { Logger } from "utility/Logger";
 import { StateActivityService } from "services/StateActivityService";
-import { Storage } from "./Storage";
+import { Storage, StorageRepository } from "./Storage";
 import { Config } from "config";
 import { Market } from "./Market";
+import { PopulationActivityService } from "services/PopulationActivityService";
 
 export class Player
 {
@@ -45,7 +46,7 @@ export class Player
         const market = await Market.GetById(marketId);
 
         if (!market) {
-            console.log(marketId);
+            Logger.verbose(`No cash at ${marketId}`);
         }
 
         return await Storage.Amount(marketId, this.id, await market.getCashGoodId());
@@ -341,6 +342,48 @@ export class Player
         }
 
         return false;
+    }
+
+    public static IsPlayable(playerId: number) {
+        for (const i of StateActivityService.PlayersMap.values()) {
+            if (playerId === i) {
+                return false;
+            }
+        }
+
+        for (const i of PopulationActivityService.PlayersMap.values()) {
+            if (playerId === i) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static async GetRichest() {
+        const biggestgoldpiles = await StorageRepository()
+        .where("goodId", 1)
+        .groupBy("playerId")
+        .sum("amount as amount")
+        .select("playerId")
+        .orderBy("amount", "desc") as any;
+
+        const res = [];
+
+        for (const stock of biggestgoldpiles) {
+            const player = await Player.GetById(stock.playerId);
+
+            if (!player || !Player.IsPlayable(stock.playerId)) {
+                continue;
+            }
+
+            res.push({
+                player,
+                amount: stock.amount,
+            });
+        }
+
+        return res;
     }
 }
 

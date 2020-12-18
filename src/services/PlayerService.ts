@@ -52,6 +52,18 @@ export class PlayerService
         }
     }
 
+    public static async Broadcast(message: string) {
+        Logger.info(`Announcement: ${message}`);
+
+        for (const player of await Player.All()) {
+            await PlayerLog.Log(player.id, TurnsService.CurrentTurn, message);
+        }
+
+        if (Runner.ApiProvider) {
+            await Runner.ApiProvider.broadcast(message);
+        }
+    }
+
     public static async MoveBetweenMarkets(playerId: number, marketId: number) {
         const player = await Player.GetById(playerId);
         const market = await Market.GetById(marketId);

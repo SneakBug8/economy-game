@@ -34,18 +34,14 @@ export class LeaderboardsRouter
     {
         const data = await LeaderboardService.GetRichestPlayers();
 
-        let i = 0;
-        const props = [];
+        let i = 1;
         for (const entry of data) {
+            (entry as any).order = i;
             i++;
-            props.push({
-                order: i,
-                ...entry,
-            });
         }
 
         WebClientUtil.render(req, res, "leaderboards/richest", {
-            data: props,
+            data,
         });
     }
 

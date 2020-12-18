@@ -101,20 +101,16 @@ export class PopulationActivityService
                 for (const c of calculatedprices) {
                     c.amount = Math.floor(0.99 * c.amount);
                     await CalculatedPrice.Update(c);
-                    if (Runner.ApiProvider) {
-                        Runner.ApiProvider.broadcast(`Population of ${market.name} starves! Increase salaries or whole economy will collapse!`);
-                    }
+                    PlayerService.Broadcast(`Population of ${market.name} starves! Increase salaries or whole economy will collapse!`);
                 }
             }
             else if (await player.AgetCash() >= 20000) {
                 for (const c of calculatedprices) {
                     c.amount = Math.ceil(1.01 * c.amount);
                     await CalculatedPrice.Update(c);
-                    if (Runner.ApiProvider) {
-                        Runner.ApiProvider.broadcast(
+                    PlayerService.Broadcast(
                             `Population of ${market.name} grows and so does it's consumption! Good work with those salaries!`
                         );
-                    }
                 }
             }
 

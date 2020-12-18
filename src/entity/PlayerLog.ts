@@ -9,6 +9,7 @@ export class PlayerLog {
     public turnId: number;
     public playerId: number;
     public text: string;
+    public timestamp: number = Date.now();
 
     public static async From(dbobject: any)
     {
@@ -17,6 +18,7 @@ export class PlayerLog {
         res.turnId = dbobject.turnId;
         res.playerId = dbobject.playerId;
         res.text = dbobject.text;
+        res.timestamp = dbobject.timestamp;
         return res;
     }
 
@@ -42,7 +44,7 @@ export class PlayerLog {
 
     public static async GetWithPlayer(id: number): Promise<PlayerLog[]>
     {
-        const data = await LogRecordRepository().select().where("playerId", id).orderBy("turnId", "desc").limit(25);
+        const data = await LogRecordRepository().select().where("playerId", id).orderBy("timestamp", "desc").limit(25);
 
         const res = new Array<PlayerLog>();
 
@@ -80,6 +82,7 @@ export class PlayerLog {
             playerId: record.playerId,
             turnId: record.turnId,
             text: record.text,
+            timestamp: record.timestamp,
         });
 
         return d[0];
@@ -92,6 +95,7 @@ export class PlayerLog {
             playerId: record.playerId,
             turnId: record.turnId,
             text: record.text,
+            timestamp: record.timestamp,
         });
 
         record.id = d[0];

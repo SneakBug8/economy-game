@@ -160,6 +160,10 @@ export class WebClientRouter
         const playerId = req.client.playerId;
         const logs = await PlayerLog.GetWithPlayer(playerId);
 
+        for (const log of logs) {
+            (log as any).date = new Date(log.timestamp).toLocaleString("ru-RU");
+        }
+
         WebClientUtil.render(req, res, "home", { logs });
     }
 

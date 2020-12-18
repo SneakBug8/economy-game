@@ -14,6 +14,7 @@ import { Storage } from "entity/Storage";
 import { Config } from "config";
 import { MarketService } from "./MarketService";
 import { Currency } from "entity/finances/Currency";
+import { PlayerService } from "./PlayerService";
 
 export class TurnsService
 {
@@ -21,6 +22,7 @@ export class TurnsService
     public static CurrentTurn: Turn;
 
     public static Initialized = false;
+    public static FirstStart = true;
 
     public static async Init()
     {
@@ -47,13 +49,13 @@ export class TurnsService
 
         this.CurrentTurn.freecash = 0;
 
-        if (Runner.ApiProvider) {
-            Runner.ApiProvider.broadcast("Now is turn " + this.CurrentTurn.id);
+        if (!this.FirstStart) {
+            PlayerService.Broadcast("Now is turn " + this.CurrentTurn.id);
+            Log.LogText("Now is turn " + this.CurrentTurn.id);
+            EventsList.onAfterNewTurn.emit(this.CurrentTurn);
+
+            this.FirstStart = false;
         }
-
-        Log.LogText("Now is turn " + this.CurrentTurn.id);
-
-        EventsList.onAfterNewTurn.emit(this.CurrentTurn);
     }
 
     public static async EndTurn()

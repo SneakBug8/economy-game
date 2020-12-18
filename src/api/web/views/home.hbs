@@ -1,4 +1,16 @@
-<h1>Home</h1>
+<h1>Сводка</h1>
+<table class="table">
+    <thead>
+    <th style="width: 200px;">Дата</th>
+    <th style="width: 100px;">Ход</th>
+    <th>Текст</th>
+    </thead>
 {{#each logs}}
-<p><b>{{this.turnId}}</b> {{this.text}}</p>
+    <tr>
+<td>{{this.date}}</td>
+<td>{{this.turnId}}</td>
+<td><b>{{this.text}}</b></td>
+    </tr>
 {{/each}}
+
+</table>

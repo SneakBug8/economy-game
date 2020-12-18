@@ -1,4 +1,5 @@
 <h1>Богатейшие игроки</h1>
+<p>Топ игроков по золоту на всех складах. Богатейший выиграет сессию.</p>
 <table class="table">
     <thead>
         <th>№</th>
@@ -8,8 +9,8 @@
     {{#each data}}
     <tr>
         <td>{{this.order}}</td>
-        <td>{{this.username}}</td>
-        <td>{{this.cash}}</td>
+        <td>{{this.player.username}}</td>
+        <td>{{this.amount}}</td>
     </tr>
 
     {{/each}}

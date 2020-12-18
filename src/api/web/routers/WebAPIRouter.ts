@@ -20,7 +20,6 @@ import { PlayerLog } from "entity/PlayerLog";
 import { MarketService } from "services/MarketService";
 import { BuyOffer } from "entity/BuyOffer";
 import { SellOffer } from "entity/SellOffer";
-import { MarketActor } from "entity/MarketActor";
 import { Consumption } from "entity/Consumption";
 import { Production } from "entity/Production";
 import { LeaderboardService } from "services/LeaderboardService";
@@ -1010,18 +1009,14 @@ export class WebAPIRouter
     {
         const data = await LeaderboardService.GetRichestPlayers();
 
-        let i = 0;
-        const props = [];
+        let i = 1;
         for (const entry of data) {
+            entry.order = i;
             i++;
-            props.push({
-                order: i,
-                ...entry,
-            });
         }
 
         WebAPIRouter.render(req, res, "leaderboards/richest", {
-            data: props,
+            data,
         });
     }
 

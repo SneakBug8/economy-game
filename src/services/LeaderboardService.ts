@@ -4,8 +4,8 @@ import { RGORepository } from "entity/RGO";
 
 export class LeaderboardService {
     public static async GetRichestPlayers() {
-        const data = await PlayerRepository().orderBy("cash", "desc").limit(10);
-        return await Player.UseQuery(data);
+        const data = await Player.GetRichest();
+        return data;
     }
 
     public static async GetMostFactoryWorkers() {
