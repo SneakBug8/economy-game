@@ -6,4 +6,5 @@ export enum ModifierType {
     rgoEfficiency,
     rgoMaxWorkersPerLevel,
     logisticsDiscount,
+    fixedTaxDiscount,
 }
