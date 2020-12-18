@@ -7,6 +7,7 @@ import { RGOType } from "entity/RGOType";
 import { Player } from "entity/Player";
 import { Market } from "entity/Market";
 import { MarketService } from "services/MarketService";
+import { RGOService } from "services/RGOService";
 
 export class WebClientUtil
 {
@@ -116,7 +117,7 @@ export class WebClientUtil
     public static async LoadBuildableTypes(req: IMyRequest, res: express.Response, next: () => void)
     {
         const player = await Player.GetById(req.client.playerId);
-        const rgotypes = await RGOType.BuildableWithinRegion(player.CurrentMarketId);
+        const rgotypes = await RGOService.BuildableWithinRegion(player.CurrentMarketId);
         res.locals.rgotypes = rgotypes;
         next();
     }

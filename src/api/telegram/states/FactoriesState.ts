@@ -8,10 +8,11 @@ import { BuyOffer } from "entity/BuyOffer";
 import { SellOffer } from "entity/SellOffer";
 import { Factory } from "entity/Factory";
 import { ProductionQueue, IQueueEntry } from "entity/ProductionQueue";
-import { Recipe, RecipesService } from "services/RecipesService";
+import { RecipesService } from "services/RecipesService";
 import { MainState } from "./MainState";
 import * as TelegramBot from "node-telegram-bot-api";
 import { FactoryState } from "./FactoryState";
+import { Recipe } from "entity/Recipe";
 
 export class FactoriesState extends State
 {

@@ -47,7 +47,8 @@ export class LeaderboardsRouter
 
     public static async onLeaderboardRGOWorkers(req: IMyRequest, res: express.Response)
     {
-        const data = await LeaderboardService.GetMostRGOWorkers();
+        let data = await LeaderboardService.GetMostRGOWorkers();
+        data = data.filter(x => Player.IsPlayable(x.playerId));
 
         const props = [];
         let i = 0;
@@ -75,6 +76,11 @@ export class LeaderboardsRouter
         for (const entry of data) {
             i++;
             const player = await Player.GetById(entry.playerId);
+
+            if (!Player.IsPlayable(player.id)) {
+                continue;
+            }
+
             props.push({
                 order: i,
                 player,
@@ -95,7 +101,8 @@ export class LeaderboardsRouter
     public static async onLeaderboardPPG(req: IMyRequest, res: express.Response)
     {
         const id = Number.parseInt(req.params.id, 10);
-        const data = await PlayerProfitPerGood.GetWithGood(id);
+        let data = await PlayerProfitPerGood.GetWithGood(id);
+        data = data.filter(x => Player.IsPlayable(x.playerId));
         const good = await Good.GetById(id);
 
         for (const entry of data) {
@@ -108,7 +115,8 @@ export class LeaderboardsRouter
 
     public static async onLeaderboardProfit(req: IMyRequest, res: express.Response)
     {
-        const data = await PlayerProfitPerGood.GetProfits();
+        let data = await PlayerProfitPerGood.GetProfits();
+        data = data.filter(x => Player.IsPlayable(x.playerId));
 
         for (const entry of data) {
             const player = await Player.GetById(entry.playerId);

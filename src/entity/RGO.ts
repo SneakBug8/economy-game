@@ -14,7 +14,7 @@ export class RGO
     private Settings: IRGOSettings;
     public settings: string;
     private playerId: number;
-    private typeId: number;
+    public typeId: number;
     public marketId: number;
 
     public getTargetEmployees(): number {
@@ -131,9 +131,9 @@ export class RGO
         return [];
     }
 
-    public static async CountWithType(typeid: number): Promise<number>
+    public static async CountWithType(marketId: number, typeid: number): Promise<number>
     {
-        const data = await RGORepository().count("id as c").where("typeId", typeid).first() as any;
+        const data = await RGORepository().count("id as c").where("typeId", typeid).andWhere("marketId", marketId).first() as any;
 
         return data.c;
     }

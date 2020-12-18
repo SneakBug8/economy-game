@@ -1,0 +1,10 @@
+<h1>{{good.name}}</h1>
+
+<p>{{good.description}}</p>
+
+<p>Участвует в рецептах:</p>
+<ul>
+    {{#each recipes}}
+    <li><a href="/recipes#{{this.id}}">{{this.name}}</a></li>
+    {{/each}}
+</ul>

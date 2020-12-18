@@ -4,6 +4,7 @@ export class Good
 {
     id: number;
     name: string;
+    description: string;
     image: string;
 
     public static async From(dbobject: any)
@@ -12,6 +13,7 @@ export class Good
         res.id = dbobject.id;
         res.name = dbobject.name;
         res.image = dbobject.image;
+        res.description = dbobject.description;
 
         return res;
     }

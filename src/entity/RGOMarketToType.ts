@@ -6,6 +6,7 @@ export class RGOMarketToType
     public marketId: number;
     public typeId: number;
     public maxAmount: number = 1;
+    public efficiency: number = 1;
 
     public static async From(dbobject: any): Promise<RGOMarketToType>
     {
@@ -14,6 +15,7 @@ export class RGOMarketToType
         res.marketId = dbobject.marketId;
         res.typeId = dbobject.typeId;
         res.maxAmount = dbobject.maxAmount;
+        res.efficiency = dbobject.efficiency;
 
         return res;
     }
@@ -29,6 +31,17 @@ export class RGOMarketToType
         return null;
     }
 
+    public static async GetMarketTypeLink(marketId: number, typeId: number): Promise<RGOMarketToType>
+    {
+        const data = await RGOMarketToTypesRepository().where("marketId", marketId).andWhere("typeId", typeId).first();
+
+        if (data) {
+            return this.From(data);
+        }
+
+        return null;
+    }
+
     public static async Exists(id: number): Promise<boolean>
     {
         const res = await RGOMarketToTypesRepository().count("id as c").where("id", id).first() as any;
@@ -36,10 +49,9 @@ export class RGOMarketToType
         return res.c > 0;
     }
 
-    /*public static async BuildableWithinRegion(marketId: number): Promise<RGOMarketToType[]>
+    public static async BuildableWithinRegion(marketId: number): Promise<RGOMarketToType[]>
     {
-        const data = await Connection.raw("select * from RGOTypes where marketId = 1 " +
-        "and (select count(id) from RGOs where RGOs.typeId = RGOTypes.id) < maxAmount;");
+        const data = await RGOMarketToTypesRepository().where("marketId", marketId);
         const res = new Array<RGOMarketToType>();
 
         if (data) {
@@ -51,7 +63,23 @@ export class RGOMarketToType
         }
 
         return [];
-    }*/
+    }
+
+    public static async GetWithType(typeId: number): Promise<RGOMarketToType[]>
+    {
+        const data = await RGOMarketToTypesRepository().where("typeId", typeId).select();
+        const res = new Array<RGOMarketToType>();
+
+        if (data) {
+            for (const entry of data) {
+                res.push(await this.From(entry));
+            }
+
+            return res;
+        }
+
+        return [];
+    }
 
     public static async All(): Promise<RGOMarketToType[]>
     {
@@ -70,4 +98,4 @@ export class RGOMarketToType
     }
 }
 
-export const RGOMarketToTypesRepository = () => Connection("RGOMarketToType");
+export const RGOMarketToTypesRepository = () => Connection<RGOMarketToType>("RGOMarketToType");

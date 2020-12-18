@@ -368,12 +368,12 @@ export class Player
         .select("playerId")
         .orderBy("amount", "desc") as any;
 
-        const res = [];
+        const res: Array<{player: Player, amount: number}> = [];
 
         for (const stock of biggestgoldpiles) {
             const player = await Player.GetById(stock.playerId);
 
-            if (!player || !Player.IsPlayable(stock.playerId)) {
+            if (!player) {
                 continue;
             }
 

@@ -21,6 +21,8 @@ import { SellOffer } from "entity/SellOffer";
 import { IMyRequest, WebClientUtil } from "../WebClientUtil";
 import { StorageService } from "services/StorageService";
 import { Market } from "entity/Market";
+import { RGOMarketToType } from "entity/RGOMarketToType";
+import { RGOService } from "services/RGOService";
 
 export class WebClientRouter
 {
@@ -967,8 +969,9 @@ export class WebClientRouter
 
         const data = [];
         for (const recipe of recipes) {
-            let entry = {
-                id: recipe.name || recipe.id,
+            const entry = {
+                name: recipe.name || recipe.id,
+                id: recipe.id,
                 requisites: "",
                 results: "",
                 workers: recipe.employeesneeded,
@@ -1016,20 +1019,25 @@ export class WebClientRouter
         let data = [];
 
         for (const type of types) {
-            const market = await Market.GetById(type.marketId);
+            const links = await RGOMarketToType.GetWithType(type.id);
 
-            data.push({
-                id: type.id,
-                name: type.name,
-                makes: (await type.getGood()).name,
-                workers: 1 / type.efficiency,
-                maxamount: type.maxAmount,
-                already: await RGOManagementService.CountOfType(type.id),
-                market: market.name,
-                resources: await WebClientRouter.formResourcesString(type),
-                instrument: (type.InstrumentGoodId) ? await (await Good.GetById(type.InstrumentGoodId)).name : null,
-                chance: type.InstrumentBreakChance * 100,
-            });
+            for (const link of links) {
+                const market = await Market.GetById(link.marketId);
+
+                data.push({
+                    id: type.id,
+                    name: type.name,
+                    makes: (await type.getGood()).name,
+                    workers: 1 / type.efficiency,
+                    maxamount: link.maxAmount,
+                    efficiency: RGOService.CalculateEfficiency(type, link),
+                    already: await RGO.CountWithType(market.id, type.id),
+                    market: market.name,
+                    resources: await WebClientRouter.formResourcesString(type),
+                    instrument: (type.InstrumentGoodId) ? await (await Good.GetById(type.InstrumentGoodId)).name : null,
+                    chance: type.InstrumentBreakChance * 100,
+                });
+            }
         }
 
         WebClientUtil.render(req, res, "rgotypes", { data });

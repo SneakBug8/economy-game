@@ -1,12 +1,10 @@
-import { Factory } from "entity/Factory";
-import { RecipesService, Recipe } from "./RecipesService";
 import { Storage } from "entity/Storage";
-import { Player } from "entity/Player";
 import { EventsList } from "events/EventsList";
-import { ProductionQueue } from "entity/ProductionQueue";
 import { PlayerService } from "./PlayerService";
 import { RGO } from "entity/RGO";
 import { Logger } from "utility/Logger";
+import { RGOMarketToType } from "entity/RGOMarketToType";
+import { RGOService } from "./RGOService";
 
 export class RGOGainService
 {
@@ -37,7 +35,11 @@ export class RGOGainService
             const instumentsbroken = Math.round(type.InstrumentBreakChance * repeats);
             await Storage.TakeGoodFrom(rgo.marketId, player.id, type.InstrumentGoodId, instumentsbroken);
 
-            const amountproduced = Math.round(repeats * type.efficiency);
+            const link = await RGOMarketToType.GetMarketTypeLink(rgo.marketId, rgo.typeId);
+
+            const efficiency = RGOService.CalculateEfficiency(type, link);
+
+            const amountproduced = Math.round(repeats * efficiency);
             await Storage.AddGoodTo(rgo.marketId, player.id, type.getGoodId(), amountproduced);
 
             PlayerService.SendOffline(player.id, `RGO ${rgo.id} gathered ${amountproduced} ${await (await type.getGood()).name}`);

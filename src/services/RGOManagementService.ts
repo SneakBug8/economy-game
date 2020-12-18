@@ -9,6 +9,7 @@ import {Storage} from "entity/Storage";
 import { Good } from "entity/Good";
 import { RGOType } from "entity/RGOType";
 import { Logger } from "utility/Logger";
+import { RGOMarketToType } from "entity/RGOMarketToType";
 
 export class RGOManagementService
 {
@@ -70,10 +71,6 @@ export class RGOManagementService
         return (start + percent * (end - start));
     }
 
-    public static async CountOfType(rgotypeid: number) {
-        return await RGO.CountWithType(rgotypeid);
-    }
-
     public static async ConstructNew(playerid: number, rgotypeid: number) {
         const rgotype = await RGOType.GetById(rgotypeid);
         if (!rgotype) {
@@ -82,7 +79,9 @@ export class RGOManagementService
 
         const player = await Player.GetById(playerid);
 
-        if (rgotype.marketId !== player.CurrentMarketId) {
+        const link = await RGOMarketToType.GetMarketTypeLink(player.CurrentMarketId, rgotypeid);
+
+        if (!link) {
             return "Can't build this in this region";
         }
 
@@ -92,9 +91,9 @@ export class RGOManagementService
             return "Can't build such RGO";
         }
 
-        const currcount = await this.CountOfType(rgotypeid);
+        const currcount = await RGO.CountWithType(player.CurrentMarketId, rgotypeid);
 
-        if (currcount >= rgotype.maxAmount) {
+        if (currcount >= link.maxAmount) {
             return "No free slots for this RGO";
         }
 

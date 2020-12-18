@@ -7,11 +7,9 @@ import { Logger } from "utility/Logger";
 export class RGOType
 {
     public id: number;
-    public marketId: number;
     public name: string;
     public efficiency: number = 1;
     private goodId: number;
-    public maxAmount: number;
     public lockedByDefault: boolean;
 
     public InstrumentGoodId: number = null;
@@ -34,15 +32,13 @@ export class RGOType
         this.goodId = goodId;
     }
 
-    public static async From(dbobject: any): Promise<RGOType>
+    public static From(dbobject: any): RGOType
     {
         const res = new RGOType();
         res.id = dbobject.id;
         res.efficiency = dbobject.efficiency;
         res.goodId = dbobject.goodId;
-        res.maxAmount = dbobject.maxAmount;
         res.name = dbobject.name;
-        res.marketId = dbobject.marketId;
         res.lockedByDefault = dbobject.lockedByDefault === 1;
         res.InstrumentBreakChance = dbobject.InstrumentBreakChance;
         res.InstrumentGoodId = dbobject.InstrumentGoodId;
@@ -85,54 +81,13 @@ export class RGOType
         return res.c > 0;
     }
 
-    public static async Update(type: RGOType)
+    public static FromQuery(data: any[]): RGOType[]
     {
-        await RGOTypeRepository().where("id", type.id).update({
-            efficiency: type.efficiency,
-            goodId: type.goodId,
-            maxAmount: type.maxAmount,
-            name: type.name,
-            marketId: type.marketId,
-        });
-    }
-
-    public static async Insert(type: RGOType): Promise<number>
-    {
-        const d = await RGOTypeRepository().insert({
-            efficiency: type.efficiency,
-            goodId: type.goodId,
-            maxAmount: type.maxAmount,
-            name: type.name,
-            marketId: type.marketId,
-        });
-
-        type.id = d[0];
-
-        Logger.info("Created RGOType " + type.id);
-
-        return d[0];
-    }
-
-    public static async Delete(id: number): Promise<boolean>
-    {
-        const RGOType = await this.GetById(id);
-
-        await RGOTypeRepository().delete().where("id", id);
-
-        Log.LogText("Deleted RGOType id " + id);
-
-        return true;
-    }
-
-    public static async BuildableWithinRegion(marketId: number): Promise<RGOType[]>
-    {
-        const data = await Connection.raw("select * from RGOTypes where marketId = 1 " +
-        "and (select count(id) from RGOs where RGOs.typeId = RGOTypes.id) < maxAmount;");
         const res = new Array<RGOType>();
 
         if (data) {
             for (const entry of data) {
-                res.push(await this.From(entry));
+                res.push(this.From(entry));
             }
 
             return res;
@@ -144,17 +99,7 @@ export class RGOType
     public static async All(): Promise<RGOType[]>
     {
         const data = await RGOTypeRepository().select();
-        const res = new Array<RGOType>();
-
-        if (data) {
-            for (const entry of data) {
-                res.push(await this.From(entry));
-            }
-
-            return res;
-        }
-
-        return [];
+        return this.FromQuery(data);
     }
 }
 
@@ -163,4 +108,4 @@ export interface IRGOTypeSettings
     testSetting: boolean;
 }
 
-export const RGOTypeRepository = () => Connection("RGOTypes");
+export const RGOTypeRepository = () => Connection<RGOType>("RGOTypes");

@@ -4,7 +4,9 @@ import { RGORepository } from "entity/RGO";
 
 export class LeaderboardService {
     public static async GetRichestPlayers() {
-        const data = await Player.GetRichest();
+        let data = await Player.GetRichest();
+        data = data.filter((x) => Player.IsPlayable(x.player.id));
+
         return data;
     }
 

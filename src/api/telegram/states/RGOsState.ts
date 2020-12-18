@@ -175,7 +175,6 @@ export class RGOsState extends State
             this.Client.writeList<RGOType>(types,
                 (x) => x.id,
                 async (x) => `${x.name}. Makes ${(await x.getGood()).name}, takes ${1 / x.efficiency} workers. ` +
-                `Max in world: ${x.maxAmount}. Already in world: ${await RGOManagementService.CountOfType(x.id)}. ` +
                 `Resources to build: ${await this.formResourcesString(x)}`,
                 "All types of RGO you can build");
 

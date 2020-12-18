@@ -2,10 +2,10 @@
 <div style="overflow-x:auto;">
 <table class="table-striped">
     <thead>
-    <th>ID</th>
     <th>Добыча</th>
     <th>Регион</th>
     <th>Добывает</th>
+    <th>Эффективность</th>
     <th>Рабочих</th>
     <th>Построено</th>
     <th>Ресурсы для строительства</th>
@@ -13,10 +13,10 @@
     </thead>
 {{#each data}}
     <tr>
-<td>{{this.id}}</td>
-<td>{{this.name}}</td>
+<td>{{this.name}} ({{this.id}})</td>
 <td>{{this.market}}</td>
 <td>{{this.makes}}</td>
+<td>{{this.efficiency}}</td>
 <td>{{this.workers}}</td>
 <td>{{this.already}} / {{this.maxamount}}</td>
 <td>{{this.resources}}</td>
