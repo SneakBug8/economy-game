@@ -1,4 +1,4 @@
-<div class="playerbottom clearfix"><span>{{player.username}}</span> <i class="card-icon fas fa-chevron-down"></i></div>
+{{!--<div class="playerbottom clearfix"><span>{{player.username}}</span> <i class="card-icon fas fa-chevron-down"></i></div>
 <script>
     $(".playerbottom").click(function () {
         $("#playercard").toggle();
@@ -14,4 +14,17 @@
             Total employeed in RGOs: {{playerrgoworkers}}
         </p>
     </div>
-</div>
+</div>--}}
+
+<nav class="nav-group">
+  <h5 class="nav-group-title">Игрок: {{player.username}}</h5>
+  <span class="nav-group-item">
+      Деньги: {{mycash}} {{currency}}
+  </span>
+  <span class="nav-group-item">
+      Рабочих на фабриках: {{playerfactoryworkers}}
+  </span>
+  <span class="nav-group-item">
+      Рабочих на добыче: {{playerrgoworkers}}
+  </span>
+</nav>

@@ -1,4 +1,4 @@
-<div class="marketheader clearfix"><span>{{CurrentMarket.name}}</span> <i class="card-icon fas fa-chevron-down"></i></div>
+{{!--<div class="marketheader clearfix"><span>{{CurrentMarket.name}}</span> <i class="card-icon fas fa-chevron-down"></i></div>
 <script>
     $(".marketheader").click(function () {
         $("#marketcard").toggle();
@@ -6,3 +6,8 @@
 </script>
 
 <a href="/markets/move" class="nav-group-item" id="marketcard" style="display: none;">Поехать</a>
+--}}
+<nav class="nav-group">
+  <h5 class="nav-group-title">Рынок: {{CurrentMarket.name}}</h5>
+<a href="/markets/move" class="nav-group-item">Поехать</a>
+</nav>
