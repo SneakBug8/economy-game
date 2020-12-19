@@ -56,4 +56,11 @@ export class Config
                 },
             ]],
         ]);
+
+    public static DefaultRGOCosts: Array<{ goodId: number, Amount: number }> = [
+            {
+                goodId: 2,
+                Amount: 300,
+            },
+    ];
 }

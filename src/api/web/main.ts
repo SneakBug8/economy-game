@@ -4,6 +4,7 @@ import { WebAPI } from "./WebAPI";
 import * as cookieParser from "cookie-parser";
 import { Logger } from "utility/Logger";
 import { WebClientUtil } from "./WebClientUtil";
+import { Config } from "config";
 
 const app = express();
 const port = 3000;
@@ -15,7 +16,7 @@ app.set("view engine", ".hbs");
 
 app.set("views", __dirname + "/views");
 
-app.use(express.static(__dirname + "/public"));
+app.use(express.static(Config.projectPath() + "/public"));
 app.use(cookieParser());
 
 app.listen(port, () =>

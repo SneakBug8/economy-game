@@ -30,7 +30,7 @@ export class WebClientUtil
             id = Math.round(Math.random() * 100000);
         }
 
-        Logger.info("New client id " + id);
+        Logger.info("New client id " + id + " from " + req.ip);
 
         res.cookie("id", id);
 

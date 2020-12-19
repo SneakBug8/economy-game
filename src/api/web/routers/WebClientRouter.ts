@@ -996,7 +996,6 @@ export class WebClientRouter
                     id: type.id,
                     name: type.name,
                     makes: await type.getGood(),
-                    workers: 1 / type.efficiency,
                     maxamount: link.maxAmount,
                     efficiency: RGOService.CalculateEfficiency(type, link),
                     already: await RGO.CountWithType(market.id, type.id),
@@ -1014,7 +1013,10 @@ export class WebClientRouter
     private static async formResourcesString(x: RGOType)
     {
         let res = "";
-        const costs = Config.RGOCostsDictionary.get(x.id);
+        let costs = Config.RGOCostsDictionary.get(x.id);
+        if (!costs) {
+            costs = Config.DefaultRGOCosts;
+        }
 
         for (const req of costs) {
             const good = await Good.GetById(req.goodId);

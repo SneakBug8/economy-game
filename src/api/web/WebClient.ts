@@ -1,4 +1,5 @@
 import { Player } from "entity/Player";
+import { Logger } from "utility/Logger";
 
 export class WebClient
 {
@@ -32,6 +33,7 @@ export class WebClient
     }
 
     public async attach(playerid: number) {
+        Logger.info(`Player ${playerid} logined`);
         this.playerId = playerid;
     }
 
