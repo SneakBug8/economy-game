@@ -70,6 +70,23 @@ export class FactoryManagementService
         return (start + percent * (end - start));
     }
 
+    public static async NewFactoryCostsString() {
+        let res = "";
+        let i = 0;
+        for (const cost of Config.NewFactoryCosts) {
+            const good = await Good.GetById(cost.goodId);
+            if (Config.NewFactoryCosts.length === 1 || i === Config.NewFactoryCosts.length - 1) {
+                res += `${cost.Amount} ${good.name}`;
+            }
+            else {
+                res += `${cost.Amount} ${good.name}, `;
+            }
+            i++;
+        }
+
+        return res;
+    }
+
     public static async ConstructNew(playerid: number, marketId: number) {
 
         const costs = Config.NewFactoryCosts;

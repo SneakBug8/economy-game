@@ -1,22 +1,30 @@
 <script>
     $(document).ready(function () {
         var id = null;
-        $("#{{inputId}}selector li").each(function (i, elem) {
+        $("#{{inputId}}selector tr").each(function (i, elem) {
             $(elem).click(onClick);
         })
 
         function onClick() {
             id = $(this).attr("id");
             $("#{{inputId}}").val(id);
-            $("#{{inputId}}selector li").each(function (i, elem) {
+            $("#{{inputId}}selector tr").each(function (i, elem) {
                 $(elem).removeClass("selected");
             });
             $(this).addClass("selected");
         }
     });
 </script>
-<ul class="selector" id="{{inputId}}selector">
+
+<div class="selectorcontainer">
+<table id="{{inputId}}selector">
+    <thead>
+        <th>Название</th>
+    </thead>
     {{#each goods}}
-    <li id="{{this.id}}">{{this.name}}</li>
+    <tr id="{{this.id}}">
+        <td>{{this.name}} ({{this.id}})</td>
+    </tr>
     {{/each}}
-</ul>
+</table>
+</div>

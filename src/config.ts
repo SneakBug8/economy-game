@@ -23,6 +23,7 @@ export class Config
     // Everyday fixed tax
     public static FixedTax = 100;
     public static TaxPerFactory = 100;
+    public static TaxPerRGO = 100;
     public static MarketTaxPercent = 0.04;
 
     public static LoginBonus = 10;

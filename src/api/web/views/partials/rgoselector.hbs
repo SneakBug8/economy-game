@@ -1,22 +1,31 @@
 <script>
     $(document).ready(function () {
         var id = null;
-        $("#rgoselector li").each(function (i, elem) {
+        $("#rgoselector tr").each(function (i, elem) {
             $(elem).click(onClick);
         })
 
         function onClick() {
             id = $(this).attr("id");
             $("#typeId").val(id);
-            $("#rgoselector li").each(function (i, elem) {
+            $("#rgoselector tr").each(function (i, elem) {
                 $(elem).removeClass("selected");
             });
             $(this).addClass("selected");
         }
     });
 </script>
-<ul class="selector" id="rgoselector">
+<div class="selectorcontainer">
+<table id="rgoselector">
+    <thead>
+        <th>Название</th>
+        <th>Ресурсы для строительства</th>
+    </thead>
     {{#each rgotypes}}
-    <li id="{{this.id}}">{{this.name}}</li>
+    <tr id="{{this.id}}">
+        <td>{{this.name}} ({{this.id}})</td>
+        <td>{{{this.costs}}}</td>
+    </tr>
     {{/each}}
-</ul>
+</table>
+</div>

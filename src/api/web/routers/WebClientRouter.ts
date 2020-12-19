@@ -366,7 +366,8 @@ export class WebClientRouter
             });
         }
 
-        WebClientUtil.render(req, res, "factories", { data });
+        WebClientUtil.render(req, res, "factories", { data,
+        newfactorycoststring: await FactoryManagementService.NewFactoryCostsString() });
     }
 
     public static async factoryWorkersAction(req: IMyRequest, res: express.Response)
@@ -409,7 +410,12 @@ export class WebClientRouter
         }
 
         const factoryid = Number.parseInt(req.params.id, 10);
-        const salary = req.body.salary;
+        const salary = Number.parseInt(req.body.salary || 0, 10);
+
+        if (!salary || salary < 1) {
+            WebClientUtil.error(req, res, "Salary can't be less than 1");
+            return;
+        }
 
         const factory = await Factory.GetById(factoryid);
         if (!factory || factory.getOwnerId() !== req.client.playerId) {
@@ -969,45 +975,7 @@ export class WebClientRouter
 
         const data = [];
         for (const recipe of recipes) {
-            const entry = {
-                name: recipe.name || recipe.id,
-                id: recipe.id,
-                requisites: "",
-                results: "",
-                workers: recipe.employeesneeded,
-                instrument: (recipe.InstrumentGoodId) ? await (await Good.GetById(recipe.InstrumentGoodId)).name : null,
-                chance: recipe.InstrumentBreakChance * 100,
-            };
-
-            let i = 0;
-            for (const input of recipe.Requisites) {
-                const good = await Good.GetById(input.GoodId);
-
-                if (recipe.Requisites.length === 1 || i === recipe.Requisites.length - 1) {
-                    entry.requisites += `${input.amount} ${good.name}`;
-                }
-                else {
-                    entry.requisites += `${input.amount} ${good.name}, `;
-                }
-
-                i++;
-            }
-
-            i = 0;
-
-            for (const output of recipe.Results) {
-                const good = await Good.GetById(output.GoodId);
-                if (recipe.Results.length === 1 || i === recipe.Results.length - 1) {
-                    entry.results += `${output.amount} ${good.name}`;
-                }
-                else {
-                    entry.results += `${output.amount} ${good.name}, `;
-                }
-
-                i++;
-            }
-
-            data.push(entry);
+            data.push(await RecipesService.PrepareToRender(recipe));
         }
 
         WebClientUtil.render(req, res, "recipes", { data });
@@ -1027,7 +995,7 @@ export class WebClientRouter
                 data.push({
                     id: type.id,
                     name: type.name,
-                    makes: (await type.getGood()).name,
+                    makes: await type.getGood(),
                     workers: 1 / type.efficiency,
                     maxamount: link.maxAmount,
                     efficiency: RGOService.CalculateEfficiency(type, link),

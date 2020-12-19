@@ -8,6 +8,8 @@ import { Player } from "entity/Player";
 import { Market } from "entity/Market";
 import { MarketService } from "services/MarketService";
 import { RGOService } from "services/RGOService";
+import { asyncForEach } from "utility/asyncForEach";
+import { RGOManagementService } from "services/RGOManagementService";
 
 export class WebClientUtil
 {
@@ -100,10 +102,12 @@ export class WebClientUtil
         return req.client && req.client.playerId;
     }
 
-    public static LoadRecipes(req: IMyRequest, res: express.Response, next: () => void)
+    public static async LoadRecipes(req: IMyRequest, res: express.Response, next: () => void)
     {
         const recipes = RecipesService.All;
-        res.locals.recipes = recipes;
+        const entries = [];
+        await asyncForEach(recipes, async (x) => entries.push(await RecipesService.PrepareToRender(x)));
+        res.locals.recipes = entries;
         next();
     }
 
@@ -118,6 +122,7 @@ export class WebClientUtil
     {
         const player = await Player.GetById(req.client.playerId);
         const rgotypes = await RGOService.BuildableWithinRegion(player.CurrentMarketId);
+        await asyncForEach(rgotypes, async (x) => (x as any).costs = await RGOManagementService.NewRGOCostsString(x.id));
         res.locals.rgotypes = rgotypes;
         next();
     }

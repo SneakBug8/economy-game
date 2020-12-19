@@ -15,7 +15,7 @@ export class Recipe
         InstrumentGoodId?: number, InstrumentBreakChance?: number)
     {
         this.id = id;
-        this.name = name;
+        this.name = name || id + "";
 
         if (requisites) {
             this.Requisites = requisites;

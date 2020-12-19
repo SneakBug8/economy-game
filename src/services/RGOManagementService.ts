@@ -71,6 +71,24 @@ export class RGOManagementService
         return (start + percent * (end - start));
     }
 
+    public static async NewRGOCostsString(typeId: number) {
+        const costs = Config.RGOCostsDictionary.get(typeId);
+        let res = "";
+        let i = 0;
+        for (const cost of costs) {
+            const good = await Good.GetById(cost.goodId);
+            if (costs.length === 1 || i === costs.length - 1) {
+                res += `${cost.Amount} ${good.name}`;
+            }
+            else {
+                res += `${cost.Amount} ${good.name}, `;
+            }
+            i++;
+        }
+
+        return res;
+    }
+
     public static async ConstructNew(playerid: number, rgotypeid: number) {
         const rgotype = await RGOType.GetById(rgotypeid);
         if (!rgotype) {

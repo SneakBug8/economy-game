@@ -1,22 +1,41 @@
 <script>
     $(document).ready(function () {
         var id = null;
-        $("#recipeselector li").each(function (i, elem) {
+        $("#recipeselector tr").each(function (i, elem) {
             $(elem).click(onClick);
         })
 
         function onClick() {
             id = $(this).attr("id");
             $("#recipeId").val(id);
-            $("#recipeselector li").each(function (i, elem) {
+            $("#recipeselector tr").each(function (i, elem) {
                 $(elem).removeClass("selected");
             });
             $(this).addClass("selected");
         }
     });
 </script>
-<ul class="selector" id="recipeselector">
+<div class="selectorcontainer">
+<table id="recipeselector">
+    <thead>
+        <th>Название</th>
+        <th>Сырье</th>
+        <th>Продукты</th>
+        <th>Рабочих для выполнения</th>
+        <th>Инструменты</th>
+    </thead>
     {{#each recipes}}
-    <li id="{{this.id}}">{{this.name}}</li>
+    <tr id="{{this.id}}">
+        <td>{{this.name}} ({{this.id}})</td>
+        <td>{{{this.requisites}}}</td>
+        <td>{{{this.results}}}</td>
+        <td>{{this.workers}}</td>
+        <td>
+            {{#if this.instrument}}
+            {{this.instrument}} ({{this.chance}}%)
+            {{/if}}
+        </td>
+    </tr>
     {{/each}}
-</ul>
+</table>
+</div>

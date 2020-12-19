@@ -6,9 +6,6 @@ import { GoodsList } from "./GoodsList";
 
 export class RecipesService
 {
-    // tslint:disable: one-variable-per-declaration
-    public static FirstToFirst: Recipe;
-
     public static firstgood: Good;
 
     public static async Init()
@@ -29,6 +26,48 @@ export class RecipesService
         }
 
         return null;
+    }
+
+    public static async PrepareToRender(recipe: Recipe) {
+        const entry = {
+            name: recipe.name || recipe.id,
+            id: recipe.id,
+            requisites: "",
+            results: "",
+            workers: recipe.employeesneeded,
+            instrument: (recipe.InstrumentGoodId) ? await (await Good.GetById(recipe.InstrumentGoodId)).name : null,
+            chance: recipe.InstrumentBreakChance * 100,
+        };
+
+        let i = 0;
+        for (const input of recipe.Requisites) {
+            const good = await Good.GetById(input.GoodId);
+
+            if (recipe.Requisites.length === 1 || i === recipe.Requisites.length - 1) {
+                entry.requisites += `<a href="/good/${good.id}">${input.amount} ${good.name}</a>`;
+            }
+            else {
+                entry.requisites += `<a href="/good/${good.id}">${input.amount} ${good.name}</a>, `;
+            }
+
+            i++;
+        }
+
+        i = 0;
+
+        for (const output of recipe.Results) {
+            const good = await Good.GetById(output.GoodId);
+            if (recipe.Results.length === 1 || i === recipe.Results.length - 1) {
+                entry.results += `<a href="/good/${good.id}">${output.amount} ${good.name}</a>`;
+            }
+            else {
+                entry.results += `<a href="/good/${good.id}">${output.amount} ${good.name}</a>, `;
+            }
+
+            i++;
+        }
+
+        return entry;
     }
 
     public static GetWithGood(goodID: number)
