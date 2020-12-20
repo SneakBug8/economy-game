@@ -129,6 +129,9 @@ export class WebClientRouter
             param("amount").isNumeric().optional(),
         ], this.onMarketRedeemSell);
 
+        router.get("/buyoffer/:id([0-9]+)/delete", this.onDeleteBuyOffer);
+        router.get("/selloffer/:id([0-9]+)/delete", this.onDeleteSellOffer);
+
         router.get("/logout", this.onLogout);
 
         return router;
@@ -225,9 +228,16 @@ export class WebClientRouter
     public static onInfo() { }
     public static async onStorage(req: IMyRequest, res: express.Response)
     {
-        const player = await Player.GetById(req.client.playerId);
-
-        const storages = await Storage.AGetWithPlayer(player.id);
+        const r1 = await Player.GetById(req.client.playerId);
+        if (!r1.result) {
+            WebClientUtil.error(req, res, r1.message);
+        }
+        const player = r1.data;
+        const r2 = await Storage.AGetWithPlayer(player.id);
+        if (!r2.result) {
+            WebClientUtil.error(req, res, r1.message);
+        }
+        const storages = r2.data as Storage[];
 
         const data = [];
         for (const x of storages) {
@@ -255,19 +265,22 @@ export class WebClientRouter
         const marketId = Number.parseInt(req.body.marketId, 10);
         const amount = Number.parseInt(req.body.amount, 10);
 
-        const answer = await StorageService.TransferGoodsBetweenMarkets(
+        const r2 = await Player.GetCurrentMarketId(req.client.playerId);
+        if (!r2.result) {
+            return WebClientUtil.error(req, res, r2.message);
+        }
+
+        const r1 = await StorageService.TransferGoodsBetweenMarkets(
             req.client.playerId,
-            await Player.GetCurrentMarketId(req.client.playerId),
+            r2.data,
             marketId,
             goodId,
             amount,
         );
-
-        if (typeof answer !== "boolean") {
-            WebClientUtil.error(req, res, answer);
-            return;
+        if (!r1.result) {
+            return r1;
         }
-
+        const answer = r1.data;
         req.client.infoToShow = "Successfully sent goods";
 
         res.redirect("/storage");
@@ -294,19 +307,22 @@ export class WebClientRouter
 
         const amount = Number.parseInt(req.body.amount, 10);
 
-        const answer = await StorageService.TransferGoodsBetweenPlayers(
-            await Player.GetCurrentMarketId(req.client.playerId),
+        const r1 = await Player.GetCurrentMarketId(req.client.playerId);
+        if (!r1.result) {
+            return WebClientUtil.error(req, res, r1.message);
+        }
+
+        const r2 = await StorageService.TransferGoodsBetweenPlayers(
+            r1.data,
             req.client.playerId,
             receiverplayer.id,
             goodId,
             amount,
         );
-
-        if (typeof answer !== "boolean") {
-            WebClientUtil.error(req, res, answer);
-            return;
+        if (!r2.result) {
+            return WebClientUtil.error(req, res, r2.message);
         }
-
+        const answer = r2.data;
         req.client.infoToShow = "Successfully sent goods";
 
         res.redirect("/storage");
@@ -348,8 +364,12 @@ export class WebClientRouter
 
     public static async onFactories(req: IMyRequest, res: express.Response)
     {
+        const r1 = await Player.GetCurrentMarketId(req.client.playerId);
+        if (!r1.result) {
+            return WebClientUtil.error(req, res, r1.message);
+        }
         const factories = await Player.GetFactoriesById(
-            await Player.GetCurrentMarketId(req.client.playerId),
+            r1.data,
             req.client.playerId,
         );
 
@@ -363,11 +383,14 @@ export class WebClientRouter
                 salary: factory.salary,
                 level: factory.level,
                 maxWorkers: factory.getMaxWorkers(),
+                upgradecost: await FactoryManagementService.GetUpgradeCostString(factory.id),
             });
         }
 
-        WebClientUtil.render(req, res, "factories", { data,
-        newfactorycoststring: await FactoryManagementService.NewFactoryCostsString() });
+        WebClientUtil.render(req, res, "factories", {
+            data,
+            newfactorycoststring: await FactoryManagementService.NewFactoryCostsString()
+        });
     }
 
     public static async factoryWorkersAction(req: IMyRequest, res: express.Response)
@@ -575,8 +598,12 @@ export class WebClientRouter
 
     public static async onRGOs(req: IMyRequest, res: express.Response)
     {
+        const r1 = await Player.GetCurrentMarketId(req.client.playerId);
+        if (!r1.result) {
+            WebClientUtil.error(req, res, r1.message);
+        }
         const rgos = await Player.GetRGOsById(
-            await Player.GetCurrentMarketId(req.client.playerId),
+            r1.data,
             req.client.playerId,
         );
 
@@ -714,17 +741,17 @@ export class WebClientRouter
         }
 
         const playerId = req.client.playerId;
-        const player = await Player.GetById(req.client.playerId);
-
-        if (!player) {
-            WebClientUtil.error(req, res, "Wrong player");
-            return;
+        const r1 = await Player.GetById(req.client.playerId);
+        if (!r1.result) {
+            return WebClientUtil.error(req, res, r1.message);
         }
 
-        const response = await FactoryManagementService.ConstructNew(player.CurrentMarketId, playerId);
+        const player = r1.data;
 
-        if (typeof response !== "number") {
-            WebClientUtil.error(req, res, response as string);
+        const response = await FactoryManagementService.ConstructNew(playerId, player.CurrentMarketId);
+
+        if (!response.result) {
+            WebClientUtil.error(req, res, response.message);
             return;
         }
 
@@ -780,12 +807,20 @@ export class WebClientRouter
             return;
         }
 
-        const player = await Player.GetById(req.client.playerId);
+        const r1 = await Player.GetById(req.client.playerId);
+        if (!r1.result) {
+            return WebClientUtil.error(req, res, r1.message);
+        }
+        const player = r1.data;
+        const marketId = player.CurrentMarketId;
 
-        const demand = await MarketService.CountDemand(goodid);
-        const supply = await MarketService.CountSupply(goodid);
-        const bo = await BuyOffer.GetWithGoodAndMarket(player.CurrentMarketId, goodid);
-        const so = await SellOffer.GetWithGoodAndMarket(player.CurrentMarketId, goodid);
+        const demand = await MarketService.CountDemandGlobal(goodid);
+        const supply = await MarketService.CountSupplyGlobal(goodid);
+        const demandlocal = await MarketService.CountDemandLocal(goodid, marketId);
+        const supplylocal = await MarketService.CountSupplyLocal(goodid, marketId);
+
+        const bo = await BuyOffer.GetWithGoodAndMarket(marketId, goodid);
+        const so = await SellOffer.GetWithGoodAndMarket(marketId, goodid);
         so.reverse();
 
         const buyoffers = [];
@@ -813,7 +848,15 @@ export class WebClientRouter
         const storage = await Storage.Amount(player.CurrentMarketId, req.client.playerId, good.id);
 
         WebClientUtil.render(req, res, "market", {
-            good, buyoffers, selloffers, demand, supply, storage, helpers: { notequal: ((x, y) => x !== y), equal: ((x, y) => x === y) },
+            good,
+            buyoffers,
+            selloffers,
+            demand,
+            supply,
+            demandlocal,
+            supplylocal,
+            storage,
+            helpers: { notequal: ((x, y) => x !== y), equal: ((x, y) => x === y) },
         });
     }
 
@@ -833,7 +876,11 @@ export class WebClientRouter
         }
 
         const goodid = Number.parseInt(req.params.id, 10);
-        const player = await Player.GetById(req.client.playerId);
+        const r1 = await Player.GetById(req.client.playerId);
+        if (!r1.result) {
+            return WebClientUtil.error(req, res, r1.message);
+        }
+        const player = r1.data;
         const amount = Number.parseInt(req.body.amount, 10);
         const price = Number.parseInt(req.body.price, 10);
 
@@ -866,7 +913,11 @@ export class WebClientRouter
         }
 
         const goodid = Number.parseInt(req.params.id, 10);
-        const player = await Player.GetById(req.client.playerId);
+        const r1 = await Player.GetById(req.client.playerId);
+        if (!r1.result) {
+            return WebClientUtil.error(req, res, r1.message);
+        }
+        const player = r1.data;
         const amount = Number.parseInt(req.body.amount, 10);
         const price = Number.parseInt(req.body.price, 10);
 
@@ -929,6 +980,57 @@ export class WebClientRouter
             return;
         }
 
+        WebClientUtil.renderLast(req, res);
+    }
+
+    public static async onDeleteBuyOffer(req: IMyRequest, res: express.Response)
+    {
+        const id = Number.parseInt(req.params.id, 10);
+        const buyoffer = await BuyOffer.GetById(id);
+
+        const playerId = req.client.playerId;
+        const r1 = await Player.GetById(playerId);
+        if (!r1.result) {
+            return WebClientUtil.error(req, res, r1.message);
+        }
+        const player = r1.data;
+
+        if (buyoffer.playerId !== playerId) {
+            WebClientUtil.error(req, res, "That's not your buy offer");
+            return;
+        }
+
+        if (buyoffer.marketId !== player.CurrentMarketId) {
+            WebClientUtil.error(req, res, "Вы не в рынке этого оффера");
+            return;
+        }
+
+        await BuyOffer.Delete(buyoffer.id);
+        WebClientUtil.renderLast(req, res);
+    }
+    public static async onDeleteSellOffer(req: IMyRequest, res: express.Response)
+    {
+        const id = Number.parseInt(req.params.id, 10);
+        const selloffer = await SellOffer.GetById(id);
+
+        const playerId = req.client.playerId;
+        const r1 = await Player.GetById(playerId);
+        if (!r1.result) {
+            return WebClientUtil.error(req, res, r1.message);
+        }
+        const player = r1.data;
+
+        if (selloffer.playerId !== playerId) {
+            WebClientUtil.error(req, res, "That's not your sell offer");
+            return;
+        }
+
+        if (selloffer.marketId !== player.CurrentMarketId) {
+            WebClientUtil.error(req, res, "Вы не в рынке этого оффера");
+            return;
+        }
+
+        await SellOffer.Delete(selloffer.id);
         WebClientUtil.renderLast(req, res);
     }
 
@@ -1000,7 +1102,7 @@ export class WebClientRouter
                     efficiency: RGOService.CalculateEfficiency(type, link),
                     already: await RGO.CountWithType(market.id, type.id),
                     market: market.name,
-                    resources: await WebClientRouter.formResourcesString(type),
+                    resources: await RGOManagementService.NewRGOCostsString(type.id),
                     instrument: (type.InstrumentGoodId) ? await (await Good.GetById(type.InstrumentGoodId)).name : null,
                     chance: type.InstrumentBreakChance * 100,
                 });
@@ -1010,29 +1112,12 @@ export class WebClientRouter
         WebClientUtil.render(req, res, "rgotypes", { data });
     }
 
-    private static async formResourcesString(x: RGOType)
-    {
-        let res = "";
-        let costs = Config.RGOCostsDictionary.get(x.id);
-        if (!costs) {
-            costs = Config.DefaultRGOCosts;
-        }
-
-        for (const req of costs) {
-            const good = await Good.GetById(req.goodId);
-            res += `${req.Amount} ${good.name}`;
-        }
-
-        return res;
-    }
-
     public static onLogout(req: IMyRequest, res: express.Response)
     {
         if (WebClientUtil.isLogined(req)) {
-            WebClientUtil.clients.splice(WebClientUtil.clients.indexOf(req.client), 1);
-            res.redirect("/");
+            WebClientUtil.clients = WebClientUtil.clients.filter(x => x.clientId !== req.client.clientId);
         }
+
+        res.redirect("/");
     }
-
-
 }

@@ -10,6 +10,8 @@ import { PlayerService } from "./PlayerService";
 import { Config } from "config";
 import { Logger } from "utility/Logger";
 import { Connection } from "DataBase";
+import { RSA_SSLV23_PADDING } from "constants";
+import { Requisite } from "./Requisites/Requisite";
 
 export class MarketService
 {
@@ -18,7 +20,7 @@ export class MarketService
         Market.DefaultMarket = await Market.GetById(1);
     }
 
-    public static async Run(): Promise<void>
+    public static async Run()
     {
         await EventsList.beforeMarket.emit();
 
@@ -59,8 +61,18 @@ export class MarketService
                     s = 0;
 
                     if (buy.price >= sell.price) {
-                        const buyerplayer = await Player.GetById(buy.playerId);
-                        const sellerplayer = await Player.GetById(sell.playerId);
+                        const r1 = await Player.GetById(buy.playerId);
+                        if (!r1.result) {
+                            Logger.warn(r1.toString());
+                            continue;
+                        }
+                        const buyerplayer = r1.data;
+                        const r2 = await Player.GetById(sell.playerId);
+                        if (!r2.result) {
+                            Logger.warn(r2.toString());
+                            continue;
+                        }
+                        const sellerplayer = r2.data;
 
                         const transactionsize = Math.min(sell.amount, buy.amount);
                         const transactioncost = transactionsize * sell.price;
@@ -86,18 +98,18 @@ export class MarketService
                         await Storage.AddGoodTo(buy.marketId, buyerplayer.id, good.id, transactionsize);
 
                         PlayerService.SendOffline(sellerplayer.id,
-                            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyerplayer.username}, tax: ${taxcost}`);
+                            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyerplayer.username} at ${market.name}, tax: ${taxcost}`);
                         PlayerService.SendOffline(buyerplayer.id,
-                            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username}. tax: ${taxcost}`);
+                            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username} at ${market.name}. tax: ${taxcost}`);
 
-                        EventsList.onTrade.emit({
+                        await EventsList.onTrade.emit({
                             Type: TradeEventType.ToPlayer,
                             Player: sellerplayer,
                             Good: good,
                             Amount: transactionsize,
                             Price: sell.price,
                         });
-                        EventsList.onTrade.emit({
+                        await EventsList.onTrade.emit({
                             Type: TradeEventType.FromPlayer,
                             Player: buyerplayer,
                             Good: good,
@@ -284,12 +296,20 @@ export class MarketService
 
     //}*/
 
-    public static async TransferCash(fromId: number, toId: number, amount: number): Promise<void>
+    public static async TransferCash(fromId: number, toId: number, amount: number)
     {
         const playerfrom = await Player.GetById(fromId);
         const playerto = await Player.GetById(toId);
 
-        await playerfrom.payCash(playerto, amount);
+        if (!playerfrom.result) {
+            return playerfrom;
+        }
+
+        if (!playerto.result) {
+            return playerto;
+        }
+
+        return await playerfrom.data.payCash(playerto.data, amount);
     }
 
     public static async RedeemSellOffer(buyPlayerId: number, sellOfferId: number, size?: number)
@@ -303,12 +323,25 @@ export class MarketService
             return "Can't trade with yourself";
         }
 
-        const buyplayer = await Player.GetById(buyPlayerId);
-        const sellerplayer = await Player.GetById(sellOffer.playerId);
+        const r1 = await Player.GetById(buyPlayerId);
+        const r2 = await Player.GetById(sellOffer.playerId);
 
-        if (!sellerplayer || !buyplayer) {
-            return "No such buyer or seller";
+        if (!r1.result) {
+            return r1;
         }
+
+        if (!r2.result) {
+            return r2;
+        }
+
+        const sellerplayer = r2.data;
+        const buyplayer = r1.data;
+
+        if (sellOffer.marketId !== buyplayer.CurrentMarketId) {
+            return "You are in different markets";
+        }
+
+        const market = await Market.GetById(sellOffer.marketId);
 
         let transactionsize = sellOffer.amount;
         if (size) {
@@ -330,18 +363,18 @@ export class MarketService
         await Storage.AddGoodTo(sellOffer.marketId, buyplayer.id, good.id, transactionsize);
 
         PlayerService.SendOffline(sellerplayer.id,
-            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyplayer.username}, tax: ${taxcost}`);
+            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyplayer.username} at ${market.name}, tax: ${taxcost}`);
         PlayerService.SendOffline(buyplayer.id,
-            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username}. tax: ${taxcost}`);
+            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username} at ${market.name}. tax: ${taxcost}`);
 
-        EventsList.onTrade.emit({
+        await EventsList.onTrade.emit({
             Type: TradeEventType.ToPlayer,
             Player: sellerplayer,
             Good: good,
             Amount: transactionsize,
             Price: sellOffer.price,
         });
-        EventsList.onTrade.emit({
+        await EventsList.onTrade.emit({
             Type: TradeEventType.FromPlayer,
             Player: buyplayer,
             Good: good,
@@ -360,15 +393,30 @@ export class MarketService
     public static async RedeemBuyOffer(sellPlayerId: number, buy: SellOffer, size: number = null)
     {
         if (buy.playerId === sellPlayerId) {
-            return "Can't trade with yourself";
+            return new Requisite().error("Can't trade with yourself");
         }
 
-        const sellerplayer = await Player.GetById(sellPlayerId);
-        const buyplayer = await Player.GetById(buy.playerId);
+        const r1 = await Player.GetById(sellPlayerId);
+        if (!r1.result) {
+            return r1;
+        }
+        const sellerplayer = r1.data;
+
+        const r2 = await Player.GetById(buy.playerId);
+        if (!r2.result) {
+            return r2;
+        }
+        const buyplayer = r2.data;
 
         if (!sellerplayer || !buyplayer) {
-            return "No such buyer or seller";
+            return new Requisite().error("No such buyer or seller");
         }
+
+        if (buy.marketId !== sellerplayer.CurrentMarketId) {
+            return new Requisite().error("You are in different markets");
+        }
+
+        const market = await Market.GetById(buy.marketId);
 
         let transactionsize = buy.amount;
         if (size) {
@@ -379,11 +427,11 @@ export class MarketService
         const good = await buy.getGood();
 
         if (await buyplayer.AgetCash() < transactioncost) {
-            return "Buyer doesn't have enough cash";
+            return new Requisite().error("Buyer doesn't have enough cash");
         }
 
         if (!Storage.Has(buy.marketId, sellerplayer.id, good.id, transactionsize)) {
-            return "Not enough resources";
+            return new Requisite().error("Not enough resources");
         }
 
         buy.amount -= transactionsize;
@@ -394,18 +442,18 @@ export class MarketService
         await Storage.AddGoodTo(buy.marketId, buyplayer.id, good.id, transactionsize);
 
         PlayerService.SendOffline(sellerplayer.id,
-            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyplayer.username}, tax: ${taxcost}`);
+            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyplayer.username} at ${market.name}, tax: ${taxcost}`);
         PlayerService.SendOffline(buyplayer.id,
-            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username}. tax: ${taxcost}`);
+            `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username} at ${market.name}. tax: ${taxcost}`);
 
-        EventsList.onTrade.emit({
+        await EventsList.onTrade.emit({
             Type: TradeEventType.ToPlayer,
             Player: sellerplayer,
             Good: good,
             Amount: transactionsize,
             Price: buy.price,
         });
-        EventsList.onTrade.emit({
+        await EventsList.onTrade.emit({
             Type: TradeEventType.FromPlayer,
             Player: buyplayer,
             Good: good,
@@ -415,10 +463,10 @@ export class MarketService
 
 
         if (buy.amount === 0) {
-            BuyOffer.Delete(buy.id);
+            await BuyOffer.Delete(buy.id);
         }
         else {
-            BuyOffer.Update(buy);
+            await BuyOffer.Update(buy);
         }
     }
 
@@ -434,26 +482,29 @@ export class MarketService
         return await SellOffer.Create(marketId, goodId, amount, price, playerId);
     }
 
-    public static async CountDemand(goodId: number)
+    public static async CountDemandGlobal(goodId: number)
     {
         let demand = 0;
-        // TODO: replace it with market-dependant numbers
         const offers = await BuyOffer.GetWithGood(goodId);
 
         for (const entry of offers) {
             demand += entry.amount;
         }
-        /*
-        const consumptions = await Consumption.GetWithGood(good);
-
-        for (const entry of consumptions) {
-            demand += entry.amount;
-        }*/
-
         return demand;
     }
 
-    public static async CountSupply(goodId: number)
+    public static async CountDemandLocal(goodId: number, marketId: number)
+    {
+        let demand = 0;
+        const offers = (await BuyOffer.GetWithGood(goodId)).filter((x) => x.marketId === marketId);
+
+        for (const entry of offers) {
+            demand += entry.amount;
+        }
+        return demand;
+    }
+
+    public static async CountSupplyGlobal(goodId: number)
     {
         let supply = 0;
         const offers = await SellOffer.GetWithGood(goodId);
@@ -462,22 +513,30 @@ export class MarketService
             supply += entry.amount;
         }
 
-        /*const productions = await Production.GetWithGood(good);
+        return supply;
+    }
 
-        for (const entry of productions) {
+    public static async CountSupplyLocal(goodId: number, marketId: number)
+    {
+        let supply = 0;
+        const offers = (await SellOffer.GetWithGood(goodId)).filter((x) => x.marketId === marketId);
+
+        for (const entry of offers) {
             supply += entry.amount;
-        }*/
+        }
 
         return supply;
     }
 
-    public static async GetTradeableGoods() {
+    public static async GetTradeableGoods()
+    {
         const data = await Connection.raw("select * from goods where id not in (select goodId from Currencies);");
 
         return Good.UseQuery(data);
     }
 
-    public static async GetCurrencies() {
+    public static async GetCurrencies()
+    {
         const data = await Connection.raw("select * from goods where id in (select goodId from Currencies);");
 
         return Good.UseQuery(data);

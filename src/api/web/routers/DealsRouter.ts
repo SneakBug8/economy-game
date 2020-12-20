@@ -35,12 +35,13 @@ export class DealsRouter
 
     public static async onHome(req: IMyRequest, res: express.Response)
     {
-        const currplayer = await Player.GetById(req.client.playerId);
+        const r1 = await Player.GetById(req.client.playerId);
 
-        if (!currplayer) {
-            WebClientUtil.error(req, res, "You don't exist");
+        if (!r1) {
+            WebClientUtil.error(req, res, r1.message);
             return;
         }
+        const currplayer = r1.data;
 
         const deals = await Deal.GetWithPlayer(currplayer.CurrentMarketId, currplayer.id);
 
@@ -56,12 +57,13 @@ export class DealsRouter
     {
         const username = req.body.username;
 
-        const currplayer = await Player.GetById(req.client.playerId);
+        const r1 = await Player.GetById(req.client.playerId);
 
-        if (!currplayer) {
-            WebClientUtil.error(req, res, "You don't exist");
+        if (!r1.result) {
+            WebClientUtil.error(req, res, r1.message);
             return;
         }
+        const currplayer = r1.data;
 
         const player = await Player.GetWithLogin(username);
 
@@ -145,8 +147,7 @@ export class DealsRouter
             WebClientUtil.error(req, res, answer as string);
             return;
         }
-
-        res.redirect(req.client.popUrl());
+        res.redirect(req.client.getUrl());
     }
 
     public static async onAddGoods(req: IMyRequest, res: express.Response)

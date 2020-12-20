@@ -1,6 +1,7 @@
 import { EventsList } from "events/EventsList";
 import { Turn } from "entity/Turn";
 import { StateActivityService } from "./StateActivityService";
+import { Logger } from "utility/Logger";
 
 export class GoldMinesService
 {
@@ -26,8 +27,14 @@ export class GoldMinesService
     public static async onAfterNewTurn()
     {
         for (const keyvalue of GoldMinesService.GoldMines) {
-            const playerid = StateActivityService.PlayersMap[keyvalue[0]];
-            await StateActivityService.CreateCash(playerid, keyvalue[1]);
+            const playerid = StateActivityService.PlayersMap.get(keyvalue[0]);
+
+            if (playerid) {
+                await StateActivityService.CreateCash(playerid, keyvalue[1]);
+            }
+            else {
+                Logger.error("Wrong GoldMine keyvalue " + JSON.stringify(keyvalue));
+            }
         }
     }
 }

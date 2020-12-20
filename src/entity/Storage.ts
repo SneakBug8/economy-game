@@ -1,6 +1,7 @@
 import { Good } from "./Good";
 import { Connection } from "DataBase";
 import { Player } from "./Player";
+import { Requisite } from "services/Requisites/Requisite";
 
 export class Storage
 {
@@ -71,12 +72,15 @@ export class Storage
         return [];
     }
 
-    public static async AGetWithPlayer(playerId: number): Promise<Storage[]>
+    public static async AGetWithPlayer(playerId: number)
     {
-        return this.GetWithPlayer(
-            (await Player.GetById(playerId)).CurrentMarketId,
-            playerId,
-        );
+        const r1 = await Player.GetById(playerId);
+        if (!r1.result) {
+            return r1;
+        }
+
+        return new Requisite<Storage[]>(await this.GetWithPlayer(r1.data.CurrentMarketId,
+            r1.data.id));
     }
 
     public static async GetWithPlayer(marketId: number, playerId: number): Promise<Storage[]>
@@ -233,7 +237,7 @@ export class Storage
         if (existingstorage) {
             existingstorage.amount += amount;
             await this.Update(existingstorage);
-            return;
+            return new Requisite().success();
         }
 
         const newStorage = new Storage();
@@ -243,6 +247,7 @@ export class Storage
         newStorage.amount = amount;
 
         await this.Insert(newStorage);
+        return new Requisite().success();
     }
 
     public static async Has(marketId: number, playerId: number, goodId: number, amount: number): Promise<boolean>

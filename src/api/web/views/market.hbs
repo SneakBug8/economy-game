@@ -1,7 +1,9 @@
 <script src="/js/market.js"></script>
 <script>var goodid = {{good.id}}</script>
 <h1>Рынок: {{good.name}}</h1>
-<i>Спрос: {{demand}}<br>Предложение: {{supply}}<br>На складе: {{storage}}</i>
+<p>Здесь вы можете купить и продать {{good.name}} у других игроков, населения и государства с использованием торгового стакана. Вы можете поставить запрос на куплю/продажу и подождать конца торгового цикла или закрыть чужой запрос мгновенно.</p>
+<p><i>Спрос глобальный: {{demand}}<br>Предложение глобальное: {{supply}}</i></p>
+<p><i>Спрос: {{demandlocal}}<br>Предложение: {{supplylocal}}<br>На складе: {{storage}}</i></p>
 
 <table class="table">
     <thead>
@@ -21,6 +23,8 @@
         <td>
             {{#if (notequal this.player.username @root.player.username)}}
             <a href="javascript:onBuyButton('sell', {{this.id}})" class="btn btn-positive">Купить</button>
+            {{else}}
+            <a href="/selloffer/{{this.id}}/delete" class="btn btn-negative">Удалить</button>
             {{/if}}
         </td>
     </tr>
@@ -34,7 +38,9 @@
         <td></td>
         <td>
             {{#if (notequal this.player.username @root.player.username)}}
-            <a href="javascript:onBuyButton('buy', {{this.id}})" class="btn btn-negative">Продать</button>
+            <a href="javascript:onBuyButton('buy', {{this.id}})" class="btn btn-positive">Продать</button>
+            {{else}}
+            <a href="/buyoffer/{{this.id}}/delete" class="btn btn-negative">Удалить</button>
             {{/if}}
         </td>
     </tr>

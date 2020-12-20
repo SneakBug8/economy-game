@@ -12,8 +12,9 @@ const rl = readline.createInterface({
 });
 
 // When user input data and click enter key.
-rl.on("line", async function (data)
-{
+rl.on("line", handler);
+
+export async function handler(data: string) {
     const announcementregexp = new RegExp("announce \"(.*)\"");
     // User input exit.
     if (data === "exit") {
@@ -30,4 +31,4 @@ rl.on("line", async function (data)
             await PlayerService.Broadcast(matches[1]);
         }
     }
-});
+}

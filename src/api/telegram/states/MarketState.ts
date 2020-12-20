@@ -115,33 +115,6 @@ export class MarketState extends State
 
     public async waitingMarketBuyAmount(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("([0-9]+)");
-        if (registerregex.test(message)) {
-            const matches = registerregex.exec(message);
-
-            let amount = Number.parseInt(matches[1], 10);
-
-            if (!amount) {
-                amount = 1;
-            }
-
-            const good = await Good.GetById(this.marketBuyGoodId);
-            const player = await Player.GetById(this.Client.playerId);
-
-            const id = await MarketService.AddBuyOffer(player.CurrentMarketId, player.id, good.id, amount, this.marketBuyPrice);
-
-            if (id) {
-                this.Client.write("Added buy offer id " + id);
-            }
-            else {
-                this.Client.write("Was unable to create buy offer");
-            }
-
-            return true;
-        }
-
-        this.Client.write(`You entered wrong amount. Use only numbers`);
-
         return false;
     }
 
@@ -194,18 +167,6 @@ export class MarketState extends State
 
     public async OnMarketBuyList(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/market buy$");
-        if (registerregex.test(message)) {
-
-            const player = await Player.GetById(this.Client.playerId);
-
-            const res = await BuyOffer.GetWithPlayer(player.id);
-
-            this.Client.writeList<BuyOffer>(res, (x) => x.id, async (x) => `${x.amount} ${(await x.getGood()).name} for ${x.price} each`);
-
-            return true;
-        }
-
         return false;
     }
 
@@ -281,47 +242,11 @@ export class MarketState extends State
 
     public async waitingMarketSellAmount(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("([0-9]+)");
-        if (registerregex.test(message)) {
-            const matches = registerregex.exec(message);
-
-            let amount = Number.parseInt(matches[1], 10);
-
-            if (!amount) {
-                amount = 1;
-            }
-
-            const good = await Good.GetById(this.marketSellGoodId);
-            const player = await Player.GetById(this.Client.playerId);
-
-            const id = await MarketService.AddSellOffer(player.CurrentMarketId, player.id, good.id, amount, this.marketSellPrice);
-
-            if (id) {
-                this.Client.write("Added sell offer id " + id);
-            }
-            else {
-                this.Client.write("Was unable to create buy offer");
-            }
-
-            return true;
-        }
-
-        this.Client.write(`You entered wrong amount. Use only numbers`);
-
         return false;
     }
 
     public async OnMarketSellDelete(message: string): Promise<boolean>
     {
-        const marketsellregex = new RegExp("\/market sell delete");
-        if (marketsellregex.test(message)) {
-            this.setWaitingForValue(this.waitingMarketSellDelete);
-
-            this.Client.write("Write sell order id to delete");
-
-            return true;
-        }
-
         return false;
     }
 
@@ -359,18 +284,6 @@ export class MarketState extends State
 
     public async OnMarketSellList(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/market sell$");
-        if (registerregex.test(message)) {
-
-            const player = await Player.GetById(this.Client.playerId);
-
-            const res = await SellOffer.GetWithPlayer(player.id);
-
-            this.Client.writeList<SellOffer>(res, (x) => x.id, async (x) => `${x.amount} ${(await x.getGood()).name} for ${x.price} each`);
-
-            return true;
-        }
-
         return false;
     }
 

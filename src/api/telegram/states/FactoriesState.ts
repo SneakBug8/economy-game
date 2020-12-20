@@ -35,28 +35,6 @@ export class FactoriesState extends State
 
     public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]> {
         const res: TelegramBot.KeyboardButton[][] = [];
-        const factories = await Player.GetFactoriesById(
-            await Player.GetCurrentMarketId(this.Client.playerId),
-            this.Client.playerId,
-            );
-
-        let subres: TelegramBot.KeyboardButton[] = [];
-        for (const factory of factories) {
-            subres.push({text: "🏭 " + factory.id + ""});
-            if (subres.length >= 3) {
-                res.push(subres);
-                subres = [];
-            }
-        }
-
-        if (subres.length > 0) {
-            res.push(subres);
-            subres = [];
-        }
-
-        res.push([{ text: "📜 /recipes" }],
-        [{text: "📄 /info"}, {text: "📄 /help"}, {text: "❌ /back"}]);
-
         return res;
     }
 
@@ -116,21 +94,6 @@ export class FactoriesState extends State
     }
 
     public async OnInfo(message: string): Promise<boolean> {
-        const regex = new RegExp("\/info$");
-        if (regex.test(message)) {
-            const factories = await Player.GetFactoriesById(
-                await Player.GetCurrentMarketId(this.Client.playerId),
-                this.Client.playerId
-                );
-
-            this.Client.writeList<Factory>(factories,
-                (x) => x.id,
-                (x) => `Employees: ${x.employeesCount} / ${x.getTargetEmployees()}, salary: ${x.salary}`,
-                "Your factories");
-
-            return true;
-        }
-
         return false;
     }
 

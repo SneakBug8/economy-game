@@ -3,19 +3,24 @@ import { Player } from "entity/Player";
 import { TurnsService } from "./TurnsService";
 import { Log } from "entity/Log";
 import { PlayerService } from "./PlayerService";
-import {Config} from "config";
+import { Config } from "config";
 import { Good } from "entity/Good";
-import {Storage} from "entity/Storage";
+import { Storage } from "entity/Storage";
 import { PopulationActivityService } from "./PopulationActivityService";
 import { Logger } from "utility/Logger";
+import { Requisite } from "./Requisites/Requisite";
 
 export class FactoryManagementService
 {
-    public static async Run(): Promise<void>
+    public static async Run()
     {
         for (const factory of (await Factory.All())) {
             // Pay salaries
-            const player = await Player.GetWithFactory(factory);
+            const r1 = await Player.GetWithFactory(factory);
+            if (!r1.result) {
+                return r1;
+            }
+            const player = r1.data;
 
             const hastopay = factory.salary * factory.employeesCount;
             let canpay = Math.min(hastopay, await player.AgetCash());
@@ -30,8 +35,13 @@ export class FactoryManagementService
                 factory.setTargetEmployees(Math.round(factory.getTargetEmployees()));
             }
 
+            const r2 = await PopulationActivityService.GetPlayer(factory.marketId);
+            if (!r2.result) {
+                Logger.warn(r2.toString);
+                continue;
+            }
             await player.payCash(
-                await PopulationActivityService.GetPlayer(factory.marketId),
+                r2.data,
                 canpay);
 
             Log.LogTemp(`[Factory] ${player.username} paid ${canpay} salary for ${factory.id}`);
@@ -70,7 +80,8 @@ export class FactoryManagementService
         return (start + percent * (end - start));
     }
 
-    public static async NewFactoryCostsString() {
+    public static async NewFactoryCostsString()
+    {
         let res = "";
         let i = 0;
         for (const cost of Config.NewFactoryCosts) {
@@ -87,30 +98,36 @@ export class FactoryManagementService
         return res;
     }
 
-    public static async ConstructNew(playerid: number, marketId: number) {
+    public static async ConstructNew(playerid: number, marketId: number)
+    {
 
         const costs = Config.NewFactoryCosts;
-        const player = await Player.GetById(playerid);
+        const r1 = await Player.GetById(playerid);
+        if (!r1.result) {
+            return r1;
+        }
+
+        const player = r1.data;
 
         if (!costs) {
-            return "Can't build factories";
+            return new Requisite().error("Can't build factories");
         }
 
         const factoriescount = (await player.getFactories()).length;
 
         if (factoriescount >= Config.MaxFactoriesPerPlayer) {
-            return "You can't build more factories";
+            return new Requisite().error("You can't build more factories");
         }
 
         for (const costentry of costs) {
             const good = await Good.GetById(costentry.goodId);
 
             if (!good) {
-                return "Wrong Factory construction recipe. Contact the admins.";
+                return new Requisite().error("Wrong Factory construction recipe. Contact the admins.");
             }
 
             if (!await Storage.Has(marketId, player.id, good.id, costentry.Amount)) {
-                return "Not enough resources";
+                return new Requisite().error("Not enough resources");
             }
         }
 
@@ -121,25 +138,30 @@ export class FactoryManagementService
         }
 
         const factory = await Factory.Create(marketId, player.id, 0, 0);
-        return factory;
+        return new Requisite(factory);
     }
 
-    public static async UpgradeFactory(playerid: number, factoryid: number) {
+    public static async UpgradeFactory(playerid: number, factoryid: number)
+    {
         const factory = await Factory.GetById(factoryid);
 
-        if (!factory || factory.getOwnerId() !== playerid ) {
-            return "That's not your factory";
+        if (!factory || factory.getOwnerId() !== playerid) {
+            return new Requisite().error("That's not your factory");
         }
 
         const costs = Config.NewFactoryCosts;
-        const player = await Player.GetById(playerid);
+        const r1 = await Player.GetById(playerid);
+        if (!r1.result) {
+            return r1;
+        }
+        const player = r1.data;
 
         if (!costs) {
-            return "Can't upgrade factory";
+            return new Requisite().error("Can't upgrade factory");
         }
 
         for (const costentry of costs) {
-            const upgradeamount = costentry.Amount * Math.pow(1.5, factory.level);
+            const upgradeamount = Math.round(costentry.Amount * Math.pow(1.5, factory.level));
 
             const good = await Good.GetById(costentry.goodId);
 
@@ -153,7 +175,7 @@ export class FactoryManagementService
         }
 
         for (const costentry of costs) {
-            const upgradeamount = costentry.Amount * Math.pow(1.5, factory.level);
+            const upgradeamount = Math.round(costentry.Amount * Math.pow(1.5, factory.level));
 
             const good = await Good.GetById(costentry.goodId);
 
@@ -165,5 +187,44 @@ export class FactoryManagementService
         await Factory.Update(factory);
 
         return factory;
+    }
+
+    public static async GetUpgradeCostString(factoryid: number)
+    {
+        let res = "";
+
+        const costs = Config.NewFactoryCosts;
+
+        if (!costs) {
+            return "Can't upgrade factory";
+        }
+
+        const factory = await Factory.GetById(factoryid);
+
+        if (!factory) {
+            return "That's not your factory";
+        }
+
+        let i = 0;
+        for (const costentry of costs) {
+            const upgradeamount = Math.round(costentry.Amount * Math.pow(1.5, factory.level));
+
+            const good = await Good.GetById(costentry.goodId);
+
+            if (!good) {
+                return "Wrong RGO construction recipe. Contact the admins.";
+            }
+
+            if (costs.length === 1 || i === costs.length - 1) {
+                res += `${upgradeamount} ${good.name}`;
+            }
+            else {
+                res += `${upgradeamount} ${good.name}, `;
+            }
+
+            i++;
+        }
+
+        return res;
     }
 }

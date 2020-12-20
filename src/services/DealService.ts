@@ -1,6 +1,7 @@
 import { Deal, DealsRepository } from "entity/Deal";
 import { Good } from "entity/Good";
 import { Player } from "entity/Player";
+import { Logger } from "utility/Logger";
 
 export class DealService
 {
@@ -48,10 +49,18 @@ export class DealService
     {
         let player: Player = null;
         if (firstPlayerId === deal.fromId) {
-            player = await Player.GetById(deal.toId);
+            const r1 = await Player.GetById(deal.toId);
+            if (!r1.result) {
+                Logger.warn(r1.message);
+            }
+            player = r1.data;
         }
         else if (firstPlayerId === deal.toId) {
-            player = await Player.GetById(deal.fromId);
+            const r1 = await Player.GetById(deal.fromId);
+            if (!r1.result) {
+                Logger.warn(r1.message);
+            }
+            player = r1.data;
         }
 
         if (player) {

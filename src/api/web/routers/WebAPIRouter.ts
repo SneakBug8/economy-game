@@ -709,8 +709,8 @@ export class WebAPIRouter
             return;
         }
 
-        const demand = await MarketService.CountDemand(good);
-        const supply = await MarketService.CountSupply(good);
+        const demand = await MarketService.CountDemandGlobal(good);
+        const supply = await MarketService.CountSupplyGlobal(good);
         const bo = await BuyOffer.GetWithGoodOrdered(good);
         const so = await SellOffer.GetWithGoodOrdered(good);
         const cons = await Consumption.GetWithGood(good);

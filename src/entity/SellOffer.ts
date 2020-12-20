@@ -71,6 +71,10 @@ export class SellOffer extends MarketOffer
     {
         const player = await Player.GetById(playerId);
 
+        if (!player) {
+            return "No such player";
+        }
+
         if (!await Storage.Has(marketId, playerId, goodId, amount)) {
             return "Not enough resources";
         }

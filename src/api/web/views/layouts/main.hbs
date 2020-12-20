@@ -44,10 +44,19 @@
       </ul>
     </div>
   </nav>}}
+  <script>
+    function openmenu() {
+      $(".sidebar").toggle();
+    }
+  </script>
   <main class="window">
     <header class="toolbar toolbar-header">
       <h1 class="title">Economy game</h1>
       <div class="toolbar-actions">
+        <div class="btn-group pull">
+          <a href="javascript:openmenu()" class="btn btn-default sm-only">Меню</a>
+          <a href="/console/changeTurn" class="btn btn-default">Сменить ход (Debug)</a>
+        </div>
         <div class="btn-group pull-right">
           <a href="/" class="btn btn-default">Discord</a>
           <a href="/logout" class="btn btn-default">Выйти</a>

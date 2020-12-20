@@ -8,6 +8,8 @@ import { PlayerLog } from "entity/PlayerLog";
 import { Turn } from "entity/Turn";
 import { StateActivityService } from "./StateActivityService";
 import { Market } from "entity/Market";
+import { PopulationActivityService } from "./PopulationActivityService";
+import { Requisite } from "./Requisites/Requisite";
 
 export class PlayerService
 {
@@ -16,15 +18,12 @@ export class PlayerService
         const player = new Player();
 
         player.CurrentMarketId = Market.DefaultMarket.id;
-
-        // TODO: Imagine another way of adding RegistrationCash
-        /*player.cash = Config.RegistrationCash;
-        await StateActivityService.AddCash(player.CurrentMarketId, -Config.RegistrationCash);*/
-
         player.username = username;
         player.password = passwd;
 
         const id = await Player.Insert(player);
+
+        await PopulationActivityService.TransferCash(player.CurrentMarketId, id, Config.RegistrationCash);
 
         // TODO: Set default workers and salary
         const factoryid = await Factory.Create(Market.DefaultMarket.id, player.id, 10, 1);
@@ -65,21 +64,22 @@ export class PlayerService
     }
 
     public static async MoveBetweenMarkets(playerId: number, marketId: number) {
-        const player = await Player.GetById(playerId);
+        const pcheck = await Player.GetById(playerId);
         const market = await Market.GetById(marketId);
 
         if (!market) {
             return "No such market";
         }
 
-        if (!player) {
-            return "No such player";
+        if (!pcheck.result) {
+            return pcheck;
         }
+
+        const player = pcheck.data;
 
         player.CurrentMarketId = market.id;
 
-        Player.Update(player);
-
-        return true;
+        await Player.Update(player);
+        return new Requisite().success();
     }
 }

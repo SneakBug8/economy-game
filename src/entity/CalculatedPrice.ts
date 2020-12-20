@@ -37,6 +37,11 @@ export class CalculatedPrice
 
     public static async GetWithPlayer(playerId: number): Promise<CalculatedPrice[]>
     {
+        if (!playerId) {
+            console.trace("GetWithPlayer(null)");
+            return [];
+        }
+
         const data = await CalculatedPricesRepository().select()
             .where("playerId", playerId);
 

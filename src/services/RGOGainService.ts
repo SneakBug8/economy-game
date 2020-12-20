@@ -12,7 +12,12 @@ export class RGOGainService
     {
         for (const rgo of await RGO.All()) {
 
-            const player = await rgo.getOwner();
+            const r1 = await rgo.getOwner();
+            if (!r1.result) {
+                Logger.warn(r1.toString());
+                continue;
+            }
+            const player = r1.data;
 
             const type = await rgo.getType();
 
@@ -44,7 +49,7 @@ export class RGOGainService
 
             PlayerService.SendOffline(player.id, `RGO ${rgo.id} gathered ${amountproduced} ${await (await type.getGood()).name}`);
 
-            EventsList.onRGOGain.emit({
+            await EventsList.onRGOGain.emit({
                 RGO: rgo,
                 Good: await type.getGood(),
                 Amount: amountproduced,

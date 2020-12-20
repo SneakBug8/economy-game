@@ -47,21 +47,6 @@ export class MainState extends State
 
     public async OnInfo(message: string): Promise<boolean>
     {
-        const inforegex = new RegExp("\/info");
-        if (inforegex.test(message)) {
-
-            const player = await Player.GetById(this.Client.playerId);
-
-            if (!player) {
-                this.Client.write("Something went wrong with retrieving player");
-                return;
-            }
-
-            this.Client.write(`Player: ${player.username}\n---\nCash: ${await player.AgetCash()}`);
-
-            return true;
-        }
-
         return false;
     }
 
@@ -97,20 +82,6 @@ export class MainState extends State
 
     public async OnStorageView(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/storage$");
-        if (registerregex.test(message)) {
-
-            const player = await Player.GetById(this.Client.playerId);
-            const storages = await Storage.GetWithPlayer(player.CurrentMarketId, player.id);
-
-            this.Client.writeList<Storage>(storages,
-                async (x) => (await x.getGood()).id + " " + (await x.getGood()).name,
-                (x) => x.amount + "",
-                "Your storage");
-
-            return true;
-        }
-
         return false;
     }
 

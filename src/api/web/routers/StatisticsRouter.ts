@@ -11,6 +11,7 @@ import { MarketService } from "services/MarketService";
 import { PopulationActivityService } from "services/PopulationActivityService";
 import { StateActivityService } from "services/StateActivityService";
 import { TurnsService } from "services/TurnsService";
+import { Logger } from "utility/Logger";
 import { IMyRequest, WebClientUtil } from "../WebClientUtil";
 
 export class StatisticsRouter
@@ -243,15 +244,16 @@ export class StatisticsRouter
         }
 
         for (const market of await Market.All()) {
-            const stateplayerid = StateActivityService.PlayersMap.get(market.id);
-            const popplayerid = PopulationActivityService.PlayersMap.get(market.id);
-
-            if (!stateplayerid || !popplayerid) {
-                continue;
+            const r1 = await StateActivityService.GetPlayer(market.id);
+            if (!r1.result) {
+                Logger.warn(r1.toString());
             }
-
-            const stateplayer = (stateplayerid) ? await Player.GetById(stateplayerid) : null;
-            const popplayer = (popplayerid) ? await Player.GetById(popplayerid) : null;
+            const stateplayer = r1.data;
+            const r2 = await PopulationActivityService.GetPlayer(market.id);
+            if (!r2.result) {
+                Logger.warn(r1.toString());
+            }
+            const popplayer = r2.data;
 
             const state = {
                 label: (stateplayer && stateplayer.username) || "State",
@@ -266,11 +268,11 @@ export class StatisticsRouter
             };
 
             const statemarket = await Statistics.GetWithPlayerAndType<IPlayerStatisticsRecord>
-                (stateplayerid,
+                (stateplayer.id,
                     StatisticsTypes.PlayerRecord);
 
             const popmarket = await Statistics.GetWithPlayerAndType<IPlayerStatisticsRecord>
-                (popplayerid,
+                (popplayer.id,
                     StatisticsTypes.PlayerRecord);
 
             for (let turnid = TurnsService.CurrentTurn.id - 90;

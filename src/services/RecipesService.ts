@@ -10,6 +10,8 @@ export class RecipesService
 
     public static async Init()
     {
+        this.All = this.All.concat(await Recipe.All());
+
         for (const rec of this.All) {
             await rec.Init();
         }
@@ -94,87 +96,87 @@ export class RecipesService
     }
 
     static All: Recipe[] = [
-        new Recipe(2, "Молоть пшеницу", [
+        Recipe.Create(2, "Молоть пшеницу", [
             new RecipeEntry(GoodsList.Wheat, 2),
         ], [
             new RecipeEntry(GoodsList.Flour, 1),
         ]),
-        new Recipe(3, "Печь хлеб", [
+        Recipe.Create(3, "Печь хлеб", [
             new RecipeEntry(GoodsList.Flour, 2),
         ], [
             new RecipeEntry(GoodsList.Bread, 1),
         ]),
-        new Recipe(4, "Ткать", [
+        Recipe.Create(4, "Ткать", [
             new RecipeEntry(GoodsList.Flax, 2),
         ], [
             new RecipeEntry(GoodsList.Cloth, 1),
         ]),
-        new Recipe(5, "Шить одежду", [
+        Recipe.Create(5, "Шить одежду", [
             new RecipeEntry(GoodsList.Cloth, 2),
         ], [
             new RecipeEntry(GoodsList.Clothes, 1),
-        ]),
-        new Recipe(6, "Шить дорогую одежду", [
+        ], 1, GoodsList.Instruments, 0.1),
+        Recipe.Create(6, "Шить дорогую одежду", [
             new RecipeEntry(GoodsList.Cloth, 2),
             new RecipeEntry(GoodsList.Fur, 1),
         ], [
             new RecipeEntry(GoodsList.LuxuryClothes, 1),
-        ]),
-        new Recipe(7, "", [
+        ], 1, GoodsList.Instruments, 0.1),
+        Recipe.Create(7, "", [
             new RecipeEntry(GoodsList.IronOre, 2),
         ], [
             new RecipeEntry(GoodsList.Iron, 1),
         ]),
-        new Recipe(8, "", [
+        Recipe.Create(8, "", [
             new RecipeEntry(GoodsList.GoldOre, 2),
         ], [
             new RecipeEntry(GoodsList.Gold, 1),
         ]),
-        new Recipe(9, "", [
+        Recipe.Create(9, "", [
             new RecipeEntry(GoodsList.SilverOre, 2),
         ], [
             new RecipeEntry(GoodsList.Silver, 1),
         ]),
-        new Recipe(10, "", [
+        Recipe.Create(10, "", [
             new RecipeEntry(GoodsList.Gems, 1),
             new RecipeEntry(GoodsList.Gold, 2),
             new RecipeEntry(GoodsList.Silver, 2),
 
         ], [
             new RecipeEntry(GoodsList.Jewelry, 1),
-        ]),
-        new Recipe(11, "", [
+        ], 1, GoodsList.Instruments, 0.1),
+        Recipe.Create(11, "", [
             new RecipeEntry(GoodsList.Iron, 2),
 
         ], [
             new RecipeEntry(GoodsList.Weapons, 1),
-        ]),
-        new Recipe(12, "", [
+        ], 1, GoodsList.Instruments, 0.1),
+        Recipe.Create(12, "", [
             new RecipeEntry(GoodsList.Iron, 3),
 
         ], [
             new RecipeEntry(GoodsList.Armor, 1),
-        ]),
-        new Recipe(13, "", [
+        ], 1, GoodsList.Instruments, 0.1),
+        Recipe.Create(13, "", [
             new RecipeEntry(GoodsList.Sulphur, 2),
 
         ], [
             new RecipeEntry(GoodsList.Fertilizer, 1),
         ]),
-        new Recipe(14, "", [
+        Recipe.Create(14, "", [
             new RecipeEntry(GoodsList.Fish, 1),
             new RecipeEntry(GoodsList.Bread, 1),
 
         ], [
             new RecipeEntry(GoodsList.CheapFood, 1),
         ]),
-        new Recipe(15, "", [
+        Recipe.Create(15, "", [
             new RecipeEntry(GoodsList.Cattle, 1),
             new RecipeEntry(GoodsList.Bread, 2),
         ], [
             new RecipeEntry(GoodsList.Food, 1),
         ]),
-        new Recipe(16, "", [
+        Recipe.Create(16, "", [
             new RecipeEntry(GoodsList.Salt, 1),
             new RecipeEntry(GoodsList.Cattle, 1),
             new RecipeEntry(GoodsList.Bread, 3),
@@ -182,11 +184,50 @@ export class RecipesService
         ], [
             new RecipeEntry(GoodsList.LuxuryFood, 1),
         ]),
-        new Recipe(17 , "", [
+        Recipe.Create(17 , "", [
             new RecipeEntry(GoodsList.Stone, 2),
 
         ], [
             new RecipeEntry(GoodsList.StoneBlock, 1),
+        ]),
+        Recipe.Create(18 , "", [
+            new RecipeEntry(GoodsList.Wheat, 2),
+            new RecipeEntry(GoodsList.Glass, 1),
+        ], [
+            new RecipeEntry(GoodsList.Beer, 1),
+        ], 1, GoodsList.Barrels, 0.1),
+        Recipe.Create(19 , "", [
+            new RecipeEntry(GoodsList.Fruits, 2),
+            new RecipeEntry(GoodsList.Glass, 1),
+        ], [
+            new RecipeEntry(GoodsList.Wine, 1),
+        ], 1, GoodsList.Barrels, 0.1),
+        Recipe.Create(21 , "", [
+            new RecipeEntry(GoodsList.Wood, 2),
+        ], [
+            new RecipeEntry(GoodsList.Lumber, 1),
+        ]),
+        Recipe.Create(22 , "", [
+            new RecipeEntry(GoodsList.Lumber, 2),
+        ], [
+            new RecipeEntry(GoodsList.Furniture, 1),
+        ]),
+        Recipe.Create(23 , "", [
+            new RecipeEntry(GoodsList.Lumber, 2),
+            new RecipeEntry(GoodsList.Cloth, 1),
+        ], [
+            new RecipeEntry(GoodsList.LuxuryFurniture, 1),
+        ]),
+        Recipe.Create(24 , "", [
+            new RecipeEntry(GoodsList.Lumber, 2),
+        ], [
+            new RecipeEntry(GoodsList.Barrels, 1),
+        ]),
+        Recipe.Create(25 , "", [
+            new RecipeEntry(GoodsList.Lumber, 2),
+            new RecipeEntry(GoodsList.Iron, 2),
+        ], [
+            new RecipeEntry(GoodsList.Instruments, 1),
         ])
     ];
 }

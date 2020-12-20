@@ -17,7 +17,12 @@ export class RGOManagementService
     {
         for (const rgo of (await RGO.All())) {
             // Pay salaries
-            const player = await rgo.getOwner();
+            const r1 = await rgo.getOwner();
+            if (!r1.result) {
+                Logger.warn(r1.toString());
+                continue;
+            }
+            const player = r1.data;
 
             const hastopay = rgo.salary * rgo.employeesCount;
             let canpay = Math.min(hastopay, await player.AgetCash());
@@ -72,7 +77,12 @@ export class RGOManagementService
     }
 
     public static async NewRGOCostsString(typeId: number) {
-        const costs = Config.RGOCostsDictionary.get(typeId);
+        let costs = Config.RGOCostsDictionary.get(typeId);
+
+        if (!costs) {
+            costs = Config.DefaultRGOCosts;
+        }
+
         let res = "";
         let i = 0;
         for (const cost of costs) {
@@ -95,7 +105,11 @@ export class RGOManagementService
             return "No such RGO type";
         }
 
-        const player = await Player.GetById(playerid);
+        const r1 = await Player.GetById(playerid);
+        if (!r1.data) {
+            return r1;
+        }
+        const player = r1.data;
 
         const link = await RGOMarketToType.GetMarketTypeLink(player.CurrentMarketId, rgotypeid);
 
@@ -150,7 +164,11 @@ export class RGOManagementService
         }
 
         const costs = Config.RGOCostsDictionary.get(rgotype.id);
-        const player = await Player.GetById(playerid);
+        const r1 = await Player.GetById(playerid);
+        if (!r1.result) {
+            return r1;
+        }
+        const player = r1.data;
 
         if (!costs) {
             return "Can't upgrade RGO";

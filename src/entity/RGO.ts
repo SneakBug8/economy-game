@@ -48,7 +48,7 @@ export class RGO
         return this.playerId;
     }
 
-    public async getOwner(): Promise<Player>
+    public async getOwner()
     {
         return await Player.GetById(this.playerId);
     }

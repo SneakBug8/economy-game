@@ -18,7 +18,7 @@ export class WebClientUtil
     public static LoadPlayerData(req: IMyRequest, res: express.Response, next: () => void)
     {
         for (const client of WebClientUtil.clients) {
-            if (req.cookies.id && req.cookies.id === client.clientId) {
+            if (req.cookies.id && req.cookies.id + "" === client.clientId + "") {
                 req.client = client;
                 next();
                 return;
@@ -84,8 +84,9 @@ export class WebClientUtil
 
     public static error(req: IMyRequest, res: express.Response, msg: string)
     {
+        Logger.warn(msg);
         req.client.errorToShow = msg;
-        res.redirect(req.client.popUrl());
+        res.redirect(req.client.getUrl());
     }
 
     public static getInfopagesLayout(req: IMyRequest)
@@ -120,7 +121,11 @@ export class WebClientUtil
 
     public static async LoadBuildableTypes(req: IMyRequest, res: express.Response, next: () => void)
     {
-        const player = await Player.GetById(req.client.playerId);
+        const r1 = await Player.GetById(req.client.playerId);
+        if (!r1.result) {
+            Logger.warn(r1.toString());
+        }
+        const player = r1.data;
         const rgotypes = await RGOService.BuildableWithinRegion(player.CurrentMarketId);
         await asyncForEach(rgotypes, async (x) => (x as any).costs = await RGOManagementService.NewRGOCostsString(x.id));
         res.locals.rgotypes = rgotypes;
@@ -151,7 +156,11 @@ export class WebClientUtil
     public static async FillPlayercardData(req: IMyRequest, res: express.Response, next: () => void)
     {
         if (WebClientUtil.isLogined(req)) {
-            const player = await Player.GetById(req.client.playerId);
+            const r1 = await Player.GetById(req.client.playerId);
+            if (!r1.result) {
+                Logger.warn(r1.toString());
+            }
+            const player = r1.data;
             res.locals.player = player;
             res.locals.mycash = await player.AgetCash();
             res.locals.currency = (await Market.GetCashGood(player.CurrentMarketId)).name;

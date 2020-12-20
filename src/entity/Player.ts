@@ -8,6 +8,7 @@ import { Storage, StorageRepository } from "./Storage";
 import { Config } from "config";
 import { Market } from "./Market";
 import { PopulationActivityService } from "services/PopulationActivityService";
+import { Requisite } from "services/Requisites/Requisite";
 
 export class Player
 {
@@ -60,26 +61,37 @@ export class Player
     public static async TransferCash(fromId: number, toId: number, amount: number)
     {
         if (fromId === toId) {
-            return true;
+            return new Requisite().success();
         }
 
         const fromplayer = await Player.GetById(fromId);
         const toplayer = await Player.GetById(toId);
 
-        if (!fromplayer || !toplayer) {
-            return "No such player";
+        if (!fromplayer.result) {
+            return fromplayer;
         }
-        else if (await fromplayer.AgetCash() < amount) {
-            return Logger.warn(`Not enough money to make transfer`);
-        }
-        else if (amount < 0 && await toplayer.AgetCash() < amount) {
-            return `Not enough money to make transfer`;
+        if (!toplayer.result) {
+            return toplayer;
         }
 
-        await fromplayer.modifyCash(fromplayer.CurrentMarketId, -amount);
-        await toplayer.modifyCash(fromplayer.CurrentMarketId, amount);
+        else if (await fromplayer.data.AgetCash() < amount) {
+            return new Requisite().error(`Not enough money to make transfer`);
+        }
+        else if (amount < 0 && await toplayer.data.AgetCash() < amount) {
+            return new Requisite().error(`Not enough money to make transfer`);
+        }
 
-        return true;
+        const r1 = await fromplayer.data.modifyCash(fromplayer.data.CurrentMarketId, -amount);
+        const r2 = await toplayer.data.modifyCash(fromplayer.data.CurrentMarketId, amount);
+
+        if (!r1.result) {
+            return r1;
+        }
+        if (!r2.result) {
+            return r2;
+        }
+
+        return new Requisite().success();
     }
 
     public async payCash(to: Player, amount: number)
@@ -95,7 +107,7 @@ export class Player
     private static async ModifyCash(playerId: number, marketId: number, amount: number)
     {
         // this.cash += amount;
-        Storage.AddGoodTo(marketId, playerId, await Market.GetCashGoodId(marketId), amount);
+        return await Storage.AddGoodTo(marketId, playerId, await Market.GetCashGoodId(marketId), amount);
         // const d = await Connection.raw("UPDATE Players set cash = cash + ? WHERE id = ?", [amount, this.id]);
         // const d = await PlayerRepository().where("id", this.id).update(Connection.raw("cash = cash + ?", amount));
 
@@ -106,12 +118,21 @@ export class Player
 
     public async payCashToState(marketId: number, amount: number)
     {
-        return await this.payCash(await StateActivityService.GetPlayer(marketId), amount);
+        const r1 = await StateActivityService.GetPlayer(marketId);
+        if (!r1.result) {
+            return r1;
+        }
+
+        return await this.payCash(r1.data, amount);
     }
 
     public async takeCashFromState(marketId: number, amount: number)
     {
-        return await this.payCash(await StateActivityService.GetPlayer(marketId), -amount);
+        const r1 = await StateActivityService.GetPlayer(marketId);
+        if (!r1.result) {
+            return r1;
+        }
+        return await this.payCash(r1.data, -amount);
     }
 
     public async Verbose()
@@ -119,12 +140,17 @@ export class Player
         Log.LogTemp(`Player ${this.username} (${this.id}), cash: ${await this.AgetCash()}`);
     }
 
-    public static async GetById(id: number): Promise<Player>
+    public static async GetById(id: number)
     {
+        if (!id) {
+            console.trace("GetById(null)");
+            return new Requisite<Player>().error("GetById(null)");
+        }
+
         const data = await PlayerRepository().select().where("id", id).first();
 
         if (data) {
-            return this.From(data);
+            return new Requisite<Player>().success(await this.From(data));
         }
 
         return null;
@@ -142,7 +168,7 @@ export class Player
     }
 
     // TODO: Get rid of
-    public static async GetWithFactory(factory: Factory): Promise<Player>
+    public static async GetWithFactory(factory: Factory)
     {
         return factory.getOwner();
     }
@@ -160,11 +186,12 @@ export class Player
     public static async GetCurrentMarketId(playerId: number)
     {
         const player = await Player.GetById(playerId);
-        if (player) {
-            return player.CurrentMarketId;
+
+        if (!player.result) {
+            return player.to<number>();
         }
 
-        return null;
+        return new Requisite<number>().success(player.data.CurrentMarketId);
     }
 
     public static async GetFactoriesById(marketId: number, playerid: number): Promise<Factory[]>
@@ -260,18 +287,14 @@ export class Player
         return res.c > 0;
     }
 
-    public static async Update(player: Player): Promise<number>
+    public static async Update(player: Player)
     {
-        const d = await PlayerRepository().where("id", player.id).update({
+        await PlayerRepository().where("id", player.id).update({
             username: player.username,
             password: player.password,
             isAdmin: player.isAdmin,
             CurrentMarketId: player.CurrentMarketId,
         });
-
-        player.id = d[0];
-
-        return d[0];
     }
 
     public static async Insert(player: Player): Promise<number>
@@ -291,25 +314,30 @@ export class Player
         return d[0];
     }
 
-    public static async Delete(id: number): Promise<boolean>
+    public static async Delete(id: number)
     {
-        const player = await this.GetById(id);
-        if (!player) {
-            return false;
+        const pcheck = await this.GetById(id);
+        if (!pcheck.result) {
+            return pcheck;
         }
 
+        const player = pcheck.data;
+
         // TODO: make sure all types of cashes everywhere is properly transfered to govt
-        await player.payCashToState(player.CurrentMarketId, await player.AgetCash());
+        const r1 = await player.payCashToState(player.CurrentMarketId, await player.AgetCash());
+
+        if (!r1.result) {
+            return r1;
+        }
 
         for (const factory of await Player.GetFactoriesById(player.CurrentMarketId, player.id)) {
-            Factory.Delete(factory.id);
+            await Factory.Delete(factory.id);
         }
 
         await PlayerRepository().delete().where("id", id);
 
         Log.LogText("Deleted player id " + id);
-
-        return true;
+        return new Requisite().success();
     }
 
     public static async UseQuery(data: Player[])
@@ -333,15 +361,20 @@ export class Player
         return this.UseQuery(data);
     }
 
-    public static async HasCash(id: number, amount: number): Promise<boolean>
+    public static async HasCash(id: number, amount: number)
     {
-        const player = await Player.GetById(id);
+        const pcheck = await Player.GetById(id);
 
-        if (await player.AgetCash() >= amount) {
-            return true;
+        if (!pcheck.result) {
+            return new Requisite<boolean>().error(pcheck.message);
         }
 
-        return false;
+        const player = pcheck.data;
+        if (await player.AgetCash() >= amount) {
+            return new Requisite(true);
+        }
+
+        return new Requisite(false);
     }
 
     public static IsPlayable(playerId: number) {
@@ -373,12 +406,13 @@ export class Player
         for (const stock of biggestgoldpiles) {
             const player = await Player.GetById(stock.playerId);
 
-            if (!player) {
+            if (!player.result) {
+                Logger.warn(player.toString());
                 continue;
             }
 
             res.push({
-                player,
+                player: player.data,
                 amount: stock.amount,
             });
         }

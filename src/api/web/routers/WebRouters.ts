@@ -7,6 +7,7 @@ import { MarketsRouter } from "./MarketsRouter";
 import { StatisticsRouter } from "./StatisticsRouter";
 import { WebAPIRouter } from "./WebAPIRouter";
 import { WebClientRouter } from "./WebClientRouter";
+import { WebConsoleRouter } from "./WebConsoleRouter";
 
 export class WebRouters
 {
@@ -20,6 +21,7 @@ export class WebRouters
         app.use("/leaderboard", LeaderboardsRouter.GetRouter());
         app.use("/markets", MarketsRouter.GetRouter());
         app.use("/statistics", StatisticsRouter.GetRouter());
+        app.use("/console", WebConsoleRouter.GetRouter());
 
         app.use(WebClientRouter.GetRouter());
 

@@ -26,16 +26,7 @@ export class StateActivityService
             return null;
         }
 
-        const res = await Player.GetById(this.PlayersMap.get(marketId));
-
-        if (!res) {
-            const id = await PlayerService.Register("State", "1133");
-            const player = await Player.GetById(id);
-            player.id = this.PlayersMap.get(marketId);
-            await Player.Insert(player);
-            return player;
-        }
-        return res;
+        return await Player.GetById(this.PlayersMap.get(marketId));
     }
 
     public static Initialized = false;
@@ -58,7 +49,7 @@ export class StateActivityService
     {
         for (const market of await Market.All()) {
             if (market.GovStrategy.keepMSRatio) {
-                await StateActivityService.KeepMSRatio(market);
+                // await StateActivityService.KeepMSRatio(market);
             }
         }
     }
@@ -72,20 +63,19 @@ export class StateActivityService
     public static async BeforeMarketGeneration()
     {
         for (const market of await Market.All()) {
-            const player = await StateActivityService.GetPlayer(market.id);
+            const pcheck = await StateActivityService.GetPlayer(market.id);
 
-            if (!player) {
-                return;
+            if (!pcheck.result) {
+                return pcheck;
             }
+
+            const player = pcheck.data;
 
             const calculatedprices = await CalculatedPrice.GetWithPlayer(player.id);
 
             for (const p of calculatedprices) {
-                if (p.type === CalculatedPriceType.Sell) {
-                    Storage.AddGoodTo(player.CurrentMarketId, player.id, p.goodId, p.amount);
-                }
                 if (p.type === CalculatedPriceType.Buy) {
-                    Storage.AddGoodTo(player.CurrentMarketId, player.id, p.goodId,
+                    await Storage.AddGoodTo(player.CurrentMarketId, player.id, p.goodId,
                         -1 * await Storage.Amount(player.CurrentMarketId, player.id, p.goodId));
                 }
             }
@@ -94,14 +84,16 @@ export class StateActivityService
 
     public static async PublishOrders()
     {
+        Logger.info("Publishing State orders");
+
         for (const market of await Market.All()) {
-            const player = await StateActivityService.GetPlayer(market.id);
+            const pcheck = await StateActivityService.GetPlayer(market.id);
 
-            const currency = await market.getCurrency();
-
-            if (!player) {
-                return;
+            if (!pcheck) {
+                return pcheck;
             }
+
+            const player = pcheck.data;
 
             /*if (await player.AgetCash() <= 10000) {
 
@@ -136,19 +128,29 @@ export class StateActivityService
 
             for (const p of calculatedprices) {
                 if (p.type === CalculatedPriceType.Buy) {
-                    Logger.verbose("Created buy order");
-
-                    BuyOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.id);
+                    const r = await BuyOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.id);
+                    if (typeof r !== "string") {
+                        Logger.info(`State ${player.username} created buy order for ${p.amount} of ${p.goodId} at ${p.price}`);
+                    }
+                    else {
+                        Logger.warn(r);
+                    }
                     continue;
                 }
                 else if (p.type === CalculatedPriceType.Sell) {
-                    Logger.verbose("Created sell order");
-
-                    SellOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.id);
+                    await Storage.AddGoodTo(player.CurrentMarketId, player.id, p.goodId, p.amount);
+                    const r = await SellOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.id);
+                    if (typeof r !== "string") {
+                        Logger.info(`State ${player.username} created sell order for ${p.amount} of ${p.goodId} at ${p.price}`);
+                    }
+                    else {
+                        Logger.warn(r);
+                    }
                     continue;
                 }
             }
 
+            /*
             // Sell All Gold
             const goldreserve = await Storage.Amount(market.id, player.id, Config.GoldGoodId);
 
@@ -173,6 +175,7 @@ export class StateActivityService
                 await BuyOffer.Create(market.id, Config.GoldGoodId, goldreserve, currency.exchangeRate,
                     player.id);
             }
+            */
         }
     }
 
@@ -205,11 +208,16 @@ export class StateActivityService
     public static async AfterMarketCleanup()
     {
         for (const market of await Market.All()) {
-            const player = await StateActivityService.GetPlayer(market.id);
+            const pcheck = await StateActivityService.GetPlayer(market.id);
 
-            if (!player) {
-                return;
+            if (!pcheck.result) {
+                return pcheck;
             }
+
+            const player = pcheck.data;
+
+            player.CurrentMarketId = market.id;
+            await Player.Update(player);
 
             const calculatedprices = await CalculatedPrice.GetWithPlayer(player.id);
 
@@ -244,23 +252,28 @@ export class StateActivityService
 
     public static async CreateCash(playerId: number, amount: number)
     {
-        const player = await Player.GetById(playerId);
-        await Storage.AddGoodTo(player.CurrentMarketId,
+        const pcheck = await Player.GetById(playerId);
+        if (!pcheck.result) {
+            return pcheck;
+        }
+        const player = pcheck.data;
+        TurnsService.RegisterNewCash(amount);
+        return await Storage.AddGoodTo(player.CurrentMarketId,
             player.id,
             await Market.GetCashGoodId(player.CurrentMarketId),
             amount);
-        TurnsService.RegisterNewCash(amount);
     }
 
     public static async MakeStatistics()
     {
         for (const market of await Market.All()) {
             const currency = await market.getCurrency();
-            const player = await StateActivityService.GetPlayer(market.id);
+            const pcheck = await StateActivityService.GetPlayer(market.id);
 
-            if (!player) {
-                return;
+            if (!pcheck) {
+                return pcheck;
             }
+            const player = pcheck.data;
 
             const aggrgoods = await Storage.SumWithGood(await market.getCashGoodId());
 

@@ -31,5 +31,13 @@ export class GoodsList {
     public static LuxuryFood = 30;
     public static Stone = 31;
     public static StoneBlock = 32;
+    public static Glass = 33;
+    public static Beer = 34;
+    public static Wine = 35;
+    public static Lumber = 38;
+    public static Furniture = 39;
+    public static LuxuryFurniture = 40;
+    public static Barrels = 41;
+    public static Instruments = 42;
 
 }

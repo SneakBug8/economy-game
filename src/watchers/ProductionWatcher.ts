@@ -32,7 +32,11 @@ export class ProductionWatcher
 
     public static async OnProductionListener(event: ProductionEvent)
     {
-        const player = await Player.GetWithFactory(event.Factory);
+        const r1 = await Player.GetWithFactory(event.Factory);
+        if (!r1.result) {
+            return r1;
+        }
+        const player = r1.data;
         PlayerService.SendOffline(player.id, `Factory ${event.Factory.id} produced ${event.Amount} items`);
 
         for (const stat of ProductionWatcher.Stats) {

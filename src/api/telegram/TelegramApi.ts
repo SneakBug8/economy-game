@@ -64,7 +64,11 @@ async function TryTelegramUser(userId: number): Promise<boolean>
     const telegramuser = await TelegramUser.GetByUser(userId);
 
     if (telegramuser) {
-        const player = await Player.GetById(telegramuser.playerId);
+        const r1 = await Player.GetById(telegramuser.playerId);
+        if (!r1.result) {
+            return false;
+        }
+        const player = r1.data;
 
         const client = await TelegramClient.Create(telegramuser.chatId, telegramuser.userId, telegramuser.playerId, player.isAdmin !== 0);
 

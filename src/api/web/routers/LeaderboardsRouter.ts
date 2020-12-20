@@ -75,7 +75,11 @@ export class LeaderboardsRouter
         const props = [];
         for (const entry of data) {
             i++;
-            const player = await Player.GetById(entry.playerId);
+            const r1 = await Player.GetById(entry.playerId);
+            if (!r1.result) {
+                WebClientUtil.error(req, res, r1.message);
+            }
+            const player = r1.data;
 
             if (!Player.IsPlayable(player.id)) {
                 continue;

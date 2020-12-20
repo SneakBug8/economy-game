@@ -35,28 +35,6 @@ export class RGOsState extends State
     public async getKeyboard(): Promise<TelegramBot.KeyboardButton[][]>
     {
         const res: TelegramBot.KeyboardButton[][] = [];
-        const rgos = await Player.GetRGOsById(
-            await Player.GetCurrentMarketId(this.Client.playerId),
-            this.Client.playerId,
-            );
-
-        let subres: TelegramBot.KeyboardButton[] = [];
-        for (const rgo of rgos) {
-            subres.push({ text: "⛏ " + rgo.id + "" });
-            if (subres.length >= 3) {
-                res.push(subres);
-                subres = [];
-            }
-        }
-
-        if (subres.length > 0) {
-            res.push(subres);
-            subres = [];
-        }
-
-        res.push([{ text: "📄 /types" }, { text: "⚙️ /build" }, { text: "💣 /destroy" }],
-            [{ text: "📄 /info" }, { text: "📄 /help" }, { text: "❌ /back" }]);
-
         return res;
     }
 
@@ -103,28 +81,6 @@ export class RGOsState extends State
 
     private async waitingOnBuild(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("^([0-9]+)$");
-        if (registerregex.test(message)) {
-            const matches = registerregex.exec(message);
-
-            const player = await Player.GetById(this.Client.playerId);
-
-            const rgotypeid = Number.parseInt(matches[1], 10);
-
-            const result = await RGOManagementService.ConstructNew(player.id, rgotypeid);
-
-            if (typeof result !== "number") {
-                this.Client.write(result as string);
-                return true;
-            }
-
-            this.Client.write(`Successfuly built RGO with id ${result}`);
-
-            return true;
-        }
-
-        this.Client.write(`You entered wrong type. Use only numbers`);
-
         return false;
     }
 
@@ -141,28 +97,6 @@ export class RGOsState extends State
 
     private async waitingOnDestroy(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("^([0-9]+)$");
-        if (registerregex.test(message)) {
-            const matches = registerregex.exec(message);
-
-            const player = await Player.GetById(this.Client.userId);
-
-            const rgotypeid = Number.parseInt(matches[1], 10);
-
-            const result = await RGOManagementService.Destroy(player.id, rgotypeid);
-
-            if (typeof result !== "number") {
-                this.Client.write(result as string);
-                return true;
-            }
-
-            this.Client.write(`Successfuly destroyed RGO with id ${result}`);
-
-            return true;
-        }
-
-        this.Client.write(`You entered wrong type. Use only numbers`);
-
         return false;
     }
 
@@ -198,21 +132,6 @@ export class RGOsState extends State
 
     public async OnInfo(message: string): Promise<boolean>
     {
-        const regex = new RegExp("\/info$");
-        if (regex.test(message)) {
-            const rgos = await Player.GetRGOsById(
-                await Player.GetCurrentMarketId(this.Client.playerId),
-                this.Client.playerId,
-                );
-
-            this.Client.writeList<RGO>(rgos,
-                (x) => x.id,
-                (x) => `Employees: ${x.employeesCount} / ${x.getTargetEmployees()}, salary: ${x.salary}`,
-                "Your RGOs");
-
-            return true;
-        }
-
         return false;
     }
 

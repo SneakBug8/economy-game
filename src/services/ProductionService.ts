@@ -10,12 +10,16 @@ import { Good } from "entity/Good";
 export class ProductionService
 {
     // TODO: Factory effectiveness growth over time when not changing recipes
-    public static async Run(): Promise<void>
+    public static async Run()
     {
         for (const factory of await Factory.All()) {
             const queue = await ProductionQueue.GetWithFactory(factory);
 
-            const player = await factory.getOwner();
+            const r1 = await factory.getOwner();
+            if (!r1.result) {
+                return r1;
+            }
+            const player = r1.data;
 
             if (!queue) {
                 continue;
@@ -92,7 +96,7 @@ export class ProductionService
 
                     const good = await Good.GetById(output.GoodId);
 
-                    EventsList.onProduction.emit({
+                    await EventsList.onProduction.emit({
                         Factory: factory,
                         Good: good,
                         Amount: reciperepeats * output.amount,

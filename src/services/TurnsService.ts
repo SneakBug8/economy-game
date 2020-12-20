@@ -53,9 +53,9 @@ export class TurnsService
             PlayerService.Broadcast("Now is turn " + this.CurrentTurn.id);
             Log.LogText("Now is turn " + this.CurrentTurn.id);
             EventsList.onAfterNewTurn.emit(this.CurrentTurn);
-
-            this.FirstStart = false;
         }
+
+        this.FirstStart = false;
     }
 
     public static async EndTurn()
@@ -66,6 +66,8 @@ export class TurnsService
         await this.CalculateMedian();
         await this.CalculateWorkers();
 
+        PlayerService.Broadcast(`Turn ${this.CurrentTurn.id} ended.`);
+        Log.LogText(`Turn ${this.CurrentTurn.id} ended.`);
         EventsList.onBeforeNewTurn.emit(this.CurrentTurn);
 
         await Turn.Insert(this.CurrentTurn);
