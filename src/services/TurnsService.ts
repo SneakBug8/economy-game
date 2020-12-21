@@ -15,6 +15,7 @@ import { Config } from "config";
 import { MarketService } from "./MarketService";
 import { Currency } from "entity/finances/Currency";
 import { PlayerService } from "./PlayerService";
+import { PopulationActivityService } from "./PopulationActivityService";
 
 export class TurnsService
 {
@@ -65,6 +66,23 @@ export class TurnsService
         await this.CalculateBalance();
         await this.CalculateMedian();
         await this.CalculateWorkers();
+
+        for (const id of await StateActivityService.GetPlayerIds()) {
+            const r1 = await Player.GetById(id);
+            if (!r1.result) {
+                continue;
+            }
+            const player = r1.data;
+            PlayerService.SendOffline(player.id, `Had money: ${await player.AgetCash()}`);
+        }
+        for (const id of await PopulationActivityService.GetPlayerIds()) {
+            const r1 = await Player.GetById(id);
+            if (!r1.result) {
+                continue;
+            }
+            const player = r1.data;
+            PlayerService.SendOffline(player.id, `Had money: ${await player.AgetCash()}`);
+        }
 
         PlayerService.Broadcast(`Turn ${this.CurrentTurn.id} ended.`);
         Log.LogText(`Turn ${this.CurrentTurn.id} ended.`);

@@ -129,7 +129,10 @@ export class PopulationActivityService
                 if (p.type === CalculatedPriceType.Buy) {
                     const r = await BuyOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.id);
                     if (typeof r !== "string") {
-                        Logger.info(`Pop ${player.username} created buy order for ${p.amount} of ${p.goodId} at ${p.price}`);
+                        PlayerService.SendOffline(player.id,
+                            `Pop ${player.username} created buy order for ${p.amount} of ${p.goodId} at ${p.price}`
+                            );
+                        Logger.verbose(`Pop ${player.username} created buy order for ${p.amount} of ${p.goodId} at ${p.price}`);
                     }
                     else {
                         Logger.warn(r);
@@ -140,7 +143,9 @@ export class PopulationActivityService
                     await Storage.AddGoodTo(player.CurrentMarketId, player.id, p.goodId, p.amount);
                     const r = await SellOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.id);
                     if (typeof r !== "string") {
-                        Logger.info(`Pop ${player.username} created sell order for ${p.amount} of ${p.goodId} at ${p.price}`);
+                        PlayerService.SendOffline(player.id,
+                            `Pop ${player.username} created sell order for ${p.amount} of ${p.goodId} at ${p.price}`);
+                        Logger.verbose(`Pop ${player.username} created sell order for ${p.amount} of ${p.goodId} at ${p.price}`);
                     }
                     else {
                         Logger.warn(r);

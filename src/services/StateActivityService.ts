@@ -11,6 +11,7 @@ import { Logger } from "utility/Logger";
 import { Market } from "entity/Market";
 import { Statistics, ICurrencyRecord, StatisticsTypes } from "entity/Statistics";
 import { Requisite } from "./Requisites/Requisite";
+import { PlayerService } from "./PlayerService";
 
 export class StateActivityService
 {
@@ -136,7 +137,9 @@ export class StateActivityService
                 if (p.type === CalculatedPriceType.Buy) {
                     const r = await BuyOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.id);
                     if (typeof r !== "string") {
-                        Logger.info(`State ${player.username} created buy order for ${p.amount} of ${p.goodId} at ${p.price}`);
+                        Logger.verbose(`State ${player.username} created buy order for ${p.amount} of ${p.goodId} at ${p.price}`)
+                        PlayerService.SendOffline(player.id,
+                            `State ${player.username} created buy order for ${p.amount} of ${p.goodId} at ${p.price}`);
                     }
                     else {
                         Logger.warn(r);
@@ -147,6 +150,8 @@ export class StateActivityService
                     await Storage.AddGoodTo(player.CurrentMarketId, player.id, p.goodId, p.amount);
                     const r = await SellOffer.Create(player.CurrentMarketId, p.goodId, p.amount, p.price, player.id);
                     if (typeof r !== "string") {
+                        PlayerService.SendOffline(player.id,
+                            `State ${player.username} created sell order for ${p.amount} of ${p.goodId} at ${p.price}`)
                         Logger.info(`State ${player.username} created sell order for ${p.amount} of ${p.goodId} at ${p.price}`);
                     }
                     else {
