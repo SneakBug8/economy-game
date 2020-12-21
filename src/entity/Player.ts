@@ -137,7 +137,7 @@ export class Player
 
     public async Verbose()
     {
-        Log.LogTemp(`Player ${this.username} (${this.id}), cash: ${await this.AgetCash()}`);
+        Logger.info(`Player ${this.username} (${this.id}), cash: ${await this.AgetCash()}`);
     }
 
     public static async GetById(id: number)

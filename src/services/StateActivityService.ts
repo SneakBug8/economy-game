@@ -152,7 +152,7 @@ export class StateActivityService
                     if (typeof r !== "string") {
                         PlayerService.SendOffline(player.id,
                             `State ${player.username} created sell order for ${p.amount} of ${p.goodId} at ${p.price}`)
-                        Logger.info(`State ${player.username} created sell order for ${p.amount} of ${p.goodId} at ${p.price}`);
+                        Logger.verbose(`State ${player.username} created sell order for ${p.amount} of ${p.goodId} at ${p.price}`);
                     }
                     else {
                         Logger.warn(r);

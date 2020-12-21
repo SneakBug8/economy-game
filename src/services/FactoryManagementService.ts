@@ -45,7 +45,6 @@ export class FactoryManagementService
                 r2.data,
                 canpay);
 
-            Log.LogTemp(`[Factory] ${player.username} paid ${canpay} salary for ${factory.id}`);
             PlayerService.SendOffline(player.id, `Factory ${factory.id} paid ${canpay} in salaries`);
 
             // Increase employees count

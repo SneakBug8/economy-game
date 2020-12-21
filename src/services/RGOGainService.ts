@@ -6,6 +6,7 @@ import { Logger } from "utility/Logger";
 import { RGOMarketToType } from "entity/RGOMarketToType";
 import { RGOService } from "./RGOService";
 import { RecipeEntry } from "entity/Recipe";
+import { Dice } from "utility/Dice";
 
 export class RGOGainService
 {
@@ -38,7 +39,7 @@ export class RGOGainService
             }
 
             // Break instruments
-            const instumentsbroken = Math.round(type.InstrumentBreakChance * repeats);
+            const instumentsbroken = Dice.Multiple(repeats, type.InstrumentBreakChance);
             await Storage.TakeGoodFrom(rgo.marketId, player.id, type.InstrumentGoodId, instumentsbroken);
 
             const link = await RGOMarketToType.GetMarketTypeLink(rgo.marketId, rgo.typeId);

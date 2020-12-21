@@ -10,6 +10,7 @@ import { StateActivityService } from "./StateActivityService";
 import { Market } from "entity/Market";
 import { PopulationActivityService } from "./PopulationActivityService";
 import { Requisite } from "./Requisites/Requisite";
+import { off } from "process";
 
 export class PlayerService
 {
@@ -43,22 +44,22 @@ export class PlayerService
     }
 
     public static async SendOffline(playerId: number, message: string) {
-        Logger.info(`to ${playerId}: ${message}`);
-        PlayerLog.Log(playerId, TurnsService.CurrentTurn, message);
+        Logger.verbose(`to ${playerId}: ${message}`);
+        await PlayerLog.Log(playerId, TurnsService.CurrentTurn, message);
 
         if (Runner.ApiProvider) {
             await Runner.ApiProvider.sendOffline(playerId, message);
         }
     }
 
-    public static async Broadcast(message: string) {
+    public static async Broadcast(message: string, offline: boolean = false) {
         Logger.info(`Announcement: ${message}`);
 
         for (const player of await Player.All()) {
             await PlayerLog.Log(player.id, TurnsService.CurrentTurn, message);
         }
 
-        if (Runner.ApiProvider) {
+        if (Runner.ApiProvider && offline) {
             await Runner.ApiProvider.broadcast(message);
         }
     }

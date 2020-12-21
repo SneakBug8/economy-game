@@ -73,7 +73,7 @@ export class TurnsService
                 continue;
             }
             const player = r1.data;
-            PlayerService.SendOffline(player.id, `Had money: ${await player.AgetCash()}`);
+            await PlayerService.SendOffline(player.id, `Had money: ${await player.AgetCash()}`);
         }
         for (const id of await PopulationActivityService.GetPlayerIds()) {
             const r1 = await Player.GetById(id);
@@ -81,7 +81,7 @@ export class TurnsService
                 continue;
             }
             const player = r1.data;
-            PlayerService.SendOffline(player.id, `Had money: ${await player.AgetCash()}`);
+            await PlayerService.SendOffline(player.id, `Had money: ${await player.AgetCash()}`);
         }
 
         PlayerService.Broadcast(`Turn ${this.CurrentTurn.id} ended.`);

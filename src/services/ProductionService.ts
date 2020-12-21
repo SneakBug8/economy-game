@@ -6,6 +6,7 @@ import { ProductionQueue } from "entity/ProductionQueue";
 import { PlayerService } from "./PlayerService";
 import { Logger } from "utility/Logger";
 import { Good } from "entity/Good";
+import { Dice } from "utility/Dice";
 
 export class ProductionService
 {
@@ -87,7 +88,7 @@ export class ProductionService
                 }
 
                 // Break instruments
-                const instumentsbroken = Math.round(recipe.InstrumentBreakChance * reciperepeats);
+                const instumentsbroken = Dice.Multiple(reciperepeats, recipe.InstrumentBreakChance);
                 await Storage.TakeGoodFrom(factory.marketId, player.id, recipe.InstrumentGoodId, instumentsbroken);
 
                 // Give outputs
