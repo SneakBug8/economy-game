@@ -88,7 +88,7 @@ export class DealsRouter
         const deal = await Deal.GetById(dealId);
 
         if (!deal) {
-            WebClientUtil.error(req, res, "No such deal");
+            res.redirect(req.baseUrl + "/");
             return;
         }
 
