@@ -51,7 +51,7 @@ export class StatisticsRouter
         const labels = [];
 
         for (const market of await Market.All()) {
-            const stateplayerid = StateActivityService.PlayersMap.get(market.id);
+            const stateplayerid = await StateActivityService.GetPlayerId(market.id);
 
             if (!stateplayerid) {
                 continue;

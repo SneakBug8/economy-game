@@ -38,7 +38,8 @@ export class WebConsoleRouter
             return;
         }
 
-        if (currplayer.id > 4){
+        if (!currplayer.isAdmin){
+            WebClientUtil.error(req, res, "You're not an admin");
             return;
         }
 

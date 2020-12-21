@@ -41,7 +41,7 @@ export class WebClient
 
     public async attach(playerid: number)
     {
-        Logger.info(`Player ${playerid} logined with client ${this.clientId}`);
+        Logger.info(`Player id ${playerid} logined with client ${this.clientId}`);
         this.playerId = playerid;
         WebClientUtil.clients = WebClientUtil.clients.filter((x) => x.playerId !== this.playerId || x.clientId === this.clientId);
     }

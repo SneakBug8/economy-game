@@ -377,14 +377,14 @@ export class Player
         return new Requisite(false);
     }
 
-    public static IsPlayable(playerId: number) {
-        for (const i of StateActivityService.PlayersMap.values()) {
+    public static async IsPlayable(playerId: number) {
+        for (const i of await StateActivityService.GetPlayerIds()) {
             if (playerId === i) {
                 return false;
             }
         }
 
-        for (const i of PopulationActivityService.PlayersMap.values()) {
+        for (const i of await PopulationActivityService.GetPlayerIds()) {
             if (playerId === i) {
                 return false;
             }

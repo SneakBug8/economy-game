@@ -51,33 +51,23 @@ export class Runner
 
     public static async Turn()
     {
+        console.time("Turn");
         // Production
-
         await TurnsService.CheckBalance();
 
         await RGOGainService.Run();
-
-        await sleep(3000);
 
         await ProductionService.Run();
 
         await TurnsService.CheckBalance();
 
-        await sleep(3000);
-
         // Salaries and employees
         await FactoryManagementService.Run();
 
-        await sleep(3000);
-
         await RGOManagementService.Run();
-
-        await sleep(3000);
 
         // Trade
         await MarketService.Run();
-
-        await sleep(3000);
 
         await TurnsService.CheckBalance();
 
@@ -89,5 +79,7 @@ export class Runner
 
         await TurnsService.EndTurn();
         await TurnsService.StartTurn();
+
+        console.timeEnd("Turn");
     }
 }

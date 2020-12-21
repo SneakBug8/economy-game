@@ -27,7 +27,7 @@ export class GoldMinesService
     public static async onAfterNewTurn()
     {
         for (const keyvalue of GoldMinesService.GoldMines) {
-            const playerid = StateActivityService.PlayersMap.get(keyvalue[0]);
+            const playerid = await StateActivityService.GetPlayerId(keyvalue[0]);
 
             if (playerid) {
                 await StateActivityService.CreateCash(playerid, keyvalue[1]);

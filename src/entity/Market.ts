@@ -12,6 +12,8 @@ export class Market
     public govStrategy: string;
     public GovStrategy: IGovernmentStrategy;
     public image: string;
+    public govPlayerId: number;
+    public popPlayerId: number;
     // How much currency can you buy with one gold
 
     public static DefaultMarket: Market;
@@ -48,6 +50,8 @@ export class Market
         res.govStrategy = dbobject.govStrategy;
         res.GovStrategy = JSON.parse(res.govStrategy) || {};
         res.image = dbobject.image;
+        res.govPlayerId = dbobject.govPlayerId;
+        res.popPlayerId = dbobject.popPlayerId;
 
         return res;
     }

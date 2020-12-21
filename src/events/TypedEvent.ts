@@ -1,3 +1,4 @@
+import { asyncForEach } from "utility/asyncForEach";
 import { Logger } from "utility/Logger";
 
 export type Listener<T> = (event: T) => any;
@@ -35,18 +36,14 @@ export class TypedEvent<T> {
     {
         try {
             /** Update any general listeners */
-            this.listeners.forEach(async function (x) {
-                await x(event);
-            });
+            await asyncForEach(this.listeners, async (x) => await x(event));
 
             /** Clear the `once` queue */
             if (this.listenersOncer.length > 0) {
                 const toCall = this.listenersOncer;
                 this.listenersOncer = [];
 
-                toCall.forEach(async function (x) {
-                    await x(event);
-                });
+                await asyncForEach(toCall, async (x) => await x(event));
             }
         }
         catch (e) {

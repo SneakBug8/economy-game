@@ -14,11 +14,6 @@ import { TurnsService } from "./TurnsService";
 
 export class PopulationActivityService
 {
-    public static readonly PlayersMap: Map<number, number> = new Map([
-        [1, 4],
-        [2, 2],
-    ]);
-
     public static Initialized = false;
 
     public static async Init()
@@ -33,13 +28,25 @@ export class PopulationActivityService
         }
     }
 
+    public static async GetPlayerIds() {
+        let markets = await Market.All();
+        const ids = await Promise.all(markets.map(async (x) => await this.GetPlayerId(x.id)));
+        return ids.filter(x => x);
+    }
+
+    public static async GetPlayerId(marketId: number) {
+        const market = await Market.GetById(marketId);
+        return market.popPlayerId;
+    }
+
     public static async GetPlayer(marketId: number)
     {
-        if (!this.PlayersMap.get(marketId)) {
+        const plid = await this.GetPlayerId(marketId);
+        if (!plid) {
             return new Requisite<Player>().error("no population player ID for market " + marketId);
         }
 
-        return await Player.GetById(this.PlayersMap.get(marketId));
+        return await Player.GetById(plid);
     }
 
     public static async MakeStatistics(t: Turn)
