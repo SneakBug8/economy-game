@@ -71,8 +71,8 @@ export class DealsRouter
         }
 
         const answer = await Deal.Create(currplayer.CurrentMarketId, currplayer.id, player.id);
-        if (typeof answer !== "number") {
-            WebClientUtil.error(req, res, answer as string);
+        if (!answer.result) {
+            WebClientUtil.error(req, res, answer.message);
             return;
         }
 

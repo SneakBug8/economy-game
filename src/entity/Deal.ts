@@ -1,5 +1,6 @@
 import { Connection } from "DataBase";
 import { PlayerService } from "services/PlayerService";
+import { Requisite } from "services/Requisites/Requisite";
 import { MapToObject } from "utility/MapToObject";
 import { Good } from "./Good";
 import { GoodsBucketHelpers, IGoodsBucket } from "./interfaces/IGoodsBucket";
@@ -53,7 +54,7 @@ export class Deal
         record.toId = toId;
         record.marketId = marketId;
 
-        return await this.Insert(record);
+        return new Requisite(await this.Insert(record));
     }
 
     public async addGood(playerId: number, goodId: number, amount: number)

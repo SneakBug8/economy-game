@@ -69,6 +69,11 @@ export class WebClientUtil
             req.client.appendUrl(req.originalUrl);
         }
 
+        if (data && "helpers" in data && res.locals && "helpers" in res.locals) {
+            res.locals.helpers = Object.assign(res.locals.helpers, (data as any).helpers);
+            (data as any).helpers = undefined;
+        }
+
         res.render(template, {
             ...res.locals,
             layout: this.getInfopagesLayout(req),
@@ -166,15 +171,23 @@ export class WebClientUtil
 
     public static async LoadGoods(req: IMyRequest, res: express.Response, next: () => void)
     {
-        const goods = await Good.All();
+        let goods = await Good.All();
+        goods = goods.map((x, i) => Object.assign(x, {i}));
         res.locals.goods = goods;
+        res.locals.helpers = {
+            changerow: ((x) => x % 3 === 0),
+        }
         next();
     }
 
     public static async LoadTradeableGoods(req: IMyRequest, res: express.Response, next: () => void)
     {
-        const goods = await MarketService.GetTradeableGoods();
+        let goods = await Good.All();
+        goods = goods.map((x, i) => Object.assign(x, {i}));
         res.locals.goods = goods;
+        res.locals.helpers = {
+            changerow: ((x) => x % 3 === 0),
+        }
         next();
     }
 

@@ -1,14 +1,14 @@
 <script>
     $(document).ready(function () {
         var id = null;
-        $("#{{inputId}}selector tr").each(function (i, elem) {
+        $("#{{inputId}}selector td").each(function (i, elem) {
             $(elem).click(onClick);
         })
 
         function onClick() {
             id = $(this).attr("id");
             $("#{{inputId}}").val(id);
-            $("#{{inputId}}selector tr").each(function (i, elem) {
+            $("#{{inputId}}selector td").each(function (i, elem) {
                 $(elem).removeClass("selected");
             });
             $(this).addClass("selected");
@@ -22,9 +22,8 @@
         <th>Название</th>
     </thead>
     {{#each goods}}
-    <tr id="{{this.id}}">
-        <td>{{this.name}} ({{this.id}})</td>
-    </tr>
+    {{#if (changerow this.i)}}</tr><tr>{{/if}}
+        <td id="{{this.id}}">{{this.name}} ({{this.id}})</td>
     {{/each}}
 </table>
 </div>
