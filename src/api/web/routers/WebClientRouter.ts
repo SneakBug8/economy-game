@@ -221,6 +221,10 @@ export class WebClientRouter
         if (user) {
             await req.client.attach(user.id);
         }
+        else {
+            WebClientUtil.error(req, res, "Wrong login or password");
+            return;
+        }
 
         res.redirect("/");
     }
