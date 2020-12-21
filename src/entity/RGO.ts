@@ -4,6 +4,7 @@ import { ProductionQueue } from "./ProductionQueue";
 import { Player } from "./Player";
 import { RGOType } from "./RGOType";
 import { Logger } from "utility/Logger";
+import { RecipeEntry } from "./Recipe";
 
 export class RGO
 {
@@ -69,7 +70,7 @@ export class RGO
         this.settings = JSON.stringify(settings);
     }
 
-    public static async From(dbobject: any): Promise<RGO>
+    public static From(dbobject: any)
     {
         const res = new RGO();
         res.id = dbobject.id;
@@ -117,18 +118,7 @@ export class RGO
     public static async GetWithType(typeid: number): Promise<RGO[]>
     {
         const data = await RGORepository().select().where("typeId", typeid);
-
-        const res = new Array<RGO>();
-
-        if (data) {
-            for (const entry of data) {
-                res.push(await this.From(entry));
-            }
-
-            return res;
-        }
-
-        return [];
+        return data.map((x) => this.From(x));
     }
 
     public static async CountWithType(marketId: number, typeid: number): Promise<number>
@@ -150,10 +140,11 @@ export class RGO
         if (!rgo) {
             return;
         }
-        const type = await rgo.getType();
-        const good = await type.getGood();
 
-        return `Yields ${good.name} for every ${1 / type.efficiency} workers.`;
+        const type = await rgo.getType();
+        const descr = await RecipeEntry.toString(type.Produces);
+
+        return `Yields ${descr} for every ${1 / type.efficiency} workers.`;
     }
 
     public static async Update(rgo: RGO)

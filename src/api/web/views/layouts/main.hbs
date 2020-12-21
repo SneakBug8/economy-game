@@ -45,16 +45,46 @@
     </div>
   </nav>}}
   <script>
-    function openmenu() {
-      $(".sidebar").toggle();
+    var s1 = localStorage.getItem("s1");
+    var s2 = localStorage.getItem("s2");
+    if (s1 === null || s1 === undefined) {
+      s1 = true;
     }
+    else {
+      s1 = s1 == "true";
+    }
+    if (s2 === null || s2 === undefined) {
+      s2 = true;
+    }
+    else {
+      s2 = s2 == "true";
+    }
+    function openmenu() {
+      $("#sidebar").toggle();
+      s1 = !s1;
+      localStorage.setItem("s1", s1);
+    }
+    function openrightmenu() {
+      $("#rightsidebar").toggle();
+      s2 = !s2;
+      localStorage.setItem("s2", s2);
+    }
+    $(document).ready(function () {
+      if (!s1) {
+        $("#sidebar").hide();
+      }
+      if (!s2) {
+        $("#rightsidebar").hide();
+      }
+    })
   </script>
   <main class="window">
     <header class="toolbar toolbar-header">
       <h1 class="title">Economy game</h1>
       <div class="toolbar-actions">
         <div class="btn-group pull">
-          <a href="javascript:openmenu()" class="btn btn-default sm-only">Меню</a>
+          <a href="javascript:openmenu()" class="btn btn-default">Меню</a>
+          <a href="javascript:openrightmenu()" class="btn btn-default">Список игроков</a>
           <a href="/console/changeTurn" class="btn btn-default">Сменить ход (Debug)</a>
         </div>
         <div class="btn-group pull-right">
@@ -66,7 +96,7 @@
     </header>
     <div class="window-content">
       <div class="pane-group">
-        <div class="pane-sm sidebar">
+        <div id="sidebar" class="pane-sm sidebar">
           {{> marketcard}}
           {{> playercard}}
           <nav class="nav-group">
@@ -92,6 +122,10 @@
           {{!--<a href="{{backurl}}">← Назад</a>--}}
           {{{body}}}
           <img class="voc clearfix" src="/images/voc.gif">
+        </article>
+        <div id="rightsidebar" class="pane-sm sidebar">
+          {{> playerslist}}
+        </div>
       </div>
     </div>
     <footer class="toolbar toolbar-footer">

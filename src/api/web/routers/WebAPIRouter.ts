@@ -20,8 +20,6 @@ import { PlayerLog } from "entity/PlayerLog";
 import { MarketService } from "services/MarketService";
 import { BuyOffer } from "entity/BuyOffer";
 import { SellOffer } from "entity/SellOffer";
-import { Consumption } from "entity/Consumption";
-import { Production } from "entity/Production";
 import { LeaderboardService } from "services/LeaderboardService";
 
 export class WebAPIRouter
@@ -955,10 +953,10 @@ export class WebAPIRouter
             };
 
             for (const input of recipe.Requisites) {
-                entry.requisites += `${input.amount} ${input.Good.name}`;
+                entry.requisites += `${input.Amount} ${input.Good.name}`;
             }
             for (const output of recipe.Results) {
-                entry.results += `${output.amount} ${output.Good.name}`;
+                entry.results += `${output.Amount} ${output.Good.name}`;
             }
 
             data.push(entry);

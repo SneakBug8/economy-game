@@ -1,35 +1,20 @@
 import { Connection } from "DataBase";
-import { Log } from "./Log";
 import { Player } from "./Player";
-import { Good } from "./Good";
-import { Logger } from "utility/Logger";
+import { RecipeEntry } from "./Recipe";
 
 export class RGOType
 {
     public id: number;
     public name: string;
     public efficiency: number = 1;
-    private goodId: number;
+    public Produces: RecipeEntry[];
     public lockedByDefault: boolean;
 
     public InstrumentGoodId: number = null;
     public InstrumentBreakChance: number = 0;
 
-    public async getGood(): Promise<Good>
-    {
-        return Good.GetById(this.goodId);
-    }
-    public getGoodId(): number
-    {
-        return this.goodId;
-    }
-    public setGood(good: Good)
-    {
-        this.goodId = good.id;
-    }
-    public setGoodId(goodId: number)
-    {
-        this.goodId = goodId;
+    public async getProducesString() {
+        return await RecipeEntry.toString(this.Produces);
     }
 
     public static From(dbobject: any): RGOType
@@ -37,7 +22,7 @@ export class RGOType
         const res = new RGOType();
         res.id = dbobject.id;
         res.efficiency = dbobject.efficiency;
-        res.goodId = dbobject.goodId;
+        res.Produces = RecipeEntry.Deserialize(dbobject.Produces);
         res.name = dbobject.name;
         res.lockedByDefault = dbobject.lockedByDefault === 1;
         res.InstrumentBreakChance = dbobject.InstrumentBreakChance;

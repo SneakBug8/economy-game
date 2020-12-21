@@ -13,8 +13,6 @@ export class DealsRouter
     {
         const router = express.Router();
 
-        router.use((req, res, next) => WebClientUtil.LoadPlayerData(req, res, next));
-
         router.use(bodyParser.urlencoded({ extended: true }));
 
         router.get("/", [WebClientUtil.RedirectUnlogined], this.onHome);

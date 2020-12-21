@@ -102,19 +102,6 @@ export class RGOsState extends State
 
     public async OnTypes(message: string): Promise<boolean>
     {
-        const regex = new RegExp("\/types$");
-        if (regex.test(message)) {
-            const types = await RGOType.All();
-
-            this.Client.writeList<RGOType>(types,
-                (x) => x.id,
-                async (x) => `${x.name}. Makes ${(await x.getGood()).name}, takes ${1 / x.efficiency} workers. ` +
-                `Resources to build: ${await this.formResourcesString(x)}`,
-                "All types of RGO you can build");
-
-            return true;
-        }
-
         return false;
     }
 
@@ -123,7 +110,7 @@ export class RGOsState extends State
         const costs = Config.RGOCostsDictionary.get(x.id);
 
         for (const req of costs) {
-            const good = await Good.GetById(req.goodId);
+            const good = await Good.GetById(req.GoodId);
             res += `${req.Amount} ${good.name}`;
         }
 

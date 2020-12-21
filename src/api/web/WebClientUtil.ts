@@ -15,10 +15,17 @@ export class WebClientUtil
 {
     public static clients = new Array<WebClient>();
 
+    public static GenerateRequestId(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        req.id = Math.round(Math.random() * 100000);
+        next();
+    }
+
     public static LoadPlayerData(req: IMyRequest, res: express.Response, next: () => void)
     {
         for (const client of WebClientUtil.clients) {
             if (req.cookies.id && req.cookies.id + "" === client.clientId + "") {
+                client.lastAccess = Date.now();
                 req.client = client;
                 next();
                 return;
@@ -30,7 +37,7 @@ export class WebClientUtil
             id = Math.round(Math.random() * 100000);
         }
 
-        Logger.info("New client id " + id + " from " + req.ip);
+        Logger.info(`New client id ${id} from ${req.ip} in request ${req.id}`);
 
         res.cookie("id", id);
 
@@ -39,6 +46,11 @@ export class WebClientUtil
 
         req.client = client;
         next();
+    }
+
+    public static ClearPlayersList()
+    {
+        WebClientUtil.clients = WebClientUtil.clients.filter((x) => Date.now() - x.lastAccess < 60 * 60 * 1000);
     }
 
     public static RedirectUnlogined(req: IMyRequest, res: express.Response, next: () => void)
@@ -101,6 +113,26 @@ export class WebClientUtil
     public static isLogined(req: IMyRequest)
     {
         return req.client && req.client.playerId;
+    }
+
+    public static async LoadOnlinePlayers(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        const players = [];
+        const clients = [];
+        for (const cl of WebClientUtil.clients) {
+            if (cl.playerId) {
+                const r1 = await Player.GetById(cl.playerId);
+                if (!r1.result) {
+                    continue;
+                }
+                players.push(r1.data.username);
+            }
+            else {
+                clients.push(cl.clientId);
+            }
+        }
+        res.locals.players = players.concat(clients);
+        next();
     }
 
     public static async LoadRecipes(req: IMyRequest, res: express.Response, next: () => void)
@@ -178,4 +210,5 @@ export class WebClientUtil
 export interface IMyRequest extends express.Request
 {
     client?: WebClient;
+    id?: number;
 }

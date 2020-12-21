@@ -1,4 +1,5 @@
 import { Good } from "entity/Good";
+import { RecipeEntry } from "entity/Recipe";
 import { RecipesService } from "services/RecipesService";
 
 export class Config
@@ -34,12 +35,9 @@ export class Config
 
     public static EverydayInflation = 0.01;
 
-    public static NewFactoryCosts: Array<{ goodId: number, Amount: number }> =
+    public static NewFactoryCosts: RecipeEntry[] =
     [
-        {
-            goodId: 2,
-            Amount: 300,
-        },
+        new RecipeEntry(2, 300),
     ];
 
     public static MarketingCost = 100;
@@ -47,20 +45,14 @@ export class Config
     public static GoldGoodId = 1;
 
     // Dictionary <RGOType.id, Dictionary <Good.id, amount>>
-    public static RGOCostsDictionary: Map<number, Array<{ goodId: number, Amount: number }> > = new Map(
+    public static RGOCostsDictionary: Map<number, RecipeEntry[] > = new Map(
         [
             [1, [
-                {
-                    goodId: 2,
-                    Amount: 300,
-                },
+                new RecipeEntry(2, 300),
             ]],
         ]);
 
-    public static DefaultRGOCosts: Array<{ goodId: number, Amount: number }> = [
-            {
-                goodId: 2,
-                Amount: 300,
-            },
+    public static DefaultRGOCosts: RecipeEntry[] = [
+        new RecipeEntry(2, 300),
     ];
 }

@@ -40,28 +40,6 @@ export class FactoriesState extends State
 
     public async OnRecipes(message: string): Promise<boolean>
     {
-        const registerregex = new RegExp("\/recipes$");
-        if (registerregex.test(message)) {
-
-            const recipes = RecipesService.All;
-
-            this.Client.writeList<Recipe>(recipes, (x) => x.id, (x) => {
-                let res = `${x.name}: `;
-                for (const input of x.Requisites) {
-                    res += `${input.amount} ${input.Good.name}`;
-                }
-                res += " => ";
-                for (const output of x.Results) {
-                    res += `${output.amount} ${output.Good.name}`;
-                }
-                res += ", workers: " + x.employeesneeded;
-
-                return res;
-            });
-
-            return true;
-        }
-
         return false;
     }
 

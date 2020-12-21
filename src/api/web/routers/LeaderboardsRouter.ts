@@ -12,8 +12,6 @@ export class LeaderboardsRouter
     {
         const router = express.Router();
 
-        router.use((req, res, next) => WebClientUtil.LoadPlayerData(req, res, next));
-
         router.get("/", this.onLeaderboard);
         router.get("/cash", this.onLeaderboardRichest);
         router.get("/factoryworkers", this.onLeaderboardFactoryWorkers);

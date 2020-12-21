@@ -14,8 +14,6 @@ export class MarketsRouter
     {
         const router = express.Router();
 
-        router.use((req, res, next) => WebClientUtil.LoadPlayerData(req, res, next));
-
         router.get("/move", [WebClientUtil.RedirectUnlogined], this.onMove);
         router.get("/move/:id([0-9]+)", [WebClientUtil.RedirectUnlogined], this.onMoveAction);
 

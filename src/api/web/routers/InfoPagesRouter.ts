@@ -9,8 +9,6 @@ export class InfoPagesRouter
     {
         const router = express.Router();
 
-        router.use((req, res, next) => WebClientUtil.LoadPlayerData(req, res, next));
-
         router.get("/good/:id([0-9]+)", this.onGoodSingle);
 
         return router;

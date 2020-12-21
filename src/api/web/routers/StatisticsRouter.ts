@@ -20,8 +20,6 @@ export class StatisticsRouter
     {
         const router = express.Router();
 
-        router.use((req, res, next) => WebClientUtil.LoadPlayerData(req, res, next));
-
         router.get("/", this.onHome);
         router.get("/inflation", this.OnInflation);
         router.get("/workers", this.OnWorkers);

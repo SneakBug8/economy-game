@@ -5,6 +5,7 @@ import { RGO } from "entity/RGO";
 import { Logger } from "utility/Logger";
 import { RGOMarketToType } from "entity/RGOMarketToType";
 import { RGOService } from "./RGOService";
+import { RecipeEntry } from "entity/Recipe";
 
 export class RGOGainService
 {
@@ -45,15 +46,18 @@ export class RGOGainService
             const efficiency = RGOService.CalculateEfficiency(type, link);
 
             const amountproduced = Math.round(repeats * efficiency);
-            await Storage.AddGoodTo(rgo.marketId, player.id, type.getGoodId(), amountproduced);
 
-            PlayerService.SendOffline(player.id, `RGO ${rgo.id} gathered ${amountproduced} ${await (await type.getGood()).name}`);
+            for (const output of type.Produces) {
+                await Storage.AddGoodTo(rgo.marketId, player.id, output.GoodId, amountproduced * output.Amount);
+            }
 
-            await EventsList.onRGOGain.emit({
+            PlayerService.SendOffline(player.id, `RGO ${rgo.id} gathered ${amountproduced} packs of ${await RecipeEntry.toString(type.Produces)}`);
+
+            /*await EventsList.onRGOGain.emit({
                 RGO: rgo,
                 Good: await type.getGood(),
                 Amount: amountproduced,
-            });
+            });*/
         }
 
         Logger.info("Ran RGO Gain service");

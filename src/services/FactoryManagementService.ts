@@ -9,6 +9,7 @@ import { Storage } from "entity/Storage";
 import { PopulationActivityService } from "./PopulationActivityService";
 import { Logger } from "utility/Logger";
 import { Requisite } from "./Requisites/Requisite";
+import { RecipeEntry } from "entity/Recipe";
 
 export class FactoryManagementService
 {
@@ -82,20 +83,7 @@ export class FactoryManagementService
 
     public static async NewFactoryCostsString()
     {
-        let res = "";
-        let i = 0;
-        for (const cost of Config.NewFactoryCosts) {
-            const good = await Good.GetById(cost.goodId);
-            if (Config.NewFactoryCosts.length === 1 || i === Config.NewFactoryCosts.length - 1) {
-                res += `${cost.Amount} ${good.name}`;
-            }
-            else {
-                res += `${cost.Amount} ${good.name}, `;
-            }
-            i++;
-        }
-
-        return res;
+        return await RecipeEntry.toString(Config.NewFactoryCosts);
     }
 
     public static async ConstructNew(playerid: number, marketId: number)
@@ -120,7 +108,7 @@ export class FactoryManagementService
         }
 
         for (const costentry of costs) {
-            const good = await Good.GetById(costentry.goodId);
+            const good = await Good.GetById(costentry.GoodId);
 
             if (!good) {
                 return new Requisite().error("Wrong Factory construction recipe. Contact the admins.");
@@ -132,7 +120,7 @@ export class FactoryManagementService
         }
 
         for (const costentry of costs) {
-            const good = await Good.GetById(costentry.goodId);
+            const good = await Good.GetById(costentry.GoodId);
 
             await Storage.TakeGoodFrom(marketId, player.id, good.id, costentry.Amount);
         }
@@ -163,7 +151,7 @@ export class FactoryManagementService
         for (const costentry of costs) {
             const upgradeamount = Math.round(costentry.Amount * Math.pow(1.5, factory.level));
 
-            const good = await Good.GetById(costentry.goodId);
+            const good = await Good.GetById(costentry.GoodId);
 
             if (!good) {
                 return "Wrong RGO construction recipe. Contact the admins.";
@@ -177,7 +165,7 @@ export class FactoryManagementService
         for (const costentry of costs) {
             const upgradeamount = Math.round(costentry.Amount * Math.pow(1.5, factory.level));
 
-            const good = await Good.GetById(costentry.goodId);
+            const good = await Good.GetById(costentry.GoodId);
 
             await Storage.TakeGoodFrom(factory.marketId, player.id, good.id, upgradeamount);
 
@@ -209,7 +197,7 @@ export class FactoryManagementService
         for (const costentry of costs) {
             const upgradeamount = Math.round(costentry.Amount * Math.pow(1.5, factory.level));
 
-            const good = await Good.GetById(costentry.goodId);
+            const good = await Good.GetById(costentry.GoodId);
 
             if (!good) {
                 return "Wrong RGO construction recipe. Contact the admins.";

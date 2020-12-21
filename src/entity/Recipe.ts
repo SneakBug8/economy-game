@@ -18,14 +18,8 @@ export class Recipe
         res.id = dbobject.id;
         res.name = dbobject.name;
 
-        const r = new Map<number, number>(JSON.parse(dbobject.Requisites));
-        for (const i of r) {
-            res.Requisites.push(new RecipeEntry(i[0], i[1]));
-        }
-        const m = new Map<number, number>(JSON.parse(dbobject.Requisites));
-        for (const i of m) {
-            res.Results.push(new RecipeEntry(i[0], i[1]));
-        }
+        res.Requisites = RecipeEntry.Deserialize(dbobject.Requisites);
+        res.Results = RecipeEntry.Deserialize(dbobject.Results);
         res.InstrumentGoodId = dbobject.InstrumentGoodId;
         res.InstrumentBreakChance = dbobject.InstrumentBreakChance;
         res.employeesneeded = dbobject.employeesneeded;
@@ -71,22 +65,12 @@ export class Recipe
         }
         return r;
     }
-
-    async Init() {
-        for (const req of this.Requisites) {
-            await req.Init();
-        }
-        for (const req of this.Results) {
-            await req.Init();
-        }
-    }
 }
 
 export class RecipeEntry
 {
     public GoodId: number;
-    public Good: Good;
-    public amount: number;
+    public Amount: number;
 
     constructor(goodId?: number, amount?: number)
     {
@@ -95,12 +79,34 @@ export class RecipeEntry
         }
 
         if (amount) {
-            this.amount = amount;
+            this.Amount = amount;
         }
     }
 
-    async Init() {
-        this.Good = await Good.GetById(this.GoodId);
+    public static Deserialize(input: string) {
+        const r = new Map<number, number>(JSON.parse(input));
+        const m: RecipeEntry[] = [];
+        for (const i of r) {
+            m.push(new RecipeEntry(i[0], i[1]));
+        }
+        return m;
+    }
+
+    public static async toString(inp: RecipeEntry[]) {
+        let res = "";
+        let i = 0;
+        for (const cost of inp) {
+            const good = await Good.GetById(cost.GoodId);
+            if (inp.length === 1 || i === inp.length - 1) {
+                res += `${cost.Amount} ${good.name}`;
+            }
+            else {
+                res += `${cost.Amount} ${good.name}, `;
+            }
+            i++;
+        }
+
+        return res;
     }
 }
 export const RecipesRepository = () => Connection<Recipe>("Recipes");

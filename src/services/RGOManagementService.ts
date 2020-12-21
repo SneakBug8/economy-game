@@ -86,7 +86,7 @@ export class RGOManagementService
         let res = "";
         let i = 0;
         for (const cost of costs) {
-            const good = await Good.GetById(cost.goodId);
+            const good = await Good.GetById(cost.GoodId);
             if (costs.length === 1 || i === costs.length - 1) {
                 res += `${cost.Amount} ${good.name}`;
             }
@@ -130,7 +130,7 @@ export class RGOManagementService
         }
 
         for (const costentry of costs) {
-            const good = await Good.GetById(costentry.goodId);
+            const good = await Good.GetById(costentry.GoodId);
 
             if (!good) {
                 return "Wrong RGO construction recipe. Contact the admins.";
@@ -142,7 +142,7 @@ export class RGOManagementService
         }
 
         for (const costentry of costs) {
-            const good = await Good.GetById(costentry.goodId);
+            const good = await Good.GetById(costentry.GoodId);
 
             await Storage.TakeGoodFrom(player.CurrentMarketId, player.id, good.id, costentry.Amount);
         }
@@ -177,7 +177,7 @@ export class RGOManagementService
         for (const costentry of costs) {
             const upgradeamount = costentry.Amount * Math.pow(1.5, rgo.level);
 
-            const good = await Good.GetById(costentry.goodId);
+            const good = await Good.GetById(costentry.GoodId);
 
             if (!good) {
                 return "Wrong RGO construction recipe. Contact the admins.";
@@ -191,7 +191,7 @@ export class RGOManagementService
         for (const costentry of costs) {
             const upgradeamount = costentry.Amount * Math.pow(1.5, rgo.level);
 
-            const good = await Good.GetById(costentry.goodId);
+            const good = await Good.GetById(costentry.GoodId);
 
             await Storage.TakeGoodFrom(rgo.marketId, player.id, good.id, upgradeamount);
 

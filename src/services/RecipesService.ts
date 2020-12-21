@@ -12,10 +12,6 @@ export class RecipesService
     {
         this.All = this.All.concat(await Recipe.All());
 
-        for (const rec of this.All) {
-            await rec.Init();
-        }
-
         Log.LogText("Recipes initialized");
     }
 
@@ -46,10 +42,10 @@ export class RecipesService
             const good = await Good.GetById(input.GoodId);
 
             if (recipe.Requisites.length === 1 || i === recipe.Requisites.length - 1) {
-                entry.requisites += `<a href="/good/${good.id}">${input.amount} ${good.name}</a>`;
+                entry.requisites += `<a href="/good/${good.id}">${input.Amount} ${good.name}</a>`;
             }
             else {
-                entry.requisites += `<a href="/good/${good.id}">${input.amount} ${good.name}</a>, `;
+                entry.requisites += `<a href="/good/${good.id}">${input.Amount} ${good.name}</a>, `;
             }
 
             i++;
@@ -60,10 +56,10 @@ export class RecipesService
         for (const output of recipe.Results) {
             const good = await Good.GetById(output.GoodId);
             if (recipe.Results.length === 1 || i === recipe.Results.length - 1) {
-                entry.results += `<a href="/good/${good.id}">${output.amount} ${good.name}</a>`;
+                entry.results += `<a href="/good/${good.id}">${output.Amount} ${good.name}</a>`;
             }
             else {
-                entry.results += `<a href="/good/${good.id}">${output.amount} ${good.name}</a>, `;
+                entry.results += `<a href="/good/${good.id}">${output.Amount} ${good.name}</a>, `;
             }
 
             i++;

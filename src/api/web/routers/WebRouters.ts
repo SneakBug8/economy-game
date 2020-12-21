@@ -13,8 +13,10 @@ export class WebRouters
 {
     public static Init(app: express.Express)
     {
+        app.use(WebClientUtil.GenerateRequestId);
         app.use(WebClientUtil.LoadPlayerData);
         app.use(WebClientUtil.FillPlayercardData);
+        app.use(WebClientUtil.LoadOnlinePlayers);
 
         app.use(InfoPagesRouter.GetRouter());
         app.use("/deal", DealsRouter.GetRouter());

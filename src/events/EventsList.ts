@@ -10,7 +10,7 @@ export const EventsList = {
     onNewBuyOffer: new TypedEvent<BuyOffer>(),
     onNewSellOffer: new TypedEvent<SellOffer>(),
     onProduction: new TypedEvent<ProductionEvent>(),
-    onRGOGain: new TypedEvent<RGOGainEvent>(),
+    //onRGOGain: new TypedEvent<RGOGainEvent>(),
     beforeMarket: new TypedEvent<void>(),
     afterMarket: new TypedEvent<void>(),
     onTrade: new TypedEvent<ITradeEvent>(),

@@ -52,8 +52,8 @@ export class ProductionService
 
                     const hasresources = storageentry.amount;
 
-                    if (hasresources / input.amount < reciperepeats) {
-                        reciperepeats = hasresources / input.amount;
+                    if (hasresources / input.Amount < reciperepeats) {
+                        reciperepeats = hasresources / input.Amount;
                     }
                 }
 
@@ -83,7 +83,7 @@ export class ProductionService
 
                 // Take inputs
                 for (const input of recipe.Requisites) {
-                    await Storage.TakeGoodFrom(factory.marketId, player.id, input.GoodId, reciperepeats * input.amount);
+                    await Storage.TakeGoodFrom(factory.marketId, player.id, input.GoodId, reciperepeats * input.Amount);
                 }
 
                 // Break instruments
@@ -92,14 +92,14 @@ export class ProductionService
 
                 // Give outputs
                 for (const output of recipe.Results) {
-                    await Storage.AddGoodTo(factory.marketId, player.id, output.GoodId, reciperepeats * output.amount);
+                    await Storage.AddGoodTo(factory.marketId, player.id, output.GoodId, reciperepeats * output.Amount);
 
                     const good = await Good.GetById(output.GoodId);
 
                     await EventsList.onProduction.emit({
                         Factory: factory,
                         Good: good,
-                        Amount: reciperepeats * output.amount,
+                        Amount: reciperepeats * output.Amount,
                     });
                     // Market.AddToStorage(player.Actor, output.Good, reciperepeats * output.amount);
                 }

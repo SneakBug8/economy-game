@@ -1097,7 +1097,7 @@ export class WebClientRouter
                 data.push({
                     id: type.id,
                     name: type.name,
-                    makes: await type.getGood(),
+                    makes: await type.getProducesString(),
                     maxamount: link.maxAmount,
                     efficiency: RGOService.CalculateEfficiency(type, link),
                     already: await RGO.CountWithType(market.id, type.id),
