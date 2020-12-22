@@ -39,5 +39,6 @@ export class GoodsList {
     public static LuxuryFurniture = 40;
     public static Barrels = 41;
     public static Instruments = 42;
-
+    public static Horses = 43;
+    public static TradeShips = 44;
 }

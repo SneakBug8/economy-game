@@ -1,4 +1,6 @@
 <h1>Ваш склад</h1>
+<p>Все товары и их количество, лежащие на вашем складе на этом рынке. Содержимое склада зависит от того, на каком рынке вы находитесь.</p>
+
 <table class="table-striped">
     <thead>
     <th>Товар</th>
@@ -38,6 +40,8 @@
 </div>
 <div class="col-sm-12 col-md-6">
 <h2>Отправка другому игроку</h2>
+<p>Перевозка товаров производится в рамках одного рынка и потому не несёт логистических издержек.</p>
+
 <form action="/storage/send" method="POST" enctype="application/x-www-form-urlencoded">
     <div class="form-group clearfix">
         <label for="username">Username</label>

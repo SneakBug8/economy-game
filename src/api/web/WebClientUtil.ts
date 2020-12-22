@@ -206,6 +206,8 @@ export class WebClientUtil
         asyncForEach(routes, async (x) => {
             (x as any).toName = (await Market.GetById(x.toId)).name;
             (x as any).fromName = (await Market.GetById(x.fromId)).name;
+            x.horsesBreakChance *= 100;
+            x.shipsBreakChance *= 100;
          });
         res.locals.routes = routes;
         next();

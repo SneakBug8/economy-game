@@ -37,16 +37,16 @@ export class LogisticsService
             return new Requisite().error("No such road to transfer goods by");
         }
 
-        if (road.shipsCost) {
+        if (road.shipsCost && good.id !== LogisticsPrice.TradeShipsGoodId) {
             // Check logistics cost
             const shipsneeded = Math.round(amount * road.shipsCost / 100);
-            if (!await Storage.Has(fromId, player.id, LogisticsPrice.TradeShipGoodId, shipsneeded)) {
+            if (!await Storage.Has(fromId, player.id, LogisticsPrice.TradeShipsGoodId, shipsneeded)) {
                 return new Requisite().error("Not enough ships to transfer");
             }
             const shipssunk = Dice.Multiple(shipsneeded, road.shipsBreakChance);
-            await Storage.AddGoodTo(fromId, player.id, LogisticsPrice.TradeShipGoodId, -shipssunk);
+            await Storage.AddGoodTo(fromId, player.id, LogisticsPrice.TradeShipsGoodId, -shipssunk);
         }
-        else if (road.horsesCost) {
+        else if (road.horsesCost && good.id != LogisticsPrice.HorseGoodId) {
             // Check logistics cost
             const horsesneeded = Math.round(amount * road.horsesCost / 100);
             if (!await Storage.Has(fromId, player.id, LogisticsPrice.HorseGoodId, horsesneeded)) {

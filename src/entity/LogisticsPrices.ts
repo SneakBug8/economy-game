@@ -1,5 +1,6 @@
 import { Config } from "config";
 import { Connection } from "DataBase";
+import { GoodsList } from "services/GoodsList";
 
 export class LogisticsPrice
 {
@@ -11,8 +12,8 @@ export class LogisticsPrice
     public horsesCost: number;
     public horsesBreakChance: number;
 
-    public static TradeShipGoodId = Config.TradeShipGoodId;
-    public static HorseGoodId = Config.HorseGoodId;
+    public static TradeShipsGoodId = GoodsList.TradeShips;
+    public static HorseGoodId = GoodsList.Horses;
 
     public static async From(dbobject: any)
     {

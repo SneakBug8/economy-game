@@ -15,10 +15,12 @@
         }
     });
 </script>
+
+<div class="selectorcontainer">
 <table id="routeselector">
     <thead>
         <th>Пункт назначения</th>
-        <th>Кораблей</th>
+        <th>Морские фьючерсы</th>
         <th>Лошадей</th>
     </thead>
     {{#each routes}}
@@ -26,14 +28,15 @@
         <td>To {{this.toName}}</td>
         <td>
             {{#if shipsCost}}
-            {{this.shipsCost}} ({{this.shipsBreakChance}})
+            {{this.shipsCost}} ({{this.shipsBreakChance}}%)
             {{/if}}
             </td>
         <td>
             {{#if horsesCost}}
-            {{this.horsesCost}} ({{this.horsesBreakChance}})
+            {{this.horsesCost}} ({{this.horsesBreakChance}}%)
             {{/if}}
             </td>
         </tr>
     {{/each}}
 </table>
+</div>

@@ -57,6 +57,6 @@ export class Config
         new RecipeEntry(2, 300),
     ];
 
-    public static TradeShipGoodId = GoodsList.Fertilizer;
-    public static HorseGoodId = GoodsList.Fertilizer;
+    public static DefaultManufacturingEfficiency = 0.5;
+    public static ManufacturingEfficiencyGrowth = 0.1;
 }
