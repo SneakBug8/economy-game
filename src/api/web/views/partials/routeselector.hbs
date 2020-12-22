@@ -1,0 +1,39 @@
+<script>
+    $(document).ready(function () {
+        var id = null;
+        $("#routeselector tr").each(function (i, elem) {
+            $(elem).click(onClick);
+        })
+
+        function onClick() {
+            id = $(this).attr("id");
+            $("#routeId").val(id);
+            $("#routeselector tr").each(function (i, elem) {
+                $(elem).removeClass("selected");
+            });
+            $(this).addClass("selected");
+        }
+    });
+</script>
+<table id="routeselector">
+    <thead>
+        <th>Пункт назначения</th>
+        <th>Кораблей</th>
+        <th>Лошадей</th>
+    </thead>
+    {{#each routes}}
+    <tr id="{{this.toId}}">
+        <td>To {{this.toName}}</td>
+        <td>
+            {{#if shipsCost}}
+            {{this.shipsCost}} ({{this.shipsBreakChance}})
+            {{/if}}
+            </td>
+        <td>
+            {{#if horsesCost}}
+            {{this.horsesCost}} ({{this.horsesBreakChance}})
+            {{/if}}
+            </td>
+        </tr>
+    {{/each}}
+</table>

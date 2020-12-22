@@ -23,6 +23,7 @@ import { StorageService } from "services/StorageService";
 import { Market } from "entity/Market";
 import { RGOMarketToType } from "entity/RGOMarketToType";
 import { RGOService } from "services/RGOService";
+import { LogisticsService } from "services/LogisticsService";
 
 export class WebClientRouter
 {
@@ -89,12 +90,12 @@ export class WebClientRouter
 
         router.get("/storage", [
             WebClientUtil.LoadGoods,
-            WebClientUtil.LoadMarkets],
+            WebClientUtil.LoadLogisticRoutes],
             this.onStorage);
         router.post("/storage/transfer", [
             body("goodId", "Wrong goodId").isNumeric().notEmpty(),
             body("amount", "Wrong amount").isNumeric().notEmpty(),
-            body("marketId", "Wrong marketId").isNumeric().notEmpty(),
+            body("routeId", "Wrong routeId").isNumeric().notEmpty(),
         ],
             this.onStorageTransferAction);
         router.post("/storage/send", [
@@ -266,7 +267,7 @@ export class WebClientRouter
         }
 
         const goodId = Number.parseInt(req.body.goodId, 10);
-        const marketId = Number.parseInt(req.body.marketId, 10);
+        const destinationId = Number.parseInt(req.body.routeId, 10);
         const amount = Number.parseInt(req.body.amount, 10);
 
         const r2 = await Player.GetCurrentMarketId(req.client.playerId);
@@ -274,19 +275,21 @@ export class WebClientRouter
             return WebClientUtil.error(req, res, r2.message);
         }
 
-        const r1 = await StorageService.TransferGoodsBetweenMarkets(
+        const fromId = r2.data;
+
+        const r1 = await LogisticsService.TransferGoodsBetweenMarkets(
             req.client.playerId,
-            r2.data,
-            marketId,
+            fromId,
+            destinationId,
             goodId,
             amount,
         );
-        if (!r1.result) {
-            return r1;
-        }
-        const answer = r1.data;
-        req.client.infoToShow = "Successfully sent goods";
 
+        if (!r1.result) {
+            return WebClientUtil.error(req, res, r1.message);
+        }
+
+        req.client.infoToShow = "Successfully sent goods";
         res.redirect("/storage");
     }
 

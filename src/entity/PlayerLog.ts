@@ -1,4 +1,5 @@
 import { Connection } from "DataBase";
+import { TurnsService } from "services/TurnsService";
 import { Logger } from "utility/Logger";
 import { Player } from "./Player";
 import { Turn } from "./Turn";
@@ -29,6 +30,10 @@ export class PlayerLog {
         record.text = text;
 
         await this.Insert(record);
+    }
+
+    public static async LogNow(playerId: number, text: string) {
+        return this.Log(playerId, TurnsService.CurrentTurn, text);
     }
 
     public static async GetById(id: number): Promise<PlayerLog>

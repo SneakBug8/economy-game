@@ -10,6 +10,7 @@ import { MarketService } from "services/MarketService";
 import { RGOService } from "services/RGOService";
 import { asyncForEach } from "utility/asyncForEach";
 import { RGOManagementService } from "services/RGOManagementService";
+import { LogisticsPrice } from "entity/LogisticsPrices";
 
 export class WebClientUtil
 {
@@ -195,6 +196,18 @@ export class WebClientUtil
     {
         const markets = await Market.All();
         res.locals.markets = markets;
+        next();
+    }
+
+    public static async LoadLogisticRoutes(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        const marketId = res.locals.player.CurrentMarketId;
+        const routes = await LogisticsPrice.GetFrom(marketId);
+        asyncForEach(routes, async (x) => {
+            (x as any).toName = (await Market.GetById(x.toId)).name;
+            (x as any).fromName = (await Market.GetById(x.fromId)).name;
+         });
+        res.locals.routes = routes;
         next();
     }
 

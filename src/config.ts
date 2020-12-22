@@ -1,5 +1,6 @@
 import { Good } from "entity/Good";
 import { RecipeEntry } from "entity/Recipe";
+import { GoodsList } from "services/GoodsList";
 import { RecipesService } from "services/RecipesService";
 
 export class Config
@@ -55,4 +56,7 @@ export class Config
     public static DefaultRGOCosts: RecipeEntry[] = [
         new RecipeEntry(2, 300),
     ];
+
+    public static TradeShipGoodId = GoodsList.Fertilizer;
+    public static HorseGoodId = GoodsList.Fertilizer;
 }
