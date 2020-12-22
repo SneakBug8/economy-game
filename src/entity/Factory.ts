@@ -3,6 +3,7 @@ import { Log } from "./Log";
 import { ProductionQueue } from "./ProductionQueue";
 import { Player } from "./Player";
 import { Logger } from "utility/Logger";
+import { Config } from "config";
 
 export class Factory
 {
@@ -15,6 +16,9 @@ export class Factory
     private playerId: number;
 
     public marketId: number;
+
+    public currentManufacturingEfficiency: number = Config.DefaultManufacturingEfficiency;
+    public lastRecipeId: number;
 
     public level: number = 1;
 
@@ -71,6 +75,8 @@ export class Factory
         res.playerId = dbobject.playerId;
         res.level = dbobject.level;
         res.marketId = dbobject.marketId;
+        res.currentManufacturingEfficiency = dbobject.currentManufacturingEfficiency;
+        res.lastRecipeId = dbobject.lastRecipeId;
 
         return res;
     }
@@ -120,16 +126,17 @@ export class Factory
             playerId: factory.playerId,
             level: factory.level,
             marketId: factory.marketId,
+            currentManufacturingEfficiency: factory.currentManufacturingEfficiency,
+            lastRecipeId: factory.lastRecipeId,
         });
     }
 
-    public static async Create(marketId: number, playerId: number, employeesCount: number, salary: number): Promise<number>
+    public static async Create(marketId: number, playerId: number, employeesCount: number): Promise<number>
     {
         const factory = new Factory();
         factory.playerId = playerId;
         factory.employeesCount = employeesCount;
         factory.targetEmployees = employeesCount;
-        factory.salary = salary;
         factory.level = 1;
         factory.marketId = marketId;
 
@@ -147,6 +154,8 @@ export class Factory
             settings: factory.settings,
             level: factory.level,
             marketId: factory.marketId,
+            currentManufacturingEfficiency: factory.currentManufacturingEfficiency,
+            lastRecipeId: factory.lastRecipeId,
         });
 
         factory.id = d[0];

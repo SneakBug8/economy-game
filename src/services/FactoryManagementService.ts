@@ -124,7 +124,7 @@ export class FactoryManagementService
             await Storage.TakeGoodFrom(marketId, player.id, good.id, costentry.Amount);
         }
 
-        const factory = await Factory.Create(marketId, player.id, 0, 0);
+        const factory = await Factory.Create(marketId, player.id, 0);
         return new Requisite(factory);
     }
 
