@@ -7,6 +7,7 @@ import { PlayerService } from "./PlayerService";
 import { Logger } from "utility/Logger";
 import { Good } from "entity/Good";
 import { Dice } from "utility/Dice";
+import { Config } from "config";
 
 export class ProductionService
 {
@@ -71,6 +72,13 @@ export class ProductionService
                     break;
                 }
 
+                if (factory.lastRecipeId !== recipe.id) {
+                    factory.currentManufacturingEfficiency = Config.DefaultManufacturingEfficiency;
+                }
+
+                reciperepeats *= factory.currentManufacturingEfficiency;
+                factory.lastRecipeId = recipe.id;
+
                 queueentry.Amount -= reciperepeats;
 
                 // if has more in queue entry - return it to queue
@@ -105,6 +113,11 @@ export class ProductionService
                     // Market.AddToStorage(player.Actor, output.Good, reciperepeats * output.amount);
                 }
             }
+
+            if (factory.currentManufacturingEfficiency < 1) {
+                factory.currentManufacturingEfficiency += Config.ManufacturingEfficiencyGrowth;
+            }
+            await Factory.Update(factory);
         }
 
         Logger.info("Ran Production service");

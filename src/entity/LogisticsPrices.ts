@@ -15,12 +15,18 @@ export class LogisticsPrice
     public static TradeShipsGoodId = GoodsList.TradeShips;
     public static HorseGoodId = GoodsList.Horses;
 
-    public static async From(dbobject: any)
+    public static async From(dbobject: any, reverse: boolean = false)
     {
         const res = new LogisticsPrice();
         res.id = dbobject.id;
-        res.fromId = dbobject.fromId;
-        res.toId = dbobject.toId;
+        if (!reverse) {
+            res.fromId = dbobject.fromId;
+            res.toId = dbobject.toId;
+        }
+        else {
+            res.toId = dbobject.fromId;
+            res.fromId = dbobject.toId;
+        }
         res.shipsCost = dbobject.shipsCost;
         res.shipsBreakChance = dbobject.shipsBreakChance;
         res.horsesCost = dbobject.horsesCost;
@@ -31,12 +37,20 @@ export class LogisticsPrice
 
     public static async GetFromTo(fromId: number, toId: number): Promise<LogisticsPrice>
     {
-        const data = await LogisticsPricessRepository().select()
+        const r1 = await LogisticsPricessRepository().select()
             .where("fromId", fromId)
             .andWhere("toId", toId).first();
 
-        if (data) {
-            return this.From(data);
+        if (r1) {
+            return this.From(r1);
+        }
+
+        const r2 = await LogisticsPricessRepository().select()
+            .where("toId", fromId)
+            .andWhere("fromId", toId).first();
+
+        if (r2) {
+            return this.From(r2, true);
         }
 
         return null;
@@ -44,14 +58,21 @@ export class LogisticsPrice
 
     public static async GetFrom(fromId: number): Promise<LogisticsPrice[]>
     {
-        const data = await LogisticsPricessRepository().select()
+        const r1 = await LogisticsPricessRepository().select()
             .where("fromId", fromId);
+        const r2 = await LogisticsPricessRepository().select()
+            .where("toId", fromId);
 
         const res = new Array<LogisticsPrice>();
 
-        if (data) {
-            for (const entry of data) {
+        if (r1) {
+            for (const entry of r1) {
                 res.push(await this.From(entry));
+            }
+        }
+        if (r2) {
+            for (const entry of r2) {
+                res.push(await this.From(entry, true));
             }
         }
 

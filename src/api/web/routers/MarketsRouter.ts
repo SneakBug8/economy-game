@@ -34,9 +34,8 @@ export class MarketsRouter
 
         const answ = await PlayerService.MoveBetweenMarkets(req.client.playerId, marketid);
 
-        if (typeof answ !== "boolean") {
-            WebClientUtil.error(req, res, answ as string);
-            return true;
+        if (!answ.result) {
+            return WebClientUtil.error(req, res, answ.message);
         }
 
         req.client.infoToShow = "Moved successfully";

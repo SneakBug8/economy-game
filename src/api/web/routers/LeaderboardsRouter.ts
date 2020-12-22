@@ -75,7 +75,7 @@ export class LeaderboardsRouter
             i++;
             const r1 = await Player.GetById(entry.playerId);
             if (!r1.result) {
-                WebClientUtil.error(req, res, r1.message);
+                return WebClientUtil.error(req, res, r1.message);
             }
             const player = r1.data;
 

@@ -17,6 +17,7 @@ export class WebRouters
         app.use(WebClientUtil.LoadPlayerData);
         app.use(WebClientUtil.FillPlayercardData);
         app.use(WebClientUtil.LoadOnlinePlayers);
+        app.use(WebClientUtil.LoadStorage);
 
         app.use(InfoPagesRouter.GetRouter());
         app.use("/deal", DealsRouter.GetRouter());

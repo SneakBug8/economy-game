@@ -69,7 +69,7 @@ export class StateActivityService
 
     public static async BeforeMarketGeneration()
     {
-        for (const market of await Market.All()) {
+        /*for (const market of await Market.All()) {
             const pcheck = await StateActivityService.GetPlayer(market.id);
 
             if (!pcheck.result) {
@@ -79,14 +79,7 @@ export class StateActivityService
             const player = pcheck.data;
 
             const calculatedprices = await CalculatedPrice.GetWithPlayer(player.id);
-
-            for (const p of calculatedprices) {
-                if (p.type === CalculatedPriceType.Buy) {
-                    await Storage.AddGoodTo(player.CurrentMarketId, player.id, p.goodId,
-                        -1 * await Storage.Amount(player.CurrentMarketId, player.id, p.goodId));
-                }
-            }
-        }
+        }*/
     }
 
     public static async PublishOrders()

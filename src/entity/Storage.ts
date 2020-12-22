@@ -76,7 +76,7 @@ export class Storage
     {
         const r1 = await Player.GetById(playerId);
         if (!r1.result) {
-            return r1;
+            return r1.to<Storage[]>();
         }
 
         return new Requisite<Storage[]>(await this.GetWithPlayer(r1.data.CurrentMarketId,
@@ -236,7 +236,13 @@ export class Storage
 
         if (existingstorage) {
             existingstorage.amount += amount;
-            await this.Update(existingstorage);
+
+            if (existingstorage.amount !== 0) {
+                await this.Update(existingstorage);
+            }
+            else {
+                await this.Delete(existingstorage.id);
+            }
             return new Requisite().success();
         }
 

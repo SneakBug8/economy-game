@@ -316,11 +316,11 @@ export class MarketService
     {
         const sellOffer = await SellOffer.GetById(sellOfferId);
         if (!sellOffer) {
-            return "No such sell offer";
+            return new Requisite().error("No such sell offer");
         }
 
         if (buyPlayerId === sellOffer.playerId) {
-            return "Can't trade with yourself";
+            return new Requisite().error("Can't trade with yourself");
         }
 
         const r1 = await Player.GetById(buyPlayerId);
@@ -334,14 +334,14 @@ export class MarketService
             return r2;
         }
 
-        const sellerplayer = r2.data;
         const buyplayer = r1.data;
+        const sellerplayer = r2.data;
 
         if (sellOffer.marketId !== buyplayer.CurrentMarketId) {
-            return "You are in different markets";
+            return new Requisite().error("You are in different markets");
         }
 
-        const market = await Market.GetById(sellOffer.marketId);
+        const market = await Market.GetById(buyplayer.CurrentMarketId);
 
         let transactionsize = sellOffer.amount;
         if (size) {
@@ -350,7 +350,7 @@ export class MarketService
         const transactioncost = transactionsize * sellOffer.price;
 
         if (await buyplayer.AgetCash() < transactioncost) {
-            return "Not enough cash";
+            return new Requisite().error(`Not enough cash. Needed: ${transactioncost} for ${transactionsize} pieces.`);
         }
 
         const good = await sellOffer.getGood();
@@ -383,16 +383,23 @@ export class MarketService
         });
 
         if (sellOffer.amount === 0) {
-            SellOffer.Delete(sellOffer.id);
+            await SellOffer.Delete(sellOffer.id);
         }
         else {
-            SellOffer.Update(sellOffer);
+            await SellOffer.Update(sellOffer);
         }
+
+        return new Requisite(true);
     }
 
-    public static async RedeemBuyOffer(sellPlayerId: number, buy: SellOffer, size: number = null)
+    public static async RedeemBuyOffer(sellPlayerId: number, sellOfferId: number, size: number = null)
     {
-        if (buy.playerId === sellPlayerId) {
+        const offer = await SellOffer.GetById(sellOfferId);
+
+        if (!offer) {
+            return new Requisite().error("No such trade offer");
+        }
+        if (offer.playerId === sellPlayerId) {
             return new Requisite().error("Can't trade with yourself");
         }
 
@@ -402,48 +409,48 @@ export class MarketService
         }
         const sellerplayer = r1.data;
 
-        const r2 = await Player.GetById(buy.playerId);
+        const r2 = await Player.GetById(offer.playerId);
         if (!r2.result) {
             return r2;
         }
-        const buyplayer = r2.data;
+        const buyerplayer = r2.data;
 
-        if (!sellerplayer || !buyplayer) {
+        if (!sellerplayer || !buyerplayer) {
             return new Requisite().error("No such buyer or seller");
         }
 
-        if (buy.marketId !== sellerplayer.CurrentMarketId) {
+        if (offer.marketId !== sellerplayer.CurrentMarketId) {
             return new Requisite().error("You are in different markets");
         }
 
-        const market = await Market.GetById(buy.marketId);
+        const market = await Market.GetById(offer.marketId);
 
-        let transactionsize = buy.amount;
+        let transactionsize = offer.amount;
         if (size) {
-            transactionsize = Math.min(buy.amount, size);
+            transactionsize = Math.min(offer.amount, size);
         }
-        const transactioncost = transactionsize * buy.price;
+        const transactioncost = transactionsize * offer.price;
 
-        const good = await buy.getGood();
+        const good = await offer.getGood();
 
-        if (await buyplayer.AgetCash() < transactioncost) {
+        if (await sellerplayer.AgetCash() < transactioncost) {
             return new Requisite().error("Buyer doesn't have enough cash");
         }
 
-        if (!Storage.Has(buy.marketId, sellerplayer.id, good.id, transactionsize)) {
+        if (!await Storage.Has(offer.marketId, sellerplayer.id, good.id, transactionsize)) {
             return new Requisite().error("Not enough resources");
         }
 
-        buy.amount -= transactionsize;
+        offer.amount -= transactionsize;
 
         const taxcost = Math.round(transactioncost * Config.MarketTaxPercent);
-        await buyplayer.payCash(sellerplayer, transactioncost - taxcost);
-        await buyplayer.payCashToState(buy.marketId, taxcost);
-        await Storage.AddGoodTo(buy.marketId, buyplayer.id, good.id, transactionsize);
+        await buyerplayer.payCash(sellerplayer, transactioncost - taxcost);
+        await buyerplayer.payCashToState(offer.marketId, taxcost);
+        await Storage.AddGoodTo(offer.marketId, buyerplayer.id, good.id, transactionsize);
 
         PlayerService.SendOffline(sellerplayer.id,
-            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyplayer.username} at ${market.name}, tax: ${taxcost}`);
-        PlayerService.SendOffline(buyplayer.id,
+            `Sold ${transactionsize} ${good.name} for ${transactioncost} to ${buyerplayer.username} at ${market.name}, tax: ${taxcost}`);
+        PlayerService.SendOffline(buyerplayer.id,
             `Bought ${transactionsize} ${good.name} for ${transactioncost} from ${sellerplayer.username} at ${market.name}. tax: ${taxcost}`);
 
         await EventsList.onTrade.emit({
@@ -451,23 +458,24 @@ export class MarketService
             Player: sellerplayer,
             Good: good,
             Amount: transactionsize,
-            Price: buy.price,
+            Price: offer.price,
         });
         await EventsList.onTrade.emit({
             Type: TradeEventType.FromPlayer,
-            Player: buyplayer,
+            Player: buyerplayer,
             Good: good,
             Amount: transactionsize,
-            Price: buy.price,
+            Price: offer.price,
         });
 
-
-        if (buy.amount === 0) {
-            await BuyOffer.Delete(buy.id);
+        if (offer.amount === 0) {
+            await BuyOffer.Delete(offer.id);
         }
         else {
-            await BuyOffer.Update(buy);
+            await BuyOffer.Update(offer);
         }
+
+        return new Requisite(true);
     }
 
     public static async AddBuyOffer(marketId: number,

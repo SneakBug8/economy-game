@@ -1,5 +1,6 @@
 <h1>Ваши мануфактуры</h1>
 <p>Мануфактуры производят товары из сырья согласно рецептам. Количество производимых за день товаров ограничено числом рабочих мануфактуры, сырьем и необходимыми инструментами. Отображены только мануфактуры в вашем текущем регионе.</p>
+<p>Эффективность мануфактур растёт каждый экономический цикл и падает до минимального значения при смене производимого рецепта.</p>
 <script src="/js/factories.js"></script>
 {{#unless data}}
 У вас пока нет мануфактур.
@@ -9,9 +10,14 @@
     <div class="card-body">
         <h3>{{this.id}}</h3>
         <p class="card-text">
-            Уровень: {{this.level}}. Сотрудников: {{this.employeesCount}} / {{this.targetEmployees}}. Лимит сотрудников (от уровня): {{this.maxWorkers}}. Зарплата: {{this.salary}}
+            Уровень: {{this.level}}. Сотрудников: {{this.employeesCount}} / {{this.targetEmployees}}. Лимит сотрудников от уровня: {{this.maxWorkers}}. Зарплата: {{this.salary}}
         </p>
-        <p><i>Стоимость улучшения: {{upgradecost}}</i></p>
+        <p><i>Текущая эффективность: {{this.currentManufacturingEfficiency}}% (+{{this.growth}}%). Последний рецепт: {{this.lastRecipe}}</i></p>
+        <div class="efficiency-bar">
+            <div class="efficiency-fill" style="width: {{this.currentManufacturingEfficiency}}%;"></div>
+        </div>
+        <p><i>Стоимость улучшения: {{this.upgradecost}}</i></p>
+
         <div>
             <a href="javascript:workersButton({{this.id}});" class="btn btn-primary">Изменить число сотрудников</a>
             <a href="javascript:salaryButton({{this.id}});" class="btn btn-primary">Изменить зарплату</a>

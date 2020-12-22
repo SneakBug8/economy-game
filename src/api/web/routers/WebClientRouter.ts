@@ -1,5 +1,5 @@
 import * as express from "express";
-import { body, param, validationResult } from "express-validator";
+import { body, param, query, validationResult } from "express-validator";
 import * as bodyParser from "body-parser";
 import { PlayerService } from "services/PlayerService";
 import { Good } from "entity/Good";
@@ -70,8 +70,8 @@ export class WebClientRouter
         router.get("/factory/:id([0-9]+)/queue", [WebClientUtil.LoadRecipes], this.onFactoryProductionQueue);
         router.get("/factory/:id([0-9]+)/queue/delete/:order([0-9]+)", this.onFactoryProductionQueueDelete);
         router.post("/factory/:id([0-9]+)/queue/add", [
-            body("recipeId").isNumeric(),
-            body("amount").isNumeric(),
+            body("recipeId", "Wrong recipeId").isNumeric(),
+            body("amount", "Wrong amount").isNumeric(),
         ], this.onFactoryProductionQueueAdd);
         router.get("/factory/build", this.factoryBuildAction);
 
@@ -123,11 +123,11 @@ export class WebClientRouter
         ], this.onMarketSell);
         router.get("/market/:id([0-9]+)/redeembuy/:offer([0-9]+)",
             [
-                param("amount").isNumeric().optional(),
+                query("amount").isNumeric().optional(),
             ]
             , this.onMarketRedeemBuy);
         router.get("/market/:id([0-9]+)/redeemsell/:offer([0-9]+)", [
-            param("amount").isNumeric().optional(),
+            query("amount").isNumeric().optional(),
         ], this.onMarketRedeemSell);
 
         router.get("/buyoffer/:id([0-9]+)/delete", this.onDeleteBuyOffer);
@@ -185,8 +185,7 @@ export class WebClientRouter
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/errors messages.
             // Error messages can be returned in an array using `errors.array()`.
-            WebClientUtil.error(req, res, errors.array()[0].msg);
-            return;
+            return WebClientUtil.error(req, res, errors.array()[0].msg);
         }
 
         const login = req.body.login;
@@ -210,8 +209,7 @@ export class WebClientRouter
         if (!errors.isEmpty()) {
             // There are errors. Render form again with sanitized values/errors messages.
             // Error messages can be returned in an array using `errors.array()`.
-            WebClientUtil.error(req, res, errors.array()[0].msg);
-            return;
+            return WebClientUtil.error(req, res, errors.array()[0].msg);
         }
 
         const login = req.body.login;
@@ -223,26 +221,24 @@ export class WebClientRouter
             await req.client.attach(user.id);
         }
         else {
-            WebClientUtil.error(req, res, "Wrong login or password");
-            return;
+            return WebClientUtil.error(req, res, "Wrong login or password");
         }
 
         res.redirect("/");
     }
 
-    public static onInfo() { }
     public static async onStorage(req: IMyRequest, res: express.Response)
     {
         const r1 = await Player.GetById(req.client.playerId);
         if (!r1.result) {
-            WebClientUtil.error(req, res, r1.message);
+            return WebClientUtil.error(req, res, r1.message);
         }
         const player = r1.data;
         const r2 = await Storage.AGetWithPlayer(player.id);
         if (!r2.result) {
-            WebClientUtil.error(req, res, r1.message);
+            return WebClientUtil.error(req, res, r1.message);
         }
-        const storages = r2.data as Storage[];
+        const storages = r2.data;
 
         const data = [];
         for (const x of storages) {
@@ -383,15 +379,15 @@ export class WebClientRouter
         const data = [];
 
         for (const factory of factories) {
-            data.push({
-                id: factory.id,
-                employeesCount: factory.employeesCount,
+            const lastrecipe = RecipesService.GetById(factory.lastRecipeId);
+            data.push(Object.assign(factory, {
                 targetEmployees: factory.getTargetEmployees(),
-                salary: factory.salary,
-                level: factory.level,
                 maxWorkers: factory.getMaxWorkers(),
                 upgradecost: await FactoryManagementService.GetUpgradeCostString(factory.id),
-            });
+                currentManufacturingEfficiency: factory.currentManufacturingEfficiency * 100,
+                growth: Config.ManufacturingEfficiencyGrowth * 100,
+                lastRecipe: (lastrecipe && lastrecipe.name) || null,
+            }));
         }
 
         WebClientUtil.render(req, res, "factories", {
@@ -948,14 +944,12 @@ export class WebClientRouter
     public static async onMarketRedeemSell(req: IMyRequest, res: express.Response)
     {
         const offerId = Number.parseInt(req.params.offer, 10);
-
-        const amount = Number.parseInt(req.params.amount, 10) || null;
+        const amount = Number.parseInt(req.query.amount as string, 10);
 
         const data = await MarketService.RedeemSellOffer(req.client.playerId, offerId, amount);
 
-        if (typeof data === "string") {
-            WebClientUtil.error(req, res, data);
-            return;
+        if (!data.result) {
+            return WebClientUtil.error(req, res, data.message);
         }
 
         WebClientUtil.renderLast(req, res);
@@ -963,28 +957,13 @@ export class WebClientRouter
 
     public static async onMarketRedeemBuy(req: IMyRequest, res: express.Response)
     {
-        const goodid = Number.parseInt(req.params.id, 10);
         const offerId = Number.parseInt(req.params.offer, 10);
-        const offer = await BuyOffer.GetById(offerId);
+        const amount = Number.parseInt(req.query.amount as string, 10);
 
-        if (!offer) {
-            WebClientUtil.error(req, res, "No such offer");
-        }
+        const data = await MarketService.RedeemBuyOffer(req.client.playerId, offerId, amount);
 
-        const amount = Number.parseInt(req.params.amount, 10) || offer.amount;
-
-        const good = await Good.GetById(goodid);
-
-        if (!good) {
-            WebClientUtil.error(req, res, "No such market");
-            return;
-        }
-
-        const data = await MarketService.RedeemBuyOffer(req.client.playerId, offer, amount);
-
-        if (typeof data === "string") {
-            WebClientUtil.error(req, res, data);
-            return;
+        if (!data.result) {
+            return WebClientUtil.error(req, res, data.message);
         }
 
         WebClientUtil.renderLast(req, res);

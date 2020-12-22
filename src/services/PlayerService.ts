@@ -27,7 +27,7 @@ export class PlayerService
         await PopulationActivityService.TransferCash(player.CurrentMarketId, id, Config.RegistrationCash);
 
         // TODO: Set default workers and salary
-        const factoryid = await Factory.Create(Market.DefaultMarket.id, player.id, 10, 1);
+        const factoryid = await Factory.Create(Market.DefaultMarket.id, player.id, 10);
 
         return id;
     }
@@ -69,7 +69,7 @@ export class PlayerService
         const market = await Market.GetById(marketId);
 
         if (!market) {
-            return "No such market";
+            return new Requisite().error("No such market");
         }
 
         if (!pcheck.result) {
@@ -77,7 +77,6 @@ export class PlayerService
         }
 
         const player = pcheck.data;
-
         player.CurrentMarketId = market.id;
 
         await Player.Update(player);

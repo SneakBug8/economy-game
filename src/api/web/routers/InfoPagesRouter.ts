@@ -20,8 +20,7 @@ export class InfoPagesRouter
         const good = await Good.GetById(goodId);
 
         if (!good) {
-            WebClientUtil.error(req, res, "No such good");
-            return;
+            return WebClientUtil.error(req, res, "No such good");
         }
 
         const recipes = RecipesService.GetWithGood(good.id);

@@ -6,11 +6,11 @@ import { Good } from "entity/Good";
 import { RGOType } from "entity/RGOType";
 import { Player } from "entity/Player";
 import { Market } from "entity/Market";
-import { MarketService } from "services/MarketService";
 import { RGOService } from "services/RGOService";
 import { asyncForEach } from "utility/asyncForEach";
 import { RGOManagementService } from "services/RGOManagementService";
 import { LogisticsPrice } from "entity/LogisticsPrices";
+import { Storage } from "entity/Storage";
 
 export class WebClientUtil
 {
@@ -173,7 +173,7 @@ export class WebClientUtil
     public static async LoadGoods(req: IMyRequest, res: express.Response, next: () => void)
     {
         let goods = await Good.All();
-        goods = goods.map((x, i) => Object.assign(x, {i}));
+        goods = goods.map((x, i) => Object.assign(x, { i }));
         res.locals.goods = goods;
         res.locals.helpers = {
             changerow: ((x) => x % 3 === 0),
@@ -184,10 +184,42 @@ export class WebClientUtil
     public static async LoadTradeableGoods(req: IMyRequest, res: express.Response, next: () => void)
     {
         let goods = await Good.All();
-        goods = goods.map((x, i) => Object.assign(x, {i}));
+        goods = goods.map((x, i) => Object.assign(x, { i }));
         res.locals.goods = goods;
         res.locals.helpers = {
             changerow: ((x) => x % 3 === 0),
+        }
+        next();
+    }
+
+    public static async LoadStorage(req: IMyRequest, res: express.Response, next: () => void)
+    {
+        if (req.client.playerId) {
+            const r1 = await Player.GetById(req.client.playerId);
+            if (!r1.result) {
+                return WebClientUtil.error(req, res, r1.message);
+            }
+            const player = r1.data;
+            const r2 = await Storage.AGetWithPlayer(player.id);
+            if (!r2.result) {
+                return WebClientUtil.error(req, res, r1.message);
+            }
+            const storages = r2.data as Storage[];
+
+            const data = [];
+            for (const x of storages) {
+                const good = await x.getGood();
+                if (!good) {
+                    continue;
+                }
+
+                data.push({
+                    name: good.name + " (" + good.id + ")",
+                    amount: x.amount,
+                });
+            }
+
+            res.locals.storage = data;
         }
         next();
     }
@@ -203,12 +235,13 @@ export class WebClientUtil
     {
         const marketId = res.locals.player.CurrentMarketId;
         const routes = await LogisticsPrice.GetFrom(marketId);
-        asyncForEach(routes, async (x) => {
+        asyncForEach(routes, async (x) =>
+        {
             (x as any).toName = (await Market.GetById(x.toId)).name;
             (x as any).fromName = (await Market.GetById(x.fromId)).name;
             x.horsesBreakChance *= 100;
             x.shipsBreakChance *= 100;
-         });
+        });
         res.locals.routes = routes;
         next();
     }
@@ -219,6 +252,8 @@ export class WebClientUtil
             const r1 = await Player.GetById(req.client.playerId);
             if (!r1.result) {
                 Logger.warn(r1.toString());
+                req.client.playerId = null;
+                return WebClientUtil.error(req, res, "Looks like your account got deleted.");
             }
             const player = r1.data;
             res.locals.player = player;

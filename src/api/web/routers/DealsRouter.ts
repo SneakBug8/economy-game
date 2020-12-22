@@ -36,8 +36,7 @@ export class DealsRouter
         const r1 = await Player.GetById(req.client.playerId);
 
         if (!r1) {
-            WebClientUtil.error(req, res, r1.message);
-            return;
+            return WebClientUtil.error(req, res, r1.message);
         }
         const currplayer = r1.data;
 
@@ -58,22 +57,19 @@ export class DealsRouter
         const r1 = await Player.GetById(req.client.playerId);
 
         if (!r1.result) {
-            WebClientUtil.error(req, res, r1.message);
-            return;
+            return WebClientUtil.error(req, res, r1.message);
         }
         const currplayer = r1.data;
 
         const player = await Player.GetWithLogin(username);
 
         if (!player) {
-            WebClientUtil.error(req, res, "No such player");
-            return;
+            return WebClientUtil.error(req, res, "No such player");
         }
 
         const answer = await Deal.Create(currplayer.CurrentMarketId, currplayer.id, player.id);
         if (!answer.result) {
-            WebClientUtil.error(req, res, answer.message);
-            return;
+            return WebClientUtil.error(req, res, answer.message);
         }
 
         res.redirect(req.baseUrl + "/" + answer);
@@ -91,8 +87,7 @@ export class DealsRouter
         }
 
         if (!DealService.EnsureOwnDeal(deal, req.client.playerId)) {
-            WebClientUtil.error(req, res, "That's not your deal");
-            return;
+            return WebClientUtil.error(req, res, "That's not your deal");
         }
 
         (deal as any).anotherPlayerName = await DealService.GetAnotherPlayerName(deal, req.client.playerId);
@@ -116,8 +111,7 @@ export class DealsRouter
         const answer = await DealService.Confirm(dealId, req.client.playerId);
 
         if (answer !== true) {
-            WebClientUtil.error(req, res, answer as string);
-            return;
+            return WebClientUtil.error(req, res, answer as string);
         }
 
         res.redirect(req.client.getUrl());
@@ -129,8 +123,7 @@ export class DealsRouter
         const answer = await DealService.Commit(dealId);
 
         if (answer !== true) {
-            WebClientUtil.error(req, res, answer as string);
-            return;
+            return WebClientUtil.error(req, res, answer as string);
         }
 
         res.redirect(req.client.getUrl());
@@ -142,8 +135,7 @@ export class DealsRouter
         const answer = await DealService.Revert(dealId);
 
         if (answer !== true) {
-            WebClientUtil.error(req, res, answer as string);
-            return;
+            return WebClientUtil.error(req, res, answer as string);
         }
         res.redirect(req.client.getUrl());
     }
@@ -158,8 +150,7 @@ export class DealsRouter
         const answer = await DealService.AddGood(dealId, req.client.playerId, goodId, amount);
 
         if (answer !== true) {
-            WebClientUtil.error(req, res, answer as string);
-            return;
+            return WebClientUtil.error(req, res, answer as string);
         }
 
         res.redirect(req.client.getUrl());
@@ -173,8 +164,7 @@ export class DealsRouter
         const answer = await DealService.RemoveGood(dealId, req.client.playerId, goodId);
 
         if (answer !== true) {
-            WebClientUtil.error(req, res, answer as string);
-            return;
+            return WebClientUtil.error(req, res, answer as string);
         }
 
         res.redirect(req.client.getUrl());

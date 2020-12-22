@@ -153,7 +153,7 @@ export class Player
             return new Requisite<Player>().success(await this.From(data));
         }
 
-        return null;
+        return new Requisite<Player>().error("No such player");
     }
 
     public static async GetWithLogin(login: string): Promise<Player>

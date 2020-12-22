@@ -22,7 +22,7 @@ export class Recipe
         res.Results = RecipeEntry.Deserialize(dbobject.Results);
         res.InstrumentGoodId = dbobject.InstrumentGoodId;
         res.InstrumentBreakChance = dbobject.InstrumentBreakChance;
-        res.employeesneeded = dbobject.employeesneeded;
+        res.employeesneeded = dbobject.employeesneeded || res.employeesneeded;
         return res;
     }
 

@@ -1,0 +1,6 @@
+<nav class="nav-group">
+    <h5 class="nav-group-title">Склад</h5>
+    {{#each storage}}
+        <span class="nav-group-item">{{this.name}}: {{this.amount}}</span>
+    {{/each}}
+</nav>
